@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "SnowML"
+version = "0.1.0"
+description = "Applying modern ML methods towards useful prediction of SWE from snowpack."
+readme = "README.md"
+authors = [
+    {name = "Dr. Nicoleta C Cristea", email = "cristn@uw.edu"},
+    {name = "Sara Kilpatrick", email = "kilpas@uw.edu"},
+    {name = "Sue Boyd", email = "suetboyd@uw.edu"},
+    {name = "Derek Tropf", email = "dtropf@uw.edu"}
+]
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.21.0",
+    "pandas>=1.3.0",
+    "requests>=2.25.1",
+    "earthaccess",
+    "netCDF4",
+    "xarray",
+    "pandas",
+    "geopandas",
+    "polars",
+    "rasterio",
+    "rioxarray",
+    "folium",
+    "matplotlib",
+    "regionmask",
+    "scipy"
+]
+
+[project.urls]
+Homepage = "https://github.com/DSHydro/SnowML"
+
+[tool.setuptools.packages.find]
+where = ["src"]

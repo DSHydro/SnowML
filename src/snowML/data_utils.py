@@ -1,6 +1,7 @@
 """ 
-Module with functions to download data and save in S3.
-Requires that you have set Amazon Credentials as Environment Variables.
+Module with functions to download data and save in S3, as well as geo
+masking and taking a basin mean.Requires that you have set Amazon Credentials
+as Environment Variables.
 """
 
 import io, os, rioxarray
@@ -61,21 +62,17 @@ def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
     url = root + file_name
 
     # Check if the file already exists in the bucket
-    try:
-        s3_client = boto3.client("s3", region_name=region_name)
-        s3_client.head_object(Bucket=bucket_name, Key=file_name)
+    if isin_s3(bucket_name, file_name):
         if not quiet: 
-            print(f"File '{file_name}' already exists in bucket '{bucket_name}', skipping download.")
+            print(f"File '{file_name}' already exists in \
+                  bucket '{bucket_name}', skipping download.")
         return None
-    except ClientError as e:
-        if e.response['Error']['Code'] != '404':
-            print(f"Error checking if file exists in S3: {e}")
-            return None
 
     # Prepare authentication if required
     auth = (username, password) if requires_auth else None
 
     # Download the file and upload to S3
+    s3_client = boto3.client("s3", region_name=region_name)
     try:
         with requests.get(url, stream=True, auth=auth) as response:
             response.raise_for_status()

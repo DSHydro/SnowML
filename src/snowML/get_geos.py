@@ -1,4 +1,5 @@
-"""Module that retrieves huc geometries for a given huc id"""
+"""Module that retrieves huc geometries for a given huc id and
+optionally saves the file into an S3 bucket defined by the user."""
 
 
 import easysnowdata
@@ -167,6 +168,5 @@ def get_geos(input, final_huc_levs, save = True, bucket_name = "shape-bronze"):
 
 
 # TO DO
-# 1 PUT THE HUC02 in an S3 bucket and refactor the code to go get it 
-# 2 Error checking, testing and documentation
-# 3 refactor to leverage data_utils to_S3 function 
+# 1 Error checking, testing and documentation
+

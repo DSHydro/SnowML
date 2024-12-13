@@ -131,9 +131,9 @@ def main():
  # TO DOS
  
  # (1) May be faster to go from url -> ds rather than S3-> ds?
- # (1) Fix the buffer thingy in data utils 
- # (2) Figure out how to dynamically get shape files 
- # (3) Documentation and error messages 
+ # (2) Fix the buffer thingy in data utils 
+ # (3) Figure out how to dynamically get shape files 
+ # (4) Documentation and error messages 
  
 
 

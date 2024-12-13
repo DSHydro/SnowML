@@ -113,7 +113,7 @@ def s3_to_gdf(bucket_name, file_name, region_name="us-east-1"):
         region_name (str): AWS region of the S3 bucket. Default is 'us-east-1'.
     
     Returns:
-        GeoDataFrame: A GeoDataFrame containing the data from the file.
+        geos: A GeoDataFrame containing the data from the file.
     """
     
     s3_client = boto3.client("s3", region_name=region_name)

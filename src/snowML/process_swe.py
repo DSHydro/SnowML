@@ -79,60 +79,12 @@ def process_swe_means_multi(years, geos, bronze_bucket_nm = "swebronze",
 
 
 
-def get_years():
-    """
-    Prompts the user for the first and last year of data to get.
-    
-    Ensures the first year is at least 1982 and the last year is no later than 2022.
-    
-    Returns:
-        tuple: A list of years spanning from first year to last year as integers.
-    """
-    while True:
-        try:
-            # Prompt user for the first year
-            first_year = int(input("Enter first year of data to get (1982 or later): "))
-            # Prompt user for the last year
-            last_year = int(input("Enter last year of data to get (no later than 2022): "))
-            
-            # Validate the year range
-            if first_year < 1982:
-                print("The first year must be 1982 or later. Please try again.")
-                continue
-            if last_year > 2022:
-                print("The last year must be no later than 2022. Please try again.")
-                continue
-            if first_year > last_year:
-                print("The first year must be less than or equal to the last year. Please try again.")
-                continue
-            
-            return range(first_year, last_year)
-        
-        except ValueError:
-            print("Invalid input. Please enter numeric values for the years.")
-
-
-def get_sf_path(): 
-    bucket_name = input("Enter the bucket name with the shape file for relevanat geos (e.g. 'shape-bronze')")
-    file_path =  input ("Enter the file_path (e.g. 'examples/skagit_huc10.geojson')")    
-    return(bucket_name, file_path)   
-
-def main():
-    years = get_years()
-    bucket_name, file_path = get_sf_path()
-    print(f"bucket name is: {bucket_name}, file path is {file_path}")
-    geos = du.s3_to_gdf(bucket_name, file_path)
-    print("geos")
-    print("Processing . .. ")
-    process_swe_means_multi(years, geos, bronze_bucket_nm = "swebronze",
-                silver_bucket_nm = "swe-silver")
 
 
  # TO DOS
  
  # (1) May be faster to go from url -> ds rather than S3-> ds?
  # (2) Fix the buffer thingy in data utils 
- # (3) Figure out how to dynamically get shape files 
  # (4) Documentation and error messages 
  
 

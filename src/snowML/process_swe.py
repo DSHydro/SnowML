@@ -3,7 +3,7 @@ Module with function to download and process SWE data for use in model training.
 Requires that you have set earth access credentials as environmental variables.
 """
 
-import os, time,  s3fs
+import os, time, s3fs
 import xarray as xr
 import data_utils as du
 
@@ -13,16 +13,22 @@ ROOT = "https://daacdata.apps.nsidc.org/pub/DATASETS/nsidc0719_SWE_Snow_Depth_v1
 USERNAME = os.environ["EARTHDATA_USER"]
 PASSWORD = os.environ["EARTHDATA_PASS"]
 VARS_TO_KP = ["SWE"]
+FILE_EXTENTION_MAP = {
+        "csv": ".csv",
+        "parquet": ".parquet",
+        "netcdf": ".nc"
+    }
 
 
 def process_swe_means(year, geo, vars_to_kp = VARS_TO_KP, 
                 bronze_bucket_nm = "swebronze",
-                silver_bucket_nm = "swe-silver"):
+                silver_bucket_nm = "swe-silver", 
+                output_type = "netcdf"):
     
     """
     For the given year of swe data, mask by geo, and take the 
-    mean of the specified variables by date. Return a pandas df saved to
-    specified S3 bucket. 
+    mean of the specified variables by date. Save the file in the specified 
+    format into the specified S3 bucket. 
 
     Args:
         year(int): The water year of the data to process.
@@ -31,15 +37,18 @@ def process_swe_means(year, geo, vars_to_kp = VARS_TO_KP,
         vars_to_kp: the variables for which to take and save the mean 
         bronze_bucket_name: the name of S3 bucket to save/retrieve raw data
         silver_bucket_name: the name of the S3 bucket to save the procesed output 
+        output_type (str): The format to save the file ('csv', 'parquet', or 'netcdf').
 
     Return:
-       swe_mean_df (dataFrame): Means of variables of interest by date 
+       None
 
        """
     # check to see if the SWE file already exists 
     huc_id = geo.iloc[0, 1]
-    f_out = f"mean_swe_{huc_id}_{year}.nc"
-    if du.isin_s3(silver_bucket_nm, f_out):
+    ext = FILE_EXTENTION_MAP[output_type]
+    f_out = f"mean_swe_{huc_id}_{year}"
+    f_out_long = f"mean_swe_{huc_id}_{year}{ext}"
+    if du.isin_s3(silver_bucket_nm, f_out_long):
         print(f"file {f_out} already processed, skipping processing")
         return None
     
@@ -62,22 +71,21 @@ def process_swe_means(year, geo, vars_to_kp = VARS_TO_KP,
         ds.close()
 
     # save result to s3
-    du.ds_to_s3(ds, silver_bucket_nm, f_out)
+    du.ds_to_s3(ds, silver_bucket_nm, f_out, file_type=output_type)
 
 
 def process_swe_means_multi(years, geos, bronze_bucket_nm = "swebronze",
-                silver_bucket_nm = "swe-silver"):
+                silver_bucket_nm = "swe-silver", output_type = "netcdf"):
     time_start = time.time()
     for yr in years: 
         for i in range (geos.shape[0]):
             row = geos.iloc[[i]]
             process_swe_means(yr, row, bronze_bucket_nm=bronze_bucket_nm, 
-                              silver_bucket_nm=silver_bucket_nm)
+                              silver_bucket_nm=silver_bucket_nm, 
+                              output_type=output_type)
 
     elapsed_time = time.time() - time_start
     print(f"Elapsed time: {elapsed_time:.2f} seconds")   
-
-
 
 
 

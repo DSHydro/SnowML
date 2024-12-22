@@ -1,17 +1,14 @@
 """ 
 Module with functions to download data and save in S3, as well as geo
-masking and taking a basin mean.Requires that you have set Amazon Credentials
+masking and taking a basin mean. Requires that you have set Amazon Credentials
 as Environment Variables.
 """
 
-import io, os, rioxarray
-import requests
-import s3fs
+import io, os, rioxarray, requests, s3fs
 import xarray as xr
 import boto3
 import geopandas as gpd
 from botocore.exceptions import NoCredentialsError, ClientError
-
 
 
 
@@ -36,6 +33,30 @@ def ds_mean(ds):
     ds_mean = ds_mean.rename({var: f"mean_{var}" for var in ds_mean.data_vars})
     return ds_mean
 
+def url_to_ds(root, file_name,requires_auth=False, username=None, password=None):
+    """ Direct load from url to netcdf file """
+    
+    # Prepare authentication if required
+    auth = (username, password) if requires_auth else None
+
+    url = root + file_name
+    response = requests.get(url, auth=auth)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        # Convert the raw response content to a file-like object
+        file_like_object = io.BytesIO(response.content)
+        
+        # Open the dataset from the file-like object
+        ds = xr.open_dataset(file_like_object)
+        
+        return ds
+    
+    else:
+        print(f"Failed to fetch data. Status code: {response.status_code}")
+        return None
+
+  
 
 def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
                requires_auth=False, username=None, password=None,
@@ -94,6 +115,24 @@ def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
 
     return None
 
+
+
+
+def s3_to_data(bucket_name, file_name):
+    if data_type not in ["ds", "df"]:
+        raise ValueError("Invalid data_type. Supported values are 'ds' for Xarray and 'df' for Pandas DataFrame.")
+
+    s3_path = f"s3://{bucket_name}/{file_name}"
+    fs = s3fs.S3FileSystem(anon=False)
+    with fs.open(s3_path) as f:
+        if data_type == "ds":
+            ds = xr.open_dataset(f)
+            ds.load()
+            return ds
+        elif data_type == "df":
+            df = pd.read_csv(f) if file_name.endswith(".csv") else pd.read_parquet(f)
+            return df
+
 def s3_to_ds(bucket_name, file_name):
     s3_path = f"s3://{bucket_name}/{file_name}"
     fs = s3fs.S3FileSystem(anon=False)
@@ -133,25 +172,53 @@ def s3_to_gdf(bucket_name, file_name, region_name="us-east-1"):
         print(f"Error downloading or reading file from S3: {e}")
         return 
     
-def ds_to_s3(ds, bucket_name, f_out, region_name="us-east-1"):
+
+
+def ds_to_s3(ds, bucket_name, f_out, file_type="netcdf", region_name="us-east-1"):
     """
-    Save an Xarray Dataset to an S3 bucket.
+    Save an Xarray Dataset to an S3 bucket in the specified format.
 
     Args:
         ds (xr.Dataset): The Xarray Dataset to save.
         bucket_name (str): The S3 bucket name.
-        file_name (str): The name of the file to save in the S3 bucket.
+        f_out (str): The base name of the file to save in the S3 bucket.
+        file_type (str): The format to save the file ('csv', 'parquet', or 'netcdf').
         region_name (str): AWS region of the S3 bucket (optional).
-    
+
     Returns:
         None
     """
-    ds.to_netcdf(f_out)
-    s3_client = boto3.client('s3')
-    s3_client.upload_file(f_out, bucket_name, f_out)
-    os.remove(f_out)
+    valid_file_types = ["csv", "parquet", "netcdf"]
+    if file_type not in valid_file_types:
+        raise ValueError(f"Invalid file_type '{file_type}'. Supported types: {valid_file_types}")
+
+    # Adjust file name based on file type
+    file_extension_map = {
+        "csv": ".csv",
+        "parquet": ".parquet",
+        "netcdf": ".nc"
+    }
     
-    print(f"File {f_out} successfully uploaded to {bucket_name}")
+    file_extension = file_extension_map[file_type]
+    output_file = f"{f_out}{file_extension}"
+
+    # Save the dataset in the specified format
+    if file_type == "csv":
+        ds.to_dataframe().to_csv(output_file)
+    elif file_type == "parquet":
+        ds.to_dataframe().to_parquet(output_file)
+    elif file_type == "netcdf":
+        ds.to_netcdf(output_file)
+
+    # Upload to S3
+    s3_client = boto3.client('s3', region_name=region_name)
+    s3_client.upload_file(output_file, bucket_name, output_file)
+
+    # Cleanup local files
+    os.remove(output_file)
+
+    print(f"File {output_file} successfully uploaded to {bucket_name}")
+
 
 def isin_s3(bucket_name, file_name):
     """Check if a file exists in an S3 bucket."""
@@ -161,3 +228,27 @@ def isin_s3(bucket_name, file_name):
         return True
     except s3.exceptions.ClientError:
         return False
+    
+
+
+### OLD 
+
+# def ds_to_s3(ds, bucket_name, f_out, region_name="us-east-1"):
+#     """
+#     Save an Xarray Dataset to an S3 bucket.
+
+#     Args:
+#         ds (xr.Dataset): The Xarray Dataset to save.
+#         bucket_name (str): The S3 bucket name.
+#         file_name (str): The name of the file to save in the S3 bucket.
+#         region_name (str): AWS region of the S3 bucket (optional).
+    
+#     Returns:
+#         None
+#     """
+#     ds.to_netcdf(f_out)
+#     s3_client = boto3.client('s3')
+#     s3_client.upload_file(f_out, bucket_name, f_out)
+#     os.remove(f_out)
+    
+#     print(f"File {f_out} successfully uploaded to {bucket_name}")

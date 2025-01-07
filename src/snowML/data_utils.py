@@ -116,23 +116,6 @@ def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
     return None
 
 
-
-
-def s3_to_data(bucket_name, file_name):
-    if data_type not in ["ds", "df"]:
-        raise ValueError("Invalid data_type. Supported values are 'ds' for Xarray and 'df' for Pandas DataFrame.")
-
-    s3_path = f"s3://{bucket_name}/{file_name}"
-    fs = s3fs.S3FileSystem(anon=False)
-    with fs.open(s3_path) as f:
-        if data_type == "ds":
-            ds = xr.open_dataset(f)
-            ds.load()
-            return ds
-        elif data_type == "df":
-            df = pd.read_csv(f) if file_name.endswith(".csv") else pd.read_parquet(f)
-            return df
-
 def s3_to_ds(bucket_name, file_name):
     s3_path = f"s3://{bucket_name}/{file_name}"
     fs = s3fs.S3FileSystem(anon=False)
@@ -174,12 +157,12 @@ def s3_to_gdf(bucket_name, file_name, region_name="us-east-1"):
     
 
 
-def ds_to_s3(ds, bucket_name, f_out, file_type="netcdf", region_name="us-east-1"):
+def dat_to_s3(dat, bucket_name, f_out, file_type="netcdf", region_name="us-east-1"):
     """
     Save an Xarray Dataset to an S3 bucket in the specified format.
 
     Args:
-        ds (xr.Dataset): The Xarray Dataset to save.
+        dat: The Datset to save.  Can be csv, parquet, or net cdf
         bucket_name (str): The S3 bucket name.
         f_out (str): The base name of the file to save in the S3 bucket.
         file_type (str): The format to save the file ('csv', 'parquet', or 'netcdf').
@@ -204,11 +187,11 @@ def ds_to_s3(ds, bucket_name, f_out, file_type="netcdf", region_name="us-east-1"
 
     # Save the dataset in the specified format
     if file_type == "csv":
-        ds.to_dataframe().to_csv(output_file)
+        dat.to_csv(output_file)
     elif file_type == "parquet":
-        ds.to_dataframe().to_parquet(output_file)
+        dat.to_dataframe().to_parquet(output_file)
     elif file_type == "netcdf":
-        ds.to_netcdf(output_file)
+        dat.to_netcdf(output_file)
 
     # Upload to S3
     s3_client = boto3.client('s3', region_name=region_name)
@@ -231,24 +214,3 @@ def isin_s3(bucket_name, file_name):
     
 
 
-### OLD 
-
-# def ds_to_s3(ds, bucket_name, f_out, region_name="us-east-1"):
-#     """
-#     Save an Xarray Dataset to an S3 bucket.
-
-#     Args:
-#         ds (xr.Dataset): The Xarray Dataset to save.
-#         bucket_name (str): The S3 bucket name.
-#         file_name (str): The name of the file to save in the S3 bucket.
-#         region_name (str): AWS region of the S3 bucket (optional).
-    
-#     Returns:
-#         None
-#     """
-#     ds.to_netcdf(f_out)
-#     s3_client = boto3.client('s3')
-#     s3_client.upload_file(f_out, bucket_name, f_out)
-#     os.remove(f_out)
-    
-#     print(f"File {f_out} successfully uploaded to {bucket_name}")

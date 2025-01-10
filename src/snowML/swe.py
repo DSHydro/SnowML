@@ -15,6 +15,8 @@ QUIET = False
 BRONZE_BUCKET_NM = "swe-bronze"
 SILVER_BUCKET_NM = "swe-silver"
 GOLD_BUCKET_NM =  "swe-gold"
+YEAR_LIST = [range(1982, 1990), range(1990, 2000), range(2000, 2010), \
+              range(2010, 2020), range(2020, 2024)]
 
 # download file from url
 def get_raw(year, VARS_TO_KP = "SWE"):
@@ -63,14 +65,7 @@ def bronze_to_silver(geos, ds):
     return results
 
 
-def process_all_medals(huc_id, huc_lev, years, overwrite = False):
-
-    # validate inputs
-    if min(years) < 1982:
-        raise ValueError("Invalid date range, first year must be 1982 or later")
-    if max (years) > 2023:
-        raise ValueError("Invalid date range, last year must be 2023 or earlier")
-
+def process_all (huc_id, huc_lev, overwrite = False):
     # track processing time
     time_start = time.time()
 
@@ -78,53 +73,50 @@ def process_all_medals(huc_id, huc_lev, years, overwrite = False):
     geos = du.get_basin_geos(huc_lev, huc_id)
 
     # get & save bronze swe data
-    f_bronze = f"raw_swe_unmasked_in_{huc_id}_{min(years)}_to_{max(years)}"
-    if du.isin_s3(BRONZE_BUCKET_NM, f"{f_bronze}.nc"):
-        print(f"File{f_bronze} already exists in {BRONZE_BUCKET_NM}")
-        if not overwrite:
-            bronze_ds = du.s3_to_ds(BRONZE_BUCKET_NM, f"{f_bronze}.nc")
+    for years in YEAR_LIST:
+        f_bronze = f"raw_swe_unmasked_in_{huc_id}_{min(years)}_to_{max(years)}"
+        if du.isin_s3(BRONZE_BUCKET_NM, f"{f_bronze}.nc"):
+            print(f"File{f_bronze} already exists in {BRONZE_BUCKET_NM}")
+            if not overwrite:
+                bronze_ds = du.s3_to_ds(BRONZE_BUCKET_NM, f"{f_bronze}.nc")
+            else:
+                bronze_ds = raw_to_bronze_multi(geos, years)
+                du.dat_to_s3(bronze_ds, BRONZE_BUCKET_NM, f_bronze)
         else:
             bronze_ds = raw_to_bronze_multi(geos, years)
             du.dat_to_s3(bronze_ds, BRONZE_BUCKET_NM, f_bronze)
-    else:
-        bronze_ds = raw_to_bronze_multi(geos, years)
-        du.dat_to_s3(bronze_ds, BRONZE_BUCKET_NM, f_bronze)
 
-    elapsed_time = time.time() - time_start
-    print(f"Elapsed time : {elapsed_time:.2f} seconds")
+        elapsed_time = time.time() - time_start
+        print(f"Elapsed time : {elapsed_time:.2f} seconds")
 
     # get & save silver data
-    f_silver = f"raw_swe_in_{huc_id}_{min(years)}_to_{max(years)}"
-    if du.isin_s3(SILVER_BUCKET_NM, f"{f_silver}.csv"):
-        print(f"File{f_silver} already exists in {SILVER_BUCKET_NM}")
-        if not overwrite:
-            silver_df = du.s3_to_ds(SILVER_BUCKET_NM, f"{f_silver}.csv")
+    for years in YEAR_LIST:
+        f_silver = f"raw_swe_in_{huc_id}_{min(years)}_to_{max(years)}"
+        if du.isin_s3(SILVER_BUCKET_NM, f"{f_silver}.csv"):
+            print(f"File{f_silver} already exists in {SILVER_BUCKET_NM}")
+            if not overwrite:
+                silver_df = du.s3_to_df(f"{f_silver}.csv", SILVER_BUCKET_NM)
+            else:
+                silver_df = bronze_to_silver(geos, bronze_ds)
+                du.dat_to_s3(silver_df, SILVER_BUCKET_NM, f_silver, file_type="csv")
         else:
             silver_df = bronze_to_silver(geos, bronze_ds)
             du.dat_to_s3(silver_df, SILVER_BUCKET_NM, f_silver, file_type="csv")
-    else:
-        silver_df = bronze_to_silver(geos, bronze_ds)
-        du.dat_to_s3(silver_df, SILVER_BUCKET_NM, f_silver, file_type="csv")
 
-    elapsed_time = time.time() - time_start
-    print(f"Elapsed time : {elapsed_time:.2f} seconds")
+        elapsed_time = time.time() - time_start
+        print(f"Elapsed time : {elapsed_time:.2f} seconds")
 
     # get & save gold data
-    gold_df = silver_df.groupby(['time', 'huc_id'])['SWE'].mean().reset_index()
-    f_out = f"mean_swe{huc_lev}_in_{huc_id}_{min(years)}_to{max(years)}"
-    du.dat_to_s3(gold_df, GOLD_BUCKET_NM, f_out, file_type="csv")
+    for years in YEAR_LIST:
+        gold_df = silver_df.groupby(['time', 'huc_id'])['SWE'].mean().reset_index()
+        f_out = f"mean_swe_{huc_lev}_in_{huc_id}_{min(years)}_to{max(years)}"
+        du.dat_to_s3(gold_df, GOLD_BUCKET_NM, f_out, file_type="csv")
 
-    return gold_df
+    return None
 
 
 def process_all_years(huc_id, huc_lev):
-    yrs_01 = range(1982, 1990)
-    yrs_02 = range(1990, 2000)
-    yrs_03 = range(2000, 2010)
-    yrs_04 = range(2010, 2020)
-    yrs_05 = range(2020, 2024)
-
-    year_list = [yrs_01, yrs_02, yrs_03, yrs_04, yrs_05]
+    
 
     for years in year_list: 
         process_all_medals(huc_id, huc_lev, years)

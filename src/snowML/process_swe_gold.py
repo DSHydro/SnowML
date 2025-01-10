@@ -83,7 +83,7 @@ def get_swe_gold(huc_no, huc_lev, pattern_template=TEMP, \
         print("Please upload shape file and try again")
         return
 
-    hucs = basin_gdf["huc_id"].tolist()[0:2] # TO DO - Remove slice
+    hucs = basin_gdf["huc_id"].tolist()
     print(f"HUCs to process: {hucs}")
     swe_gold = silver_data_to_df(hucs, silver_bucket_nm, pattern_template)
     print(type(swe_gold))
@@ -91,8 +91,31 @@ def get_swe_gold(huc_no, huc_lev, pattern_template=TEMP, \
     du.dat_to_s3(swe_gold, gold_bucket_nm, f_out, file_type="csv")
     return swe_gold
 
+def summarize_swe_gold(df):
+    """
+    Returns the time range of data for each unique huc_id in the DataFrame.
 
-#huc_lev =  "Huc10"
-#huc_no = 18040009
-#huc_no = 17020009
-#swe_gold = get_swe_gold(huc_no, huc_lev)
+    Parameters:
+        df (pd.DataFrame): A pandas DataFrame with a datetime index and
+          a column 'huc_id'.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the time range (start and end 
+        dates) for each huc_id.
+    """
+  
+    df.index = pd.to_datetime(df.index)
+
+    # Group by huc_id and calculate time range
+    time_ranges = (
+        df.groupby("huc_id")
+        .apply(lambda group: pd.Series({
+            "start_time": group.index.min(),
+            "end_time": group.index.max()
+        }))
+        .reset_index()
+    )
+
+    return time_ranges
+
+

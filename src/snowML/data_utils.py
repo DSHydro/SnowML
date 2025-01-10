@@ -4,7 +4,7 @@ masking and taking a basin mean. Requires that you have set Amazon Credentials
 as Environment Variables.
 """
 
-import io, os, rioxarray, requests, s3fs
+import io, os,  requests, s3fs
 import xarray as xr
 import boto3
 import geopandas as gpd
@@ -23,7 +23,7 @@ def filter_by_geo (ds, geo):
     Returns:
        ds_final: A clipped Xarray 
     """
-    
+
     geo = geo.to_crs(ds.rio.crs)
     ds_final = ds.rio.clip(geo.geometry, geo.crs, drop=True)
     return ds_final
@@ -35,7 +35,7 @@ def ds_mean(ds):
 
 def url_to_ds(root, file_name,requires_auth=False, username=None, password=None):
     """ Direct load from url to netcdf file """
-    
+
     # Prepare authentication if required
     auth = (username, password) if requires_auth else None
 
@@ -46,17 +46,15 @@ def url_to_ds(root, file_name,requires_auth=False, username=None, password=None)
     if response.status_code == 200:
         # Convert the raw response content to a file-like object
         file_like_object = io.BytesIO(response.content)
-        
+
         # Open the dataset from the file-like object
         ds = xr.open_dataset(file_like_object)
-        
-        return ds
-    
-    else:
-        print(f"Failed to fetch data. Status code: {response.status_code}")
-        return None
 
-  
+        return ds
+
+    print(f"Failed to fetch data. Status code: {response.status_code}")
+    return None
+
 
 def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
                requires_auth=False, username=None, password=None,
@@ -84,7 +82,7 @@ def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
 
     # Check if the file already exists in the bucket
     if isin_s3(bucket_name, file_name):
-        if not quiet: 
+        if not quiet:
             print(f"File '{file_name}' already exists in \
                   bucket '{bucket_name}', skipping download.")
         return None
@@ -102,7 +100,7 @@ def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
             with response.raw as data_stream:
                 s3_client.upload_fileobj(data_stream, bucket_name, file_name)
 
-        if not quiet: 
+        if not quiet:
             print(f"File {file_name} uploaded to S3 bucket '{bucket_name}'.")
         return file_name
 
@@ -137,9 +135,9 @@ def s3_to_gdf(bucket_name, file_name, region_name="us-east-1"):
     Returns:
         geos: A GeoDataFrame containing the data from the file.
     """
-    
+
     s3_client = boto3.client("s3", region_name=region_name)
-    
+
     # Download the file from S3 into a bytes buffer
     try:
         buffer = io.BytesIO()
@@ -150,11 +148,11 @@ def s3_to_gdf(bucket_name, file_name, region_name="us-east-1"):
         geos = gpd.read_file(buffer)
 
         return geos
-    
+
     except Exception as e:
         print(f"Error downloading or reading file from S3: {e}")
-        return 
-    
+        return None
+
 
 
 def dat_to_s3(dat, bucket_name, f_out, file_type="netcdf", region_name="us-east-1"):
@@ -181,7 +179,7 @@ def dat_to_s3(dat, bucket_name, f_out, file_type="netcdf", region_name="us-east-
         "parquet": ".parquet",
         "netcdf": ".nc"
     }
-    
+
     file_extension = file_extension_map[file_type]
     output_file = f"{f_out}{file_extension}"
 
@@ -212,5 +210,3 @@ def isin_s3(bucket_name, file_name):
     except s3.exceptions.ClientError:
         return False
     
-
-

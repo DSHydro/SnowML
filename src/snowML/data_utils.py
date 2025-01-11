@@ -4,12 +4,22 @@ masking and taking a basin mean. Requires that you have set Amazon Credentials
 as Environment Variables.
 """
 
-import io, os,  requests, s3fs
-import xarray as xr
+# pylint: disable=C0103
+
+
+import io
 import boto3
+import os
+import requests
+import s3fs
+import re
+import zarr
+import xarray as xr
+import pandas as pd
 import geopandas as gpd
 from botocore.exceptions import NoCredentialsError, ClientError
-
+from io import StringIO
+from s3fs.core import S3FileSystem
 
 
 def filter_by_geo (ds, geo):
@@ -113,7 +123,6 @@ def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
 
     return None
 
-
 def s3_to_ds(bucket_name, file_name):
     s3_path = f"s3://{bucket_name}/{file_name}"
     fs = s3fs.S3FileSystem(anon=False)
@@ -121,6 +130,31 @@ def s3_to_ds(bucket_name, file_name):
         ds = xr.open_dataset(f)
         ds.load()
     return ds
+
+
+def s3_to_ds_multi(bucket_name, pattern):
+    """
+    Load and concatenate NetCDF files from an S3 bucket along 
+    the time dimension using a glob pattern.
+
+    Parameters:
+        pattern (str): The glob pattern to match files in the S3 bucket.
+                       Ex.: "s3://bucket_name/raw_swe_unmasked_in_hucid_*_to_*"
+
+    Returns:
+        xarray.Dataset: A single dataset concatenated along the time dimension.
+    """
+    s3 = S3FileSystem(anon=False)
+    s3path = f"s3://{bucket_name}/{pattern}"
+    files = s3.glob(s3path)
+    print(files)
+    fileset = [s3.open(f) for f in files]
+    for f in fileset[0:2]:
+        ds = xr.open_dataset(f)
+        print(ds)
+    data = xr.open_mfdataset(fileset[0:2], combine='by_coords', concat_dim='time')
+    
+
 
 
 def s3_to_gdf(bucket_name, file_name, region_name="us-east-1"):
@@ -157,11 +191,13 @@ def s3_to_gdf(bucket_name, file_name, region_name="us-east-1"):
 
 def dat_to_s3(dat, bucket_name, f_out, file_type="netcdf", region_name="us-east-1"):
     """
-    Save an Xarray Dataset to an S3 bucket in the specified format.
+    Save a Dataset to an S3 bucket in the specified format.
 
     Args:
-        dat: The Datset to save.  Can be csv, parquet, or net cdf
-        bucket_name (str): The S3 bucket name.
+        dat: The Dataset to save. Can be an xarray.Dataset (for netcdf or zarr) 
+        or a DataFrame (for csv or parquet).
+        bucket_name (str): The S3 bucket name to save to.
+        bucket_name (str): The S3 bucket name to save to. 
         f_out (str): The base name of the file to save in the S3 bucket.
         file_type (str): The format to save the file ('csv', 'parquet', or 'netcdf').
         region_name (str): AWS region of the S3 bucket (optional).
@@ -177,19 +213,29 @@ def dat_to_s3(dat, bucket_name, f_out, file_type="netcdf", region_name="us-east-
     file_extension_map = {
         "csv": ".csv",
         "parquet": ".parquet",
-        "netcdf": ".nc"
+        "netcdf": ".nc", 
+        "zarr": ""
     }
 
     file_extension = file_extension_map[file_type]
     output_file = f"{f_out}{file_extension}"
 
     # Save the dataset in the specified format
+
+    # if file_type == "zarr":
+    #     # Save Zarr directly to S3
+    #     dat.to_zarr(f"s3://{bucket_name}/{output_file}/", mode="w")
+    #     print(f"Zarr dataset successfully uploaded to s3://{bucket_name}/{output_file}")
+    #     return  
+
+
     if file_type == "csv":
         dat.to_csv(output_file)
     elif file_type == "parquet":
         dat.to_dataframe().to_parquet(output_file)
     elif file_type == "netcdf":
         dat.to_netcdf(output_file)
+   
 
     # Upload to S3
     s3_client = boto3.client('s3', region_name=region_name)
@@ -209,4 +255,30 @@ def isin_s3(bucket_name, file_name):
         return True
     except s3.exceptions.ClientError:
         return False
+    
+def s3_to_df(file_name, bucket_name):
+    """
+    Loads a CSV file from an S3 bucket into a pandas DataFrame.
+
+    Parameters:
+        file_name (str): The name of the CSV file in the S3 bucket.
+        bucket_name (str): The name of the S3 bucket.
+
+    Returns:
+        pd.DataFrame: A pandas DataFrame containing the data from the CSV file.
+    """
+    s3 = boto3.client('s3')
+    response = s3.get_object(Bucket=bucket_name, Key=file_name)
+    content = response['Body'].read().decode('utf-8')
+    df = pd.read_csv(StringIO(content))
+    return df
+
+# Returns a geo dataframe of geometries from the shape bornze bucket
+def get_basin_geos (huc_lev, huc_no, bucket_nm = "shape-bronze"):    
+    file_nm = f"{huc_lev}_in_{huc_no}.geojson"
+    if not isin_s3(bucket_nm, file_nm):
+        raise ValueError(f"No shape file found for {file_nm} in {bucket_nm}")
+    basin_gdf = s3_to_gdf (bucket_nm, file_nm)
+    print(f"Shapefile {file_nm} uploaded from {bucket_nm}")
+    return basin_gdf
     

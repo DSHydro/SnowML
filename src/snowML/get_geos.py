@@ -12,8 +12,6 @@ import time, os
 from shapely.geometry import box
 import data_utils as du
 
-
-
 # function that creates an outer boundary box for a given geometry
 def create_bbox (sp): 
     minx, miny, maxx, maxy = sp.bounds
@@ -36,6 +34,8 @@ def clean_gdf(gdf, huc_lev_id):
     return gdf
 
 def get_huc(bbox, huc_nm, huc_id, huc_lev_nxt):
+    #ee.Authenticate()
+    #ee.Initialize(project = PROJ)
     gdf = easysnowdata.hydroclimatology.get_huc_geometries(bbox_input=bbox, huc_level=huc_lev_nxt)
     
     #discard overinclusive entries that don't match starting string

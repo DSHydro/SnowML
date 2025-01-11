@@ -1,18 +1,39 @@
 """ 
 Module with functions to download data and save in S3, as well as geo
-masking and taking a basin mean.Requires that you have set Amazon Credentials
+masking and taking a basin mean. Requires that you have set Amazon Credentials
 as Environment Variables.
 """
 
-import io, os, rioxarray
+# pylint: disable=C0103
+
+
+import io
+import boto3
+import os
 import requests
 import s3fs
+import re
+import zarr
 import xarray as xr
-import boto3
+import pandas as pd
 import geopandas as gpd
 from botocore.exceptions import NoCredentialsError, ClientError
+from io import StringIO
+from s3fs.core import S3FileSystem
 
 
+def calc_Affine(ds):
+    """
+    Calculates the affine transformation matrix for datasets with latitude
+    values listed from largest to smallest.
+    """
+    lon_min = ds.lon.min().values
+    lat_max = ds.lat.max().values
+    lon_res = (ds.lon[1] - ds.lon[0]).values  # Longitude resolution
+    lat_res = (ds.lat[1] - ds.lat[0]).values  # Latitude resolution (negative)
+
+    # Construct and return the affine matrix
+    return Affine(lon_res, 0, lon_min, 0, lat_res, lat_max)
 
 
 def filter_by_geo (ds, geo):
@@ -26,7 +47,7 @@ def filter_by_geo (ds, geo):
     Returns:
        ds_final: A clipped Xarray 
     """
-    
+
     geo = geo.to_crs(ds.rio.crs)
     ds_final = ds.rio.clip(geo.geometry, geo.crs, drop=True)
     return ds_final
@@ -35,6 +56,28 @@ def ds_mean(ds):
     ds_mean = ds.mean(dim=['lat','lon'])
     ds_mean = ds_mean.rename({var: f"mean_{var}" for var in ds_mean.data_vars})
     return ds_mean
+
+def url_to_ds(root, file_name,requires_auth=False, username=None, password=None):
+    """ Direct load from url to netcdf file """
+
+    # Prepare authentication if required
+    auth = (username, password) if requires_auth else None
+
+    url = root + file_name
+    response = requests.get(url, auth=auth)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        # Convert the raw response content to a file-like object
+        file_like_object = io.BytesIO(response.content)
+
+        # Open the dataset from the file-like object
+        ds = xr.open_dataset(file_like_object)
+
+        return ds
+
+    print(f"Failed to fetch data. Status code: {response.status_code}")
+    return None
 
 
 def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
@@ -63,7 +106,7 @@ def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
 
     # Check if the file already exists in the bucket
     if isin_s3(bucket_name, file_name):
-        if not quiet: 
+        if not quiet:
             print(f"File '{file_name}' already exists in \
                   bucket '{bucket_name}', skipping download.")
         return None
@@ -81,7 +124,7 @@ def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
             with response.raw as data_stream:
                 s3_client.upload_fileobj(data_stream, bucket_name, file_name)
 
-        if not quiet: 
+        if not quiet:
             print(f"File {file_name} uploaded to S3 bucket '{bucket_name}'.")
         return file_name
 
@@ -103,6 +146,7 @@ def s3_to_ds(bucket_name, file_name):
     return ds
 
 
+
 def s3_to_gdf(bucket_name, file_name, region_name="us-east-1"):
     """
     Download a file from S3 and load it into a GeoDataFrame.
@@ -115,9 +159,9 @@ def s3_to_gdf(bucket_name, file_name, region_name="us-east-1"):
     Returns:
         geos: A GeoDataFrame containing the data from the file.
     """
-    
+
     s3_client = boto3.client("s3", region_name=region_name)
-    
+
     # Download the file from S3 into a bytes buffer
     try:
         buffer = io.BytesIO()
@@ -128,30 +172,70 @@ def s3_to_gdf(bucket_name, file_name, region_name="us-east-1"):
         geos = gpd.read_file(buffer)
 
         return geos
-    
+
     except Exception as e:
         print(f"Error downloading or reading file from S3: {e}")
-        return 
-    
-def ds_to_s3(ds, bucket_name, f_out, region_name="us-east-1"):
+        return None
+
+
+
+def dat_to_s3(dat, bucket_name, f_out, file_type="netcdf", region_name="us-east-1"):
     """
-    Save an Xarray Dataset to an S3 bucket.
+    Save a Dataset to an S3 bucket in the specified format.
 
     Args:
-        ds (xr.Dataset): The Xarray Dataset to save.
-        bucket_name (str): The S3 bucket name.
-        file_name (str): The name of the file to save in the S3 bucket.
+        dat: The Dataset to save. Can be an xarray.Dataset (for netcdf or zarr) 
+        or a DataFrame (for csv or parquet).
+        bucket_name (str): The S3 bucket name to save to.
+        bucket_name (str): The S3 bucket name to save to. 
+        f_out (str): The base name of the file to save in the S3 bucket.
+        file_type (str): The format to save the file ('csv', 'parquet', or 'netcdf').
         region_name (str): AWS region of the S3 bucket (optional).
-    
+
     Returns:
         None
     """
-    ds.to_netcdf(f_out)
-    s3_client = boto3.client('s3')
-    s3_client.upload_file(f_out, bucket_name, f_out)
-    os.remove(f_out)
-    
-    print(f"File {f_out} successfully uploaded to {bucket_name}")
+    valid_file_types = ["csv", "parquet", "netcdf"]
+    if file_type not in valid_file_types:
+        raise ValueError(f"Invalid file_type '{file_type}'. Supported types: {valid_file_types}")
+
+    # Adjust file name based on file type
+    file_extension_map = {
+        "csv": ".csv",
+        "parquet": ".parquet",
+        "netcdf": ".nc", 
+        "zarr": ""
+    }
+
+    file_extension = file_extension_map[file_type]
+    output_file = f"{f_out}{file_extension}"
+
+    # Save the dataset in the specified format
+
+    # if file_type == "zarr":
+    #     # Save Zarr directly to S3
+    #     dat.to_zarr(f"s3://{bucket_name}/{output_file}/", mode="w")
+    #     print(f"Zarr dataset successfully uploaded to s3://{bucket_name}/{output_file}")
+    #     return  
+
+
+    if file_type == "csv":
+        dat.to_csv(output_file)
+    elif file_type == "parquet":
+        dat.to_dataframe().to_parquet(output_file)
+    elif file_type == "netcdf":
+        dat.to_netcdf(output_file)
+   
+
+    # Upload to S3
+    s3_client = boto3.client('s3', region_name=region_name)
+    s3_client.upload_file(output_file, bucket_name, output_file)
+
+    # Cleanup local files
+    os.remove(output_file)
+
+    print(f"File {output_file} successfully uploaded to {bucket_name}")
+
 
 def isin_s3(bucket_name, file_name):
     """Check if a file exists in an S3 bucket."""
@@ -161,3 +245,30 @@ def isin_s3(bucket_name, file_name):
         return True
     except s3.exceptions.ClientError:
         return False
+    
+def s3_to_df(file_name, bucket_name):
+    """
+    Loads a CSV file from an S3 bucket into a pandas DataFrame.
+
+    Parameters:
+        file_name (str): The name of the CSV file in the S3 bucket.
+        bucket_name (str): The name of the S3 bucket.
+
+    Returns:
+        pd.DataFrame: A pandas DataFrame containing the data from the CSV file.
+    """
+    s3 = boto3.client('s3')
+    response = s3.get_object(Bucket=bucket_name, Key=file_name)
+    content = response['Body'].read().decode('utf-8')
+    df = pd.read_csv(StringIO(content))
+    return df
+
+# Returns a geo dataframe of geometries from the shape bornze bucket
+def get_basin_geos (huc_lev, huc_no, bucket_nm = "shape-bronze"):    
+    file_nm = f"{huc_lev}_in_{huc_no}.geojson"
+    if not isin_s3(bucket_nm, file_nm):
+        raise ValueError(f"No shape file found for {file_nm} in {bucket_nm}")
+    basin_gdf = s3_to_gdf (bucket_nm, file_nm)
+    print(f"Shapefile {file_nm} uploaded from {bucket_nm}")
+    return basin_gdf
+    

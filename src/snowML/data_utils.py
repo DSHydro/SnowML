@@ -22,6 +22,20 @@ from io import StringIO
 from s3fs.core import S3FileSystem
 
 
+def calc_Affine(ds):
+    """
+    Calculates the affine transformation matrix for datasets with latitude
+    values listed from largest to smallest.
+    """
+    lon_min = ds.lon.min().values
+    lat_max = ds.lat.max().values
+    lon_res = (ds.lon[1] - ds.lon[0]).values  # Longitude resolution
+    lat_res = (ds.lat[1] - ds.lat[0]).values  # Latitude resolution (negative)
+
+    # Construct and return the affine matrix
+    return Affine(lon_res, 0, lon_min, 0, lat_res, lat_max)
+
+
 def filter_by_geo (ds, geo):
     """
     Filter an Xarray file by a geographical mask. 

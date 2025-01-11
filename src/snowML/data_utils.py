@@ -132,30 +132,6 @@ def s3_to_ds(bucket_name, file_name):
     return ds
 
 
-def s3_to_ds_multi(bucket_name, pattern):
-    """
-    Load and concatenate NetCDF files from an S3 bucket along 
-    the time dimension using a glob pattern.
-
-    Parameters:
-        pattern (str): The glob pattern to match files in the S3 bucket.
-                       Ex.: "s3://bucket_name/raw_swe_unmasked_in_hucid_*_to_*"
-
-    Returns:
-        xarray.Dataset: A single dataset concatenated along the time dimension.
-    """
-    s3 = S3FileSystem(anon=False)
-    s3path = f"s3://{bucket_name}/{pattern}"
-    files = s3.glob(s3path)
-    print(files)
-    fileset = [s3.open(f) for f in files]
-    for f in fileset[0:2]:
-        ds = xr.open_dataset(f)
-        print(ds)
-    data = xr.open_mfdataset(fileset[0:2], combine='by_coords', concat_dim='time')
-    
-
-
 
 def s3_to_gdf(bucket_name, file_name, region_name="us-east-1"):
     """

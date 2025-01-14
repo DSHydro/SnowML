@@ -30,4 +30,4 @@ if [ -z "$cookies" ]; then
     cookies=$PWD/usr_cookies.txt
 fi
 
-echo 'machine urs.earthdata.nasa.gov login derek.tropf password $gu5DNcP*pMq54' >> $cookies
+echo 'machine urs.earthdata.nasa.gov login $user_name password $password' >> $cookies

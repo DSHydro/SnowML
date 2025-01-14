@@ -30,6 +30,16 @@ def get_raw(year, VARS_TO_KP = "SWE"):
     ds = ds[VARS_TO_KP]
     return ds
 
+# def get_raw_multi(years, VARS_TO_KP = "SWE"):
+#     time_start = time.time()
+#     files = [f"4km_SWE_Depth_WY{year}_v01.nc" for year in years]
+#     ds = du.url_to_ds_muliti(ROOT, files, requires_auth=True, \
+#                  username=USERNAME, password=PASSWORD)
+#     ds = ds[VARS_TO_KP]
+#     elapsed = time.time() - time_start
+#     print(f"Elapsed time is {elapsed}")
+#     return ds
+
 # crude filter of data based on bounding box
 def crude_filter(ds, min_lon, min_lat, max_lon, max_lat):
     filtered_ds = ds.sel(lat=slice(min_lat, max_lat), lon=slice(min_lon, max_lon))
@@ -101,7 +111,7 @@ def process_all(huc_lev, huc_id, overwrite_s = False, overwrite_b = False):
     elapsed_time = time.time() - time_start
     print(f"Elapsed time : {elapsed_time:.2f} seconds")
 
-    
+    #silver & gold procesing 
     for i in range (geos.shape[0]):
         row = geos.iloc[[i]]
         huc_id = row.iloc[0]["huc_id"]

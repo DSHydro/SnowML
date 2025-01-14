@@ -20,8 +20,21 @@ import geopandas as gpd
 from botocore.exceptions import NoCredentialsError, ClientError
 from io import StringIO
 from s3fs.core import S3FileSystem
+import rasterio
+from rasterio.transform import from_bounds
+from affine import Affine
 
-
+# use calc_transform instead of Affine if the data is normally sorted
+def calc_transform(ds):
+    transform = from_bounds(west=ds.lon.min().item(),
+        south=ds.lat.min().item(),
+        east=ds.lon.max().item(),
+        north=ds.lat.max().item(),
+        width=ds.dims["lon"],
+        height=ds.dims["lat"],
+        )
+    return transform
+  
 def calc_Affine(ds):
     """
     Calculates the affine transformation matrix for datasets with latitude
@@ -34,7 +47,6 @@ def calc_Affine(ds):
 
     # Construct and return the affine matrix
     return Affine(lon_res, 0, lon_min, 0, lat_res, lat_max)
-
 
 def filter_by_geo (ds, geo):
     """
@@ -79,6 +91,44 @@ def url_to_ds(root, file_name,requires_auth=False, username=None, password=None)
     print(f"Failed to fetch data. Status code: {response.status_code}")
     return None
 
+
+def url_to_ds_muliti(root, file_names, requires_auth=False, username=None, password=None):
+    """Load multiple NetCDF files from URLs and combine them into a single dataset.
+    
+    Parameters:
+        root (str): The root URL where files are located.
+        file_names (list of str): List of file names to load.
+        requires_auth (bool): Whether authentication is required.
+        username (str): Username for authentication (if required).
+        password (str): Password for authentication (if required).
+        
+    Returns:
+        xarray.Dataset: Combined dataset from all files.
+    """
+    # Prepare authentication if required
+    auth = (username, password) if requires_auth else None
+
+    file_like_objects = []
+
+    for file_name in file_names:
+        url = root + file_name
+        response = requests.get(url, auth=auth)
+
+        # Check if the request was successful
+        if response.status_code == 200:
+            # Convert the raw response content to a file-like object
+            file_like_objects.append(io.BytesIO(response.content))
+        else:
+            print(f"Failed to fetch {file_name}. Status code: {response.status_code}")
+
+    if not file_like_objects:
+        print("No files could be loaded. Returning None.")
+        return None
+
+    # Open multiple file-like objects as a single dataset
+    ds = xr.open_mfdataset(file_like_objects, combine="by_coords")
+
+    return ds
 
 def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
                requires_auth=False, username=None, password=None,
@@ -140,8 +190,10 @@ def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
 def s3_to_ds(bucket_name, file_name):
     s3_path = f"s3://{bucket_name}/{file_name}"
     fs = s3fs.S3FileSystem(anon=False)
+    #fs = s3fs.S3FileSystem(cache_regions=False)
+    #fs.invalidate_cache
     with fs.open(s3_path) as f:
-        ds = xr.open_dataset(f)
+        ds = xr.open_dataset(f, engine="h5netcdf")
         ds.load()
     return ds
 

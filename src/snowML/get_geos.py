@@ -66,6 +66,11 @@ def get_geos(huc_id, final_huc_lev, save = True, bucket_nm = "shape-bronze"):
     bbox = create_bbox(outer_geo)
     gdf = easysnowdata.hydroclimatology.get_huc_geometries(bbox_input=bbox, huc_level=final_huc_lev)
 
+def get_huc(bbox, huc_nm, huc_id, huc_lev_nxt):
+    #ee.Authenticate()
+    #ee.Initialize(project = PROJ)
+    gdf = easysnowdata.hydroclimatology.get_huc_geometries(bbox_input=bbox, huc_level=huc_lev_nxt)
+    
     #discard overinclusive entries that don't match starting string
     huc_str=gdf.iloc[:, 1]
     idx = huc_str.str.startswith(huc_id)

@@ -30,6 +30,7 @@ def get_raw(year, VARS_TO_KP = "SWE"):
     ds = ds[VARS_TO_KP]
     return ds
 
+
 # def get_raw_multi(years, VARS_TO_KP = "SWE"):
 #     time_start = time.time()
 #     files = [f"4km_SWE_Depth_WY{year}_v01.nc" for year in years]

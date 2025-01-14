@@ -24,20 +24,6 @@ import rasterio
 from rasterio.transform import from_bounds
 from affine import Affine
 
-
-# def calc_Affine(ds):
-#     """
-#     Calculates the affine transformation matrix for datasets with latitude
-#     values listed from largest to smallest.
-#     """
-#     lon_min = ds.lon.min().values
-#     lat_max = ds.lat.max().values
-#     lon_res = (ds.lon[1] - ds.lon[0]).values  # Longitude resolution
-#     lat_res = (ds.lat[1] - ds.lat[0]).values  # Latitude resolution (negative)
-
-#     # Construct and return the affine matrix
-#     return Affine(lon_res, 0, lon_min, 0, lat_res, lat_max)
-
 # use calc_transform instead of Affine if the data is normally sorted
 def calc_transform(ds):
     transform = from_bounds(west=ds.lon.min().item(),
@@ -48,7 +34,19 @@ def calc_transform(ds):
         height=ds.dims["lat"],
         )
     return transform
+  
+def calc_Affine(ds):
+    """
+    Calculates the affine transformation matrix for datasets with latitude
+    values listed from largest to smallest.
+    """
+    lon_min = ds.lon.min().values
+    lat_max = ds.lat.max().values
+    lon_res = (ds.lon[1] - ds.lon[0]).values  # Longitude resolution
+    lat_res = (ds.lat[1] - ds.lat[0]).values  # Latitude resolution (negative)
 
+    # Construct and return the affine matrix
+    return Affine(lon_res, 0, lon_min, 0, lat_res, lat_max)
 
 def filter_by_geo (ds, geo):
     """
@@ -93,6 +91,7 @@ def url_to_ds(root, file_name,requires_auth=False, username=None, password=None)
     print(f"Failed to fetch data. Status code: {response.status_code}")
     return None
 
+
 def url_to_ds_muliti(root, file_names, requires_auth=False, username=None, password=None):
     """Load multiple NetCDF files from URLs and combine them into a single dataset.
     
@@ -130,8 +129,6 @@ def url_to_ds_muliti(root, file_names, requires_auth=False, username=None, passw
     ds = xr.open_mfdataset(file_like_objects, combine="by_coords")
 
     return ds
-
-
 
 def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
                requires_auth=False, username=None, password=None,

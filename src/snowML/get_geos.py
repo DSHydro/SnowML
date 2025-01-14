@@ -10,7 +10,6 @@ import easysnowdata
 from shapely.geometry import box
 
 
-
 def ee_to_geojson(asset_id, field_name, value, output_file):
     """
     Filters an Earth Engine FeatureCollection by a specific field and value,
@@ -29,22 +28,24 @@ def ee_to_geojson(asset_id, field_name, value, output_file):
     filtered = dataset.filter(ee.Filter.eq(field_name, value))
     geemap.ee_export_vector(filtered, filename=output_file)
 
+
 # function that creates an outer boundary box for a given geometry
-def create_bbox (sp):
+def create_bbox(sp):
     minx, miny, maxx, maxy = sp.bounds
     bbox = box(minx, miny, maxx, maxy)
     return bbox
 
-def get_geos(huc_id, final_huc_lev, save = True, bucket_nm = "shape-bronze"):
+
+def get_geos(huc_id, final_huc_lev, save=True, bucket_nm="shape-bronze"):
     # make sure earth engine credentials are working
     try:
         ee.Authenticate()
-        ee.Initialize(project='ee-frostydawgs')
+        ee.Initialize(project="ee-frostydawgs")
     except:
         raise ValueError("Problem with earth link credentials")
 
     # validate inputs
-    huc_levs = ['02', '04', '06', '08', '10', '12']
+    huc_levs = ["02", "04", "06", "08", "10", "12"]
     if not final_huc_lev in huc_levs:
         raise ValueError(f"Final Huc Levels must one of {huc_levs}")
     if isinstance(huc_id, int):
@@ -54,7 +55,7 @@ def get_geos(huc_id, final_huc_lev, save = True, bucket_nm = "shape-bronze"):
         raise ValueError("Huc id must be an even number between 2 and 12")
 
     # Get the geometry for the top level huc
-    asset_id = f'USGS/WBD/2017/HUC{huc_lev_start}'
+    asset_id = f"USGS/WBD/2017/HUC{huc_lev_start}"
     f_out = "temp_ee.geojson"
     ee_to_geojson(asset_id, f"huc{len(huc_id)}", huc_id, f_out)
     filtered_gdf = gpd.read_file(f_out)
@@ -64,15 +65,20 @@ def get_geos(huc_id, final_huc_lev, save = True, bucket_nm = "shape-bronze"):
 
     # create a df of all the subunit within the bounding box
     bbox = create_bbox(outer_geo)
-    gdf = easysnowdata.hydroclimatology.get_huc_geometries(bbox_input=bbox, huc_level=final_huc_lev)
+    gdf = easysnowdata.hydroclimatology.get_huc_geometries(
+        bbox_input=bbox, huc_level=final_huc_lev
+    )
+
 
 def get_huc(bbox, huc_nm, huc_id, huc_lev_nxt):
-    #ee.Authenticate()
-    #ee.Initialize(project = PROJ)
-    gdf = easysnowdata.hydroclimatology.get_huc_geometries(bbox_input=bbox, huc_level=huc_lev_nxt)
-    
-    #discard overinclusive entries that don't match starting string
-    huc_str=gdf.iloc[:, 1]
+    # ee.Authenticate()
+    # ee.Initialize(project = PROJ)
+    gdf = easysnowdata.hydroclimatology.get_huc_geometries(
+        bbox_input=bbox, huc_level=huc_lev_nxt
+    )
+
+    # discard overinclusive entries that don't match starting string
+    huc_str = gdf.iloc[:, 1]
     idx = huc_str.str.startswith(huc_id)
     gdf = gdf.loc[idx]
 
@@ -80,7 +86,7 @@ def get_huc(bbox, huc_nm, huc_id, huc_lev_nxt):
     if save:
         f_out = f"Huc{final_huc_lev}_in_{huc_id}.geojson"
         gdf.to_file(f_out, driver="GeoJSON")
-        s3_client = boto3.client('s3')
+        s3_client = boto3.client("s3")
         s3_client.upload_file(f_out, bucket_nm, f_out)
         os.remove(f_out)
         print(f"File {f_out} successfully uploaded to {bucket_nm}")

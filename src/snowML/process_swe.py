@@ -31,16 +31,6 @@ def get_raw(year, VARS_TO_KP = "SWE"):
     return ds
 
 
-# def get_raw_multi(years, VARS_TO_KP = "SWE"):
-#     time_start = time.time()
-#     files = [f"4km_SWE_Depth_WY{year}_v01.nc" for year in years]
-#     ds = du.url_to_ds_muliti(ROOT, files, requires_auth=True, \
-#                  username=USERNAME, password=PASSWORD)
-#     ds = ds[VARS_TO_KP]
-#     elapsed = time.time() - time_start
-#     print(f"Elapsed time is {elapsed}")
-#     return ds
-
 # crude filter of data based on bounding box
 def crude_filter(ds, min_lon, min_lat, max_lon, max_lat):
     filtered_ds = ds.sel(lat=slice(min_lat, max_lat), lon=slice(min_lon, max_lon))

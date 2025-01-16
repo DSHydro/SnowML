@@ -9,6 +9,7 @@ as Environment Variables.
 
 import io
 import boto3
+import fsspec
 import os
 import requests
 import s3fs
@@ -23,6 +24,8 @@ from s3fs.core import S3FileSystem
 import rasterio
 from rasterio.transform import from_bounds
 from affine import Affine
+
+
 
 # use calc_transform instead of Affine if the data is normally sorted
 def calc_transform(ds):
@@ -47,6 +50,10 @@ def calc_Affine(ds):
 
     # Construct and return the affine matrix
     return Affine(lon_res, 0, lon_min, 0, lat_res, lat_max)
+
+def crude_filter(ds, min_lon, min_lat, max_lon, max_lat):
+    filtered_ds = ds.sel(lat=slice(min_lat, max_lat), lon=slice(min_lon, max_lon))
+    return filtered_ds
 
 def filter_by_geo (ds, geo):
     """
@@ -190,8 +197,6 @@ def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
 def s3_to_ds(bucket_name, file_name):
     s3_path = f"s3://{bucket_name}/{file_name}"
     fs = s3fs.S3FileSystem(anon=False)
-    #fs = s3fs.S3FileSystem(cache_regions=False)
-    #fs.invalidate_cache
     with fs.open(s3_path) as f:
         ds = xr.open_dataset(f, engine="h5netcdf")
         ds.load()
@@ -322,5 +327,28 @@ def get_basin_geos (huc_lev, huc_no, bucket_nm = "shape-bronze"):
         raise ValueError(f"No shape file found for {file_nm} in {bucket_nm}")
     basin_gdf = s3_to_gdf (bucket_nm, file_nm)
     print(f"Shapefile {file_nm} uploaded from {bucket_nm}")
+    # Sort the GeoDataFrame by the second column
+    second_column_name = basin_gdf.columns[1]  # Get the name of the second column
+    basin_gdf = basin_gdf.sort_values(by=second_column_name)
     return basin_gdf
     
+def s3_to_ds_zarr (bucket_name, zarr_path, anon=False):
+    """
+    Create an xarray by opening a Zarr store on S3.
+
+    Parameters:
+    - bucket_name (str): The name of the S3 bucket.
+    - zarr_path (str): The path to the Zarr file within the bucket.
+    - anon (bool): Whether to access the bucket anonymously (default: True).
+
+    Returns:
+    - Dataset(xarray): The loaded dataset.
+
+    Example:
+    >>> ds = load_zarr_from_s3('my-bucket', 'my-data.zarr')
+    """
+    s3 = s3fs.S3FileSystem()
+    s3_url = f"s3://{bucket_name}/{zarr_path}"
+    dat = xr.open_zarr(store=s3_url, chunks={}, consolidated=True)
+
+    return dat

@@ -1,155 +1,89 @@
-"""Module to process meteorological data"""
-# pylint: disable=C0103,C0116
+""" Module to download and process University of Idaho Gridmet Data"""
+ 
 
+import requests
 import os
-import time
-import pandas as pd
-import xarray as xr
 import data_utils as du
-import boto3
-import rioxarray
-from s3fs.core import S3FileSystem
-from affine import Affine
-from rasterio.transform import from_origin
+import s3fs
+import time
 import warnings
+import xarray as xr
+from tqdm import tqdm
 
 
-# Suppress FutureWarnings globally for this module
-warnings.simplefilter(action='ignore', category=FutureWarning)
-
-
-
-# CONSTANTs 
-ROOT = "http://www.northwestknowledge.net/metdata/data/"
-USERNAME = os.environ["EARTHDATA_USER"]
-PASSWORD = os.environ["EARTHDATA_PASS"]
-QUIET = False
+BRONZE_BUCKET_NM = "wrf-prebronze" # bronze vs. pre_bronze for testing 
+SILVER_BUCKET_NM = "wrf-silver"
+GOLD_BUCKET_NM =  "wrf-gold"
 VARS = ["pr", "tmmn", "vs"] 
 VAR_NAMES = ["precipitation_amount", "air_temperature", "wind_speed"] # three example variables, there are others 
 VAR_DICT = dict(zip(VARS, VAR_NAMES))
-BRONZE_BUCKET_NM = "sues-scratch"
-SILVER_BUCKET_NM = "sues-scratch"
-GOLD_BUCKET_NM =  "sues-scratch"
-YEAR_LIST = [range(1982, 1990), range(1990, 2000), range(2000, 2010), \
-              range(2010, 2020), range(2020, 2024)]
 
 
-# download file from url
-def get_raw(year, var):
-    file_name = f"{var}_{year}.nc"
-    ds = du.url_to_ds(ROOT, file_name, requires_auth=True, \
-             username=USERNAME, password=PASSWORD)
-    #ds = du.url_to_ds(ROOT, file_name) 
+def prep_bronze(geos, var):
+    # load_raw
+    zarr_store_url = f's3://{BRONZE_BUCKET_NM}/{var}_all.zarr'  # TO DO FIX HARDCODE 
+    ds = xr.open_zarr(store=zarr_store_url, chunks={}, consolidated=True)
     ds_sorted = ds.sortby("lat")
-    return ds_sorted
-
-# crude filter of data based on bounding box
-def crude_filter(ds, min_lon, min_lat, max_lon, max_lat):
-    filtered_ds = ds.sel(lat=slice(min_lat, max_lat), lon=slice(min_lon, max_lon))
-    return filtered_ds
-
-def raw_to_bronze(geos, var, year):
-    ds = get_raw(year, var)
+    # Perform first cut crude filter 
     min_lon, min_lat, max_lon, max_lat = geos.unary_union.bounds
-    filtered_ds = crude_filter(ds, min_lon, min_lat, max_lon, max_lat)
-    return filtered_ds
+    small_ds = du.crude_filter(ds_sorted, min_lon, min_lat, max_lon, max_lat)
+    transform = du.calc_transform(small_ds)
+    small_ds = small_ds.rio.write_transform(transform, inplace=True)
+    small_ds.rio.write_crs("EPSG:4326", inplace=True)
+    return small_ds 
+        
 
-def raw_to_bronze_multi(geos, var, years):
-    yr = years[0]
-    if not QUIET:
-        print(f"processing raw data year {yr}")
-    results = raw_to_bronze(geos, var, yr)
-    for yr in years[1:]:
-        if not QUIET:
-            print(f"processing raw data year {yr}")
-        ds = raw_to_bronze(geos, var, yr)
-        results = xr.concat([ds, results], dim="time")
-    return results
+def process_silver_row (small_ds, row):
+    ds_filter = du.filter_by_geo (small_ds, row)          
+    silver_df = ds_filter.to_dataframe()
+    silver_df = silver_df[silver_df.columns.drop(["spatial_ref", "crs"])]
+    huc_id = row.iloc[0, 1] # get the id of the smaller huc uit 
+    silver_df["huc_id"] = huc_id 
+    return silver_df    
 
-def process_bronze_all (geos, huc_id, var, overwrite = False):
-    for years in YEAR_LIST:
-        f_bronze = f"raw_{var}_unmasked_in_{huc_id}_{min(years)}_to_{max(years)}"
-        if du.isin_s3(BRONZE_BUCKET_NM, f"{f_bronze}.nc") and not overwrite:
-            print(f"File {f_bronze} already exists in {BRONZE_BUCKET_NM}")
-            bronze_ds = du.s3_to_ds(BRONZE_BUCKET_NM, f"{f_bronze}.nc")
-        else:
-            bronze_ds = raw_to_bronze_multi(geos, var, years)
-            du.dat_to_s3(bronze_ds, BRONZE_BUCKET_NM, f_bronze)
-
-def bronze_to_silver(row, var):
-    results = pd.DataFrame()
-    huc_id = row.iloc[0]["huc_id"][:8] # TO DO - DYNAMIC UPPER LEVEL 
-    
-    # gather files 
-    s3 = S3FileSystem(anon=False)
-    #s3 = S3FileSystem(cache_regions=False)
-    s3path = f"s3://{BRONZE_BUCKET_NM}/raw_{var}_unmasked_in_{huc_id}*"
-    files = s3.glob(s3path)
-    #print(f"Files are: {files}")
-    if not files:
-        raise ValueError(f"No bronze data ready for silver processing for huc {huc_id}")
-    fileset = [s3.open(f) for f in files]
-    
-    # open dataset, filter by geo, save to df
-    for f in fileset:
-        ds = xr.open_dataset(f, engine="h5netcdf")
-        transform = du.calc_transform(ds)
-        ds = ds.rio.write_transform(transform, inplace=True)
-        ds.rio.write_crs("EPSG:4326", inplace=True)
-        ds_filter = du.filter_by_geo (ds, row)          
-        df = ds_filter.to_dataframe()
-        #df = df[df.columns.drop(["spatial_ref", "crs"])]
-        df["huc_id"] = huc_id
-        results = pd.concat([results, df])
-    return results  
+def process_gold (silver_df, var, huc_id):
+    var_name = VAR_DICT.get(var)
+    gold_df = silver_df.groupby(['day'])[var_name].mean().reset_index() # TO DO: Fix Logic
+    gold_df["huc_id"] = huc_id
+    f_out = f"mean_{var}_in_{huc_id}"
+    du.dat_to_s3(gold_df, GOLD_BUCKET_NM, f_out, file_type="csv")
 
 
-def process_one_var(huc_lev, huc_id, var, overwrite_s = False, overwrite_b = False): 
-    # track processing time
+def process_all(huc_lev, huc_id, var, overwrite = False):
     time_start = time.time()
+    # get geos
+    geos = du.get_basin_geos(huc_lev, huc_id)  
 
-    # get shape file
-    geos = du.get_basin_geos(huc_lev, huc_id)
+    # get and prep bronze data
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=FutureWarning)  # TO DO: ADDRESS THE FUTURE WARNING
+        small_ds = prep_bronze(geos, var)
     
-    # bronze processing
-    process_bronze_all (geos, huc_id, var, overwrite = overwrite_b) 
-    elapsed_time = time.time() - time_start
-    print(f"Elapsed time : {elapsed_time:.2f} seconds")
-
-    #silver & gold procesing 
+    # silver and gold processing
     for i in range (geos.shape[0]):
         row = geos.iloc[[i]]
-        huc_id = row.iloc[0]["huc_id"]
-
+        huc_id = row.iloc[0, 1] # get the id of the smaller huc uit 
+        
         # silver processing
-        f_silver = f"raw_{var}_in_{huc_id}"
-        if du.isin_s3(SILVER_BUCKET_NM, f"{f_silver}.csv") and not overwrite_s: 
+        f_silver = f"raw_{var}_in_{huc_id}" 
+        if du.isin_s3(SILVER_BUCKET_NM, f"{f_silver}.csv") and not overwrite: 
             print(f"File{f_silver} already exists in {SILVER_BUCKET_NM}")
-            silver_df = du.s3_to_df(f"{f_silver}.csv", SILVER_BUCKET_NM)   
-
+            silver_df = du.s3_to_df(f"{f_silver}.csv", SILVER_BUCKET_NM)
         else: 
-            print(f"procesing huc_id {huc_id}")
-            silver_df = bronze_to_silver(row, var) 
+            print(f"processing silver for huc: {huc_id} ")
+            silver_df = process_silver_row(small_ds, row)
             du.dat_to_s3(silver_df, SILVER_BUCKET_NM, f_silver, file_type="csv")
-
-        # gold processing  
-        var_name = VAR_DICT.get(var)   
-        #print(silver_df)
-        gold_df = silver_df.groupby(['day'])[var_name].mean().reset_index()
-        gold_df["huc_id"] = huc_id
-        f_out = f"mean_{var}_in_{huc_id}"
-        du.dat_to_s3(gold_df, GOLD_BUCKET_NM, f_out, file_type="csv")
-
-    elapsed_time = time.time() - time_start
-    print(f"Elapsed time : {elapsed_time:.2f} seconds")    
-
     
+        # gold_processing
+        f_gold = f"mean_{var}_in_{huc_id}"
+        if du.isin_s3(GOLD_BUCKET_NM, f"{f_gold}.csv") and not overwrite: 
+            print(f"File{f_gold} already exists in {GOLD_BUCKET_NM}")
+        else: 
+            print(f"processing gold for huc: {huc_id} ")
+            process_gold(silver_df, var, huc_id)   
+        
+        elapsed(time_start)
+
+        
      
-
-
- 
-
-
-
-
-
+    

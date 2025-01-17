@@ -10,7 +10,7 @@ import xarray as xr
 from tqdm import tqdm
 
 
-BRONZE_BUCKET_NM = "wrf-prebronze"
+
 
 def elapsed(time_start):
     elapsed_time = time.time() - time_start
@@ -41,6 +41,10 @@ def netcdf_to_zarr(years, var, zarr_output="combined_data.zarr", batch_size=1):
     """
     time_start = time.time()
     output_dir = "downloaded_files"
+    if var == "swe": 
+        dim_to_concat = "time"
+    else: 
+        dim_to_concat = "day"    
     os.makedirs(output_dir, exist_ok=True)
 
     # Function to download a file
@@ -73,18 +77,22 @@ def netcdf_to_zarr(years, var, zarr_output="combined_data.zarr", batch_size=1):
             if file_path and os.path.exists(file_path):
                 ds = xr.open_dataset(file_path)
                 ds_sorted = ds.sortby("lat")
+                # drop DEPTH variable from SWE Dataset
+                if var == "swe":
+                    ds_sorted = ds_sorted[["SWE"]]
+                    print(ds)
                 datasets.append(ds_sorted)
 
         if datasets:
             print(f"Writing batch {batch_years} to Zarr...")
-            combined_batch = xr.concat(datasets, dim="day") # TODO: make dim dynamic
+            combined_batch = xr.concat(datasets, dim=dim_to_concat) 
             # Append the batch to the Zarr file
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
                 if not os.path.exists(zarr_output):
                     combined_batch.to_zarr(zarr_output, mode="w")  # Use mode="w" to write the first datase
                 else: 
-                    combined_batch.to_zarr(zarr_output, mode="a", append_dim="day")
+                    combined_batch.to_zarr(zarr_output, mode="a", append_dim=dim_to_concat)
             print(f"Batch {batch_years} successfully written to {zarr_output}.")
 
         # Clean up memory
@@ -127,6 +135,14 @@ def upload_zarr_to_s3(zarr_path, s3_bucket, s3_path=None):
         # Using s3fs to copy the entire directory
         fs.put(zarr_path, f"s3://{s3_bucket}/{s3_path}", recursive=True)
         print(f"Zarr data uploaded successfully to s3://{s3_bucket}/{s3_path}")
+
+        # If upload is successful, delete the local Zarr directory
+        if os.path.isdir(zarr_path):
+            shutil.rmtree(zarr_path)  # Use shutil.rmtree for directories with contents
+            print(f"Local Zarr directory {zarr_path} has been deleted.")
+        else:
+            os.remove(zarr_path)  # If it's a file, remove it
+            print(f"Local Zarr file {zarr_path} has been deleted.")
     except Exception as e:
         print(f"Error uploading Zarr to S3: {e}")  
     return s3_path 
@@ -135,7 +151,7 @@ def get_bronze (years, var, bronze_bucket_nm, batch_size=1):
     # TO DO - Validate year input, batch size input
 
     # download raw and save to local directory 
-    local_zarr = netcdf_to_zarr(years, var, zarr_output=f"combined_{var}.zarr", batch_size=batch_size)
+    local_zarr = netcdf_to_zarr(years, var, zarr_output=f"{var}_all.zarr", batch_size=batch_size)
 
     # upload to bronze bucket
     s3_path = upload_zarr_to_s3(local_zarr, bronze_bucket_nm, s3_path=None)

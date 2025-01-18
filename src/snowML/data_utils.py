@@ -239,7 +239,7 @@ def dat_to_s3(dat, bucket_name, f_out, file_type="netcdf", region_name="us-east-
 
 
     if file_type == "csv":
-        dat.to_csv(output_file)
+        dat.to_csv(output_file, index=False)
     elif file_type == "parquet":
         dat.to_dataframe().to_parquet(output_file)
     elif file_type == "netcdf":

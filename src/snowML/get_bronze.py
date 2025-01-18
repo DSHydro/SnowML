@@ -4,6 +4,7 @@ import requests
 import os
 import data_utils as du
 import s3fs
+import shutil
 import time
 import warnings
 import xarray as xr
@@ -22,7 +23,8 @@ def get_url_pattern(var):
         file_name_pattern = "4km_SWE_Depth_WY{year}_v01.nc"
         url_pattern = root+file_name_pattern
     elif var in ["pr", "tmmn", "vs"]: 
-        url_pattern = "http://www.northwestknowledge.net/metdata/data/pr_{year}.nc"
+        url_p = f"http://www.northwestknowledge.net/metdata/data/{var}"
+        url_pattern = url_p + "_{year}.nc"
     else: 
         print("var not regognized")
         url_pattern = ""
@@ -77,10 +79,10 @@ def netcdf_to_zarr(years, var, zarr_output="combined_data.zarr", batch_size=1):
             if file_path and os.path.exists(file_path):
                 ds = xr.open_dataset(file_path)
                 ds_sorted = ds.sortby("lat")
+                #print(ds)
                 # drop DEPTH variable from SWE Dataset
                 if var == "swe":
                     ds_sorted = ds_sorted[["SWE"]]
-                    print(ds)
                 datasets.append(ds_sorted)
 
         if datasets:

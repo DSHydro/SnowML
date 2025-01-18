@@ -25,7 +25,6 @@ def prep_bronze(geos, var, bucket_dict):
     # load_raw
     if var == "swe": 
         b_bronze = bucket_dict.get(f"{var}-bronze")
-        print(f"b-bronze is {b_bronze}")
     else: 
         b_bronze = bucket_dict.get("wrf-bronze")
     zarr_store_url = f's3://{b_bronze}/{var}_all.zarr'  
@@ -60,7 +59,7 @@ def process_gold (silver_df, var, huc_id, b_gold):
     else: 
         grouper = "day"
         var_name = VAR_DICT.get(var)
-    gold_df = silver_df.groupby(['time'])[var_name].mean().reset_index() # TO DO: Fix Logic
+    gold_df = silver_df.groupby([grouper])[var_name].mean().reset_index() # TO DO: Fix Logic
     gold_df["huc_id"] = huc_id
     f_out = f"mean_{var}_in_{huc_id}"
     du.dat_to_s3(gold_df, b_gold, f_out, file_type="csv")

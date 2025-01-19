@@ -8,21 +8,16 @@ as Environment Variables.
 
 
 import io
-import boto3
-import fsspec
 import os
+import time
 import requests
 import s3fs
-import re
-import zarr
-import time
+import boto3
 import xarray as xr
 import pandas as pd
 import geopandas as gpd
 from botocore.exceptions import NoCredentialsError, ClientError
 from io import StringIO
-from s3fs.core import S3FileSystem
-import rasterio
 from rasterio.transform import from_bounds
 from affine import Affine
 
@@ -38,7 +33,7 @@ def calc_transform(ds):
         height=ds.dims["lat"],
         )
     return transform
-  
+
 def calc_Affine(ds):
     """
     Calculates the affine transformation matrix for datasets with latitude
@@ -73,9 +68,9 @@ def filter_by_geo (ds, geo):
     return ds_final
 
 def ds_mean(ds):
-    ds_mean = ds.mean(dim=['lat','lon'])
-    ds_mean = ds_mean.rename({var: f"mean_{var}" for var in ds_mean.data_vars})
-    return ds_mean
+    ds_m = ds.mean(dim=['lat','lon'])
+    ds_m = ds_m.rename({var: f"mean_{var}" for var in ds_m.data_vars})
+    return ds_m
 
 def get_url_pattern(var):
     if var == "swe":
@@ -254,7 +249,7 @@ def dat_to_s3(dat, bucket_name, f_out, file_type="netcdf", region_name="us-east-
     #     # Save Zarr directly to S3
     #     dat.to_zarr(f"s3://{bucket_name}/{output_file}/", mode="w")
     #     print(f"Zarr dataset successfully uploaded to s3://{bucket_name}/{output_file}")
-    #     return  
+    #     return
 
 
     if file_type == "csv":
@@ -263,7 +258,7 @@ def dat_to_s3(dat, bucket_name, f_out, file_type="netcdf", region_name="us-east-
         dat.to_dataframe().to_parquet(output_file)
     elif file_type == "netcdf":
         dat.to_netcdf(output_file)
-   
+
 
     # Upload to S3
     s3_client = boto3.client('s3', region_name=region_name)
@@ -283,7 +278,7 @@ def isin_s3(bucket_name, file_name):
         return True
     except s3.exceptions.ClientError:
         return False
-    
+
 def s3_to_df(file_name, bucket_name):
     """
     Loads a CSV file from an S3 bucket into a pandas DataFrame.
@@ -302,7 +297,7 @@ def s3_to_df(file_name, bucket_name):
     return df
 
 # Returns a geo dataframe of geometries from the shape bornze bucket
-def get_basin_geos (huc_lev, huc_no, bucket_nm = "shape-bronze"):    
+def get_basin_geos (huc_lev, huc_no, bucket_nm = "shape-bronze"):
     file_nm = f"{huc_lev}_in_{huc_no}.geojson"
     if not isin_s3(bucket_nm, file_nm):
         raise ValueError(f"No shape file found for {file_nm} in {bucket_nm}")
@@ -312,8 +307,9 @@ def get_basin_geos (huc_lev, huc_no, bucket_nm = "shape-bronze"):
     second_column_name = basin_gdf.columns[1]  # Get the name of the second column
     basin_gdf = basin_gdf.sort_values(by=second_column_name)
     return basin_gdf
-    
-def s3_to_ds_zarr (bucket_name, zarr_path, anon=False):
+
+
+def s3_to_ds_zarr (bucket_name, zarr_path):
     """
     Create an xarray by opening a Zarr store on S3.
 
@@ -328,7 +324,6 @@ def s3_to_ds_zarr (bucket_name, zarr_path, anon=False):
     Example:
     >>> ds = load_zarr_from_s3('my-bucket', 'my-data.zarr')
     """
-    s3 = s3fs.S3FileSystem()
     s3_url = f"s3://{bucket_name}/{zarr_path}"
     dat = xr.open_zarr(store=s3_url, chunks={}, consolidated=True)
 

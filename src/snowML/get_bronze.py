@@ -7,9 +7,9 @@ import shutil
 import os
 import s3fs
 import requests
-import data_utils as du
 import xarray as xr
 from tqdm import tqdm
+import data_utils as du
 
 def elapsed(time_start):
     elapsed_time = time.time() - time_start

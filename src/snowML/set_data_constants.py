@@ -25,7 +25,7 @@ def create_var_dict():
 
 def create_f_out_dict():
     f_out_types = ["bronze", "silver", "gold"]
-    f_out_patterns = ["{var}_all.zarr", "raw_{var}_in_{huc_id}", "mean_{var}_in_{huc_id}"]
+    f_out_patterns = ["{var}_all.zarr", "raw_{var}_in_{huc_id}.csv", "mean_{var}_in_{huc_id}.csv"]
     f_out_dict = dict(zip(f_out_types, f_out_patterns)) 
     return f_out_dict
 

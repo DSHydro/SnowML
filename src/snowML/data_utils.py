@@ -15,6 +15,7 @@ import requests
 import s3fs
 import re
 import zarr
+import time
 import xarray as xr
 import pandas as pd
 import geopandas as gpd
@@ -76,6 +77,19 @@ def ds_mean(ds):
     ds_mean = ds_mean.rename({var: f"mean_{var}" for var in ds_mean.data_vars})
     return ds_mean
 
+def get_url_pattern(var):
+    if var == "swe":
+        root = "https://daacdata.apps.nsidc.org/pub/DATASETS/nsidc0719_SWE_Snow_Depth_v1/"
+        file_name_pattern = "4km_SWE_Depth_WY{year}_v01.nc"
+        url_pattern = root+file_name_pattern
+    elif var in ["pr", "tmmn", "vs"]:
+        url_p = f"http://www.northwestknowledge.net/metdata/data/{var}"
+        url_pattern = url_p + "_{year}.nc"
+    else:
+        print("var not regognized")
+        url_pattern = ""
+    return url_pattern
+
 def url_to_ds(root, file_name,requires_auth=False, username=None, password=None):
     """ Direct load from url to netcdf file """
 
@@ -97,6 +111,11 @@ def url_to_ds(root, file_name,requires_auth=False, username=None, password=None)
 
     print(f"Failed to fetch data. Status code: {response.status_code}")
     return None
+
+
+def elapsed(time_start):
+    elapsed_time = time.time() - time_start
+    print(f"______Elapsed time is {int(elapsed_time)} seconds")
 
 
 def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",

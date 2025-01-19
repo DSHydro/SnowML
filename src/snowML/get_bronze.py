@@ -1,34 +1,32 @@
-# Module to download raw data to bronze bucket 
+# Module to download raw data to bronze bucket
+# pylint: disable=C0103
 
-import requests
-import os
-import data_utils as du
-import s3fs
-import shutil
-import time
 import warnings
+import time
+import shutil
+import os
+import s3fs
+import requests
+import data_utils as du
 import xarray as xr
 from tqdm import tqdm
-
-
-
 
 def elapsed(time_start):
     elapsed_time = time.time() - time_start
     print(f"elapsed time is {elapsed_time}")
 
-def get_url_pattern(var):
-    if var.__eq__("swe"):
-        root = "https://daacdata.apps.nsidc.org/pub/DATASETS/nsidc0719_SWE_Snow_Depth_v1/"
-        file_name_pattern = "4km_SWE_Depth_WY{year}_v01.nc"
-        url_pattern = root+file_name_pattern
-    elif var in ["pr", "tmmn", "vs"]: 
-        url_p = f"http://www.northwestknowledge.net/metdata/data/{var}"
-        url_pattern = url_p + "_{year}.nc"
-    else: 
-        print("var not regognized")
-        url_pattern = ""
-    return url_pattern 
+# def get_url_pattern(var):
+#     if var == "swe":
+#         root = "https://daacdata.apps.nsidc.org/pub/DATASETS/nsidc0719_SWE_Snow_Depth_v1/"
+#         file_name_pattern = "4km_SWE_Depth_WY{year}_v01.nc"
+#         url_pattern = root+file_name_pattern
+#     elif var in ["pr", "tmmn", "vs"]:
+#         url_p = f"http://www.northwestknowledge.net/metdata/data/{var}"
+#         url_pattern = url_p + "_{year}.nc"
+#     else:
+#         print("var not regognized")
+#         url_pattern = ""
+#     return url_pattern
 
 def netcdf_to_zarr(years, var, zarr_output="combined_data.zarr", batch_size=1):
     """
@@ -43,15 +41,15 @@ def netcdf_to_zarr(years, var, zarr_output="combined_data.zarr", batch_size=1):
     """
     time_start = time.time()
     output_dir = "downloaded_files"
-    if var == "swe": 
+    if var == "swe":
         dim_to_concat = "time"
-    else: 
-        dim_to_concat = "day"    
+    else:
+        dim_to_concat = "day"
     os.makedirs(output_dir, exist_ok=True)
 
     # Function to download a file
     def download_file(year):
-        url_pattern = get_url_pattern(var)
+        url_pattern = du.get_url_pattern(var)
         url = url_pattern.format(year=year)
         local_file = os.path.join(output_dir, f"WY{year}_v01.nc")
         if not os.path.exists(local_file):
@@ -87,13 +85,13 @@ def netcdf_to_zarr(years, var, zarr_output="combined_data.zarr", batch_size=1):
 
         if datasets:
             print(f"Writing batch {batch_years} to Zarr...")
-            combined_batch = xr.concat(datasets, dim=dim_to_concat) 
+            combined_batch = xr.concat(datasets, dim=dim_to_concat)
             # Append the batch to the Zarr file
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
                 if not os.path.exists(zarr_output):
                     combined_batch.to_zarr(zarr_output, mode="w")  # Use mode="w" to write the first datase
-                else: 
+                else:
                     combined_batch.to_zarr(zarr_output, mode="a", append_dim=dim_to_concat)
             print(f"Batch {batch_years} successfully written to {zarr_output}.")
 
@@ -146,18 +144,16 @@ def upload_zarr_to_s3(zarr_path, s3_bucket, s3_path=None):
             os.remove(zarr_path)  # If it's a file, remove it
             print(f"Local Zarr file {zarr_path} has been deleted.")
     except Exception as e:
-        print(f"Error uploading Zarr to S3: {e}")  
-    return s3_path 
+        print(f"Error uploading Zarr to S3: {e}")
+    return s3_path
 
-def get_bronze (years, var, bronze_bucket_nm, batch_size=1): 
+def get_bronze (years, var, bronze_bucket_nm, batch_size=1):
     # TO DO - Validate year input, batch size input
 
-    # download raw and save to local directory 
+    # download raw and save to local directory
     local_zarr = netcdf_to_zarr(years, var, zarr_output=f"{var}_all.zarr", batch_size=batch_size)
 
     # upload to bronze bucket
     s3_path = upload_zarr_to_s3(local_zarr, bronze_bucket_nm, s3_path=None)
 
     return s3_path
-
-

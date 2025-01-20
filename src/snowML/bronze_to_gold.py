@@ -1,4 +1,7 @@
-""" Module to download and process University of Idaho Gridmet Data"""
+""" Module to download raw climate data saved as a zarr file
+    into csv files clipeed by geo"""
+
+# pylint: disable=C0103
 
 import importlib
 import time
@@ -16,6 +19,7 @@ BUCKET_DICT = sdc.create_bucket_dict("prod")
 VAR_DICT = sdc.create_var_dict()
 
 
+
 def prep_bronze(geos, var, bucket_dict = BUCKET_DICT):
     # load_raw
     if var == "swe":
@@ -23,14 +27,17 @@ def prep_bronze(geos, var, bucket_dict = BUCKET_DICT):
     else:
         b_bronze = bucket_dict.get("wrf-bronze")
     zarr_store_url = f's3://{b_bronze}/{var}_all.zarr'
-    #ds = xr.open_zarr(store=zarr_store_url, chunks={}, consolidated=True)
     ds = xr.open_zarr(store=zarr_store_url, consolidated=True)
-    # print(print(ds.chunks))
-    ds_sorted = ds.sortby("lat")
 
     # Perform first cut crude filter
     min_lon, min_lat, max_lon, max_lat = geos.unary_union.bounds
-    small_ds = du.crude_filter(ds_sorted, min_lon, min_lat, max_lon, max_lat)
+    small_ds = du.crude_filter(ds, min_lon, min_lat, max_lon, max_lat)
+
+    # Sort if necessary
+    if not small_ds['lat'].to_index().is_monotonic_increasing:
+        small_ds = small_ds.sortby("lat")  # Only sort if required
+
+
     if var != "swe":
         transform = du.calc_transform(small_ds)
         small_ds = small_ds.rio.write_transform(transform, inplace=True)
@@ -101,8 +108,7 @@ def process_all(geos, var, bucket_dict=BUCKET_DICT, save_sil = False, overwrite 
         if du.isin_s3(b_gold, f"{f_gold}.csv") and not overwrite:
             print(f"File{f_gold} already exists in {b_gold}")
         else:
-            gold_df = process_gold(silver_df, var, huc_id, b_gold)
+            gold_df = process_gold(silver_df, var, huc_id)
             gold_df_list.append(gold_df)
             du.dat_to_s3(gold_df, b_gold, f_gold, file_type="csv")
         du.elapsed(time_start)
-

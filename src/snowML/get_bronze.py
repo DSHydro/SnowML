@@ -10,26 +10,35 @@ import s3fs
 import requests
 import xarray as xr
 import data_utils as du
+#import dask
+#from dask.distributed import Client
+#from dask.diagnostics import ProgressBar
 
-def url_to_ds(url,requires_auth=False, username=None, password=None):
+def url_to_ds(url, requires_auth=False, username=None, password=None, timeout=60):
     """ Direct load from url to xarray"""
 
     # Prepare authentication if required
     auth = (username, password) if requires_auth else None
 
-    response = requests.get(url, auth=auth)
+    try:
+        response = requests.get(url, auth=auth, timeout=timeout)
 
-    # Check if the request was successful
-    if response.status_code == 200:
-        # Convert the raw response content to a file-like object
-        file_like_object = io.BytesIO(response.content)
+        # Check if the request was successful
+        if response.status_code == 200:
+            # Convert the raw response content to a file-like object
+            file_like_object = io.BytesIO(response.content)
 
-        # Open the dataset from the file-like object
-        ds = xr.open_dataset(file_like_object)
+            # Open the dataset from the file-like object
+            ds = xr.open_dataset(file_like_object)
 
-        return ds
+            return ds
 
-    print(f"Failed to fetch data. Status code: {response.status_code}")
+        print(f"Failed to fetch data. Status code: {response.status_code}")
+    except requests.exceptions.Timeout:
+        print(f"Request timed out after {timeout} seconds.")
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
+
     return None
 
 
@@ -40,7 +49,7 @@ def download_year(var, year):
     ds = url_to_ds(url)
     return ds
 
-def download_multiple_years(start_year, end_year, var):  
+def download_multiple_years(start_year, end_year, var):
     time_start = time.time()
     zarr_store = f"{var}_all.zarr"
 
@@ -54,27 +63,38 @@ def download_multiple_years(start_year, end_year, var):
         dim_to_concat = "time"
     else:
         dim_to_concat = "day"
+    
+    # Initialize Dask client within the context of the progress bar
+    with ProgressBar():
+        client = Client()
 
-    # Process years sequentially
-    for year in range(start_year, end_year + 1):
-        print(f"Processing year: {year}")
-        # download the file
-        ds = download_year(var, year)
-        if var == "swe":
-            ds = ds["SWE"] # drop DEPTH variable from SWE Dataset
-        ds_rechunked = ds.chunk({dim_to_concat: -1, "lat": 50, "lon": 50})
-        # Append to the existing Zarr file
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=UserWarning)
-            if not os.path.exists(zarr_store):
-                # Create a new Zarr file for the first year
-                ds_rechunked.to_zarr(zarr_store, mode="w")
-                print(f"Created new Zarr file at {zarr_store}")
-            else:
-                # Append data to the existing Zarr file
-                ds_rechunked.to_zarr(zarr_store, mode="a", append_dim=dim_to_concat)
-                print(f"Appended year {year} to {zarr_store}")
-        du.elapsed(time_start)
+        # Process years sequentially
+        for year in range(start_year, end_year + 1):
+            print(f"Processing year: {year}")
+            # download the file
+            ds = download_year(var, year)
+            #print("Finished downloading")
+            if var == "swe":
+                ds = ds["SWE"] # drop DEPTH variable from SWE Dataset
+            ds_rechunked = ds.chunk({dim_to_concat: -1, "lat": 50, "lon": 50})
+            #print("finished rechunking")
+            # Append to the existing Zarr file
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=UserWarning)
+                if not os.path.exists(zarr_store):
+                    # Create a new Zarr file for the first year
+                    ds_rechunked.to_zarr(zarr_store, mode="w")
+                    print(f"Created new Zarr file at {zarr_store}")
+                else:
+                    # Append data to the existing Zarr file
+                    ds_rechunked.to_zarr(zarr_store, mode="a", append_dim=dim_to_concat)
+                    print(f"Appended year {year} to {zarr_store}")
+                    du.elapsed(time_start)
+        
+    # Close the Dask client when done (after processing all years)
+    client.close()
+    print("Dask client closed."
+    du.elapsed(time_start)
 
     print(f"Final dataset saved to {zarr_store}")
     return zarr_store
@@ -117,15 +137,21 @@ def upload_zarr_to_s3(zarr_path, s3_bucket, s3_path=None):
         print(f"Error uploading Zarr to S3: {e}")
     return s3_path
 
-def get_bronze (year_start, year_end, var, bronze_bucket_nm):
-    # TO DO - Validate year and var input
+def get_bronze(year_start, year_end, var, bronze_bucket_nm):
+    # Validate year input
+    if year_start < 1983 or year_end >= 2024:
+        raise ValueError("Year start must be >= 1983 and year end must be < 2024")
 
+    # check to see if zarr path already exists
+    fs = s3fs.S3FileSystem()
+    if fs.exists(f"s3://{bronze_bucket_nm}/{var}_all.zarr"):
+        raise ValueError(f"The path s3://{bronze_bucket_nm}/{var}_all.zarr already exists in the S3 bucket.")
+    
     # download raw and save to local directory
     local_zarr = download_multiple_years(year_start, year_end, var)
 
-
     # upload to bronze bucket
     time_start = time.time()
+    print(f"Saving to s3 bucket {bronze_bucket_nm}")
     s3_path = upload_zarr_to_s3(local_zarr, bronze_bucket_nm, s3_path=None)
-    du.elapsed(time_start)
     return s3_path

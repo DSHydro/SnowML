@@ -127,7 +127,7 @@ def get_model_ready (huc_id, huc_lev, var_list, bucket_dict, start_date = "1996-
 
     """
     geos = du.get_basin_geos(huc_lev, huc_id)
-    huc_id_list = geos["huc_id"].unique()
+    huc_id_list = geos["huc_id"].unique().tolist()
     gold_all_df = get_gold_all_df(var_list, huc_id_list, bucket_dict)
     gold_all_df = clean_and_filter(gold_all_df, start_date)
     f_out = f"model_ready_{huc_lev}_in_{huc_id}"

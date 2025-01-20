@@ -77,7 +77,7 @@ def get_url_pattern(var):
         root = "https://daacdata.apps.nsidc.org/pub/DATASETS/nsidc0719_SWE_Snow_Depth_v1/"
         file_name_pattern = "4km_SWE_Depth_WY{year}_v01.nc"
         url_pattern = root+file_name_pattern
-    elif var in ["pr", "tmmn", "vs"]:
+    elif var in ["pr", "tmmn", "sph", "vs"]:
         url_p = f"http://www.northwestknowledge.net/metdata/data/{var}"
         url_pattern = url_p + "_{year}.nc"
     else:
@@ -303,9 +303,11 @@ def get_basin_geos (huc_lev, huc_no, bucket_nm = "shape-bronze"):
         raise ValueError(f"No shape file found for {file_nm} in {bucket_nm}")
     basin_gdf = s3_to_gdf (bucket_nm, file_nm)
     print(f"Shapefile {file_nm} uploaded from {bucket_nm}")
-    # Sort the GeoDataFrame by the second column
+    # Rename the second column to "huc_id"
     second_column_name = basin_gdf.columns[1]  # Get the name of the second column
-    basin_gdf = basin_gdf.sort_values(by=second_column_name)
+    basin_gdf = basin_gdf.rename(columns={second_column_name: "huc_id"})
+    # Sort the GeoDataFrame by the second column
+    basin_gdf = basin_gdf.sort_values(by="huc_id")
     return basin_gdf
 
 

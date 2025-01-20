@@ -10,14 +10,14 @@ as Environment Variables.
 import io
 import os
 import time
-import requests
+from io import StringIO
 import s3fs
 import boto3
 import xarray as xr
 import pandas as pd
 import geopandas as gpd
+import requests
 from botocore.exceptions import NoCredentialsError, ClientError
-from io import StringIO
 from rasterio.transform import from_bounds
 from affine import Affine
 
@@ -92,7 +92,7 @@ def url_to_ds(root, file_name,requires_auth=False, username=None, password=None)
     auth = (username, password) if requires_auth else None
 
     url = root + file_name
-    response = requests.get(url, auth=auth)
+    response = requests.get(url, auth=auth, timeout=60)
 
     # Check if the request was successful
     if response.status_code == 200:
@@ -150,7 +150,7 @@ def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
     # Download the file and upload to S3
     s3_client = boto3.client("s3", region_name=region_name)
     try:
-        with requests.get(url, stream=True, auth=auth) as response:
+        with requests.get(url, stream=True, auth=auth, timeout=60) as response:
             response.raise_for_status()
 
             # Stream directly to S3 using boto3

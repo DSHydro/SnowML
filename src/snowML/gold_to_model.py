@@ -22,8 +22,6 @@ import s3fs
 import pandas as pd
 import data_utils as du
 import set_data_constants as sdc
-import importlib
-importlib.reload(sdc)
 
 def gather_s3_files(var, huc_id_list, bucket_dict):
 
@@ -64,7 +62,7 @@ def get_gold_var (files):
     results = pd.DataFrame()
     s3 = s3fs.S3FileSystem(anon=False)
     for f in files:
-        s3_path = f"s3://{f}"
+        #s3_path = f"s3://{f}"
         with s3.open(f, 'rb') as file:
             df = pd.read_csv(file)
         results = pd.concat([results, df])

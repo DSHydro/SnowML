@@ -1,6 +1,7 @@
 # Module to download raw data to bronze bucket
 # pylint: disable=C0103
 
+
 import warnings
 import time
 import shutil
@@ -9,10 +10,10 @@ import os
 import s3fs
 import requests
 import xarray as xr
+import dask
+from dask.distributed import Client
+from dask.diagnostics import ProgressBar
 import data_utils as du
-#import dask
-#from dask.distributed import Client
-#from dask.diagnostics import ProgressBar
 
 def url_to_ds(url, requires_auth=False, username=None, password=None, timeout=60):
     """ Direct load from url to xarray"""
@@ -63,7 +64,7 @@ def download_multiple_years(start_year, end_year, var):
         dim_to_concat = "time"
     else:
         dim_to_concat = "day"
-    
+
     # Initialize Dask client within the context of the progress bar
     with ProgressBar():
         client = Client()
@@ -90,10 +91,10 @@ def download_multiple_years(start_year, end_year, var):
                     ds_rechunked.to_zarr(zarr_store, mode="a", append_dim=dim_to_concat)
                     print(f"Appended year {year} to {zarr_store}")
                     du.elapsed(time_start)
-        
+
     # Close the Dask client when done (after processing all years)
     client.close()
-    print("Dask client closed."
+    print("Dask client closed.")
     du.elapsed(time_start)
 
     print(f"Final dataset saved to {zarr_store}")
@@ -146,12 +147,11 @@ def get_bronze(year_start, year_end, var, bronze_bucket_nm):
     fs = s3fs.S3FileSystem()
     if fs.exists(f"s3://{bronze_bucket_nm}/{var}_all.zarr"):
         raise ValueError(f"The path s3://{bronze_bucket_nm}/{var}_all.zarr already exists in the S3 bucket.")
-    
+
     # download raw and save to local directory
     local_zarr = download_multiple_years(year_start, year_end, var)
 
     # upload to bronze bucket
-    time_start = time.time()
     print(f"Saving to s3 bucket {bronze_bucket_nm}")
     s3_path = upload_zarr_to_s3(local_zarr, bronze_bucket_nm, s3_path=None)
     return s3_path

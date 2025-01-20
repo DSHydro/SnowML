@@ -4,110 +4,80 @@
 import warnings
 import time
 import shutil
+import io
 import os
 import s3fs
 import requests
 import xarray as xr
-from tqdm import tqdm
 import data_utils as du
 
-def elapsed(time_start):
-    elapsed_time = time.time() - time_start
-    print(f"elapsed time is {elapsed_time}")
+def url_to_ds(url,requires_auth=False, username=None, password=None):
+    """ Direct load from url to xarray"""
 
-# def get_url_pattern(var):
-#     if var == "swe":
-#         root = "https://daacdata.apps.nsidc.org/pub/DATASETS/nsidc0719_SWE_Snow_Depth_v1/"
-#         file_name_pattern = "4km_SWE_Depth_WY{year}_v01.nc"
-#         url_pattern = root+file_name_pattern
-#     elif var in ["pr", "tmmn", "vs"]:
-#         url_p = f"http://www.northwestknowledge.net/metdata/data/{var}"
-#         url_pattern = url_p + "_{year}.nc"
-#     else:
-#         print("var not regognized")
-#         url_pattern = ""
-#     return url_pattern
+    # Prepare authentication if required
+    auth = (username, password) if requires_auth else None
 
-def netcdf_to_zarr(years, var, zarr_output="combined_data.zarr", batch_size=1):
-    """
-    Downloads NetCDF files for the specified years, combines them into a Zarr file in batches, 
-    and deletes the local NetCDF files.
+    response = requests.get(url, auth=auth)
 
-    Parameters:
-        years (list of int): List of years to download and process.
-        url_pattern (str): URL pattern with a placeholder for the year (e.g., "https://example.com/data_{year}.nc").
-        zarr_output (str): Path to save the combined Zarr file (default: "combined_data.zarr").
-        batch_size (int): Number of years to process in each batch (default: 10).
-    """
+    # Check if the request was successful
+    if response.status_code == 200:
+        # Convert the raw response content to a file-like object
+        file_like_object = io.BytesIO(response.content)
+
+        # Open the dataset from the file-like object
+        ds = xr.open_dataset(file_like_object)
+
+        return ds
+
+    print(f"Failed to fetch data. Status code: {response.status_code}")
+    return None
+
+
+def download_year(var, year):
+    url_pattern = du.get_url_pattern(var)
+    url = url_pattern.format(year=year)
+    print(f"Downloading {url}")
+    ds = url_to_ds(url)
+    return ds
+
+def download_multiple_years(start_year, end_year, var):  
     time_start = time.time()
-    output_dir = "downloaded_files"
+    zarr_store = f"{var}_all.zarr"
+
+    #zarr_store = f"s3://{bucket}/{var}_all.zarr"
+
+    if os.path.exists(zarr_store):
+        raise ValueError(f"Zarr file {zarr_store} already exists. Please delete it first.")
+
+    # define some data-specific attributes
     if var == "swe":
         dim_to_concat = "time"
     else:
         dim_to_concat = "day"
-    os.makedirs(output_dir, exist_ok=True)
 
-    # Function to download a file
-    def download_file(year):
-        url_pattern = du.get_url_pattern(var)
-        url = url_pattern.format(year=year)
-        local_file = os.path.join(output_dir, f"WY{year}_v01.nc")
-        if not os.path.exists(local_file):
-            try:
-                with requests.get(url, stream=True) as response:
-                    response.raise_for_status()
-                    with open(local_file, "wb") as f:
-                        for chunk in tqdm(response.iter_content(chunk_size=8192), desc=f"Downloading WY{year}"):
-                            f.write(chunk)
-            except requests.RequestException as e:
-                print(f"Failed to download {url}: {e}")
-                return None
-        else:
-            print(f"File for year {year} already exists.")
-        return local_file
+    # Process years sequentially
+    for year in range(start_year, end_year + 1):
+        print(f"Processing year: {year}")
+        # download the file
+        ds = download_year(var, year)
+        if var == "swe":
+            ds = ds["SWE"] # drop DEPTH variable from SWE Dataset
+        ds_rechunked = ds.chunk({dim_to_concat: -1, "lat": 50, "lon": 50})
+        # Append to the existing Zarr file
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=UserWarning)
+            if not os.path.exists(zarr_store):
+                # Create a new Zarr file for the first year
+                ds_rechunked.to_zarr(zarr_store, mode="w")
+                print(f"Created new Zarr file at {zarr_store}")
+            else:
+                # Append data to the existing Zarr file
+                ds_rechunked.to_zarr(zarr_store, mode="a", append_dim=dim_to_concat)
+                print(f"Appended year {year} to {zarr_store}")
+        du.elapsed(time_start)
 
-    # Process files in batches
-    for i in range(0, len(years), batch_size):
-        batch_years = years[i:i + batch_size]
-        print(f"Processing batch: {batch_years}")
-
-        datasets = []
-        for year in batch_years:
-            file_path = download_file(year)
-            if file_path and os.path.exists(file_path):
-                ds = xr.open_dataset(file_path)
-                ds_sorted = ds.sortby("lat")
-                #print(ds)
-                # drop DEPTH variable from SWE Dataset
-                if var == "swe":
-                    ds_sorted = ds_sorted[["SWE"]]
-                datasets.append(ds_sorted)
-
-        if datasets:
-            print(f"Writing batch {batch_years} to Zarr...")
-            combined_batch = xr.concat(datasets, dim=dim_to_concat)
-            # Append the batch to the Zarr file
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=UserWarning)
-                if not os.path.exists(zarr_output):
-                    combined_batch.to_zarr(zarr_output, mode="w")  # Use mode="w" to write the first datase
-                else:
-                    combined_batch.to_zarr(zarr_output, mode="a", append_dim=dim_to_concat)
-            print(f"Batch {batch_years} successfully written to {zarr_output}.")
-
-        # Clean up memory
-        datasets.clear()
-
-    # Delete local NetCDF files
-    print("Deleting downloaded NetCDF files...")
-    for file in os.listdir(output_dir):
-        os.remove(os.path.join(output_dir, file))
-    os.rmdir(output_dir)
-    print("All NetCDF files deleted.")
-
-    elapsed_time = time.time() - time_start
-    print(f"Elapsed time : {elapsed_time:.2f} seconds")
-    return zarr_output
+    print(f"Final dataset saved to {zarr_store}")
+    return zarr_store
 
 def upload_zarr_to_s3(zarr_path, s3_bucket, s3_path=None):
     """
@@ -147,13 +117,15 @@ def upload_zarr_to_s3(zarr_path, s3_bucket, s3_path=None):
         print(f"Error uploading Zarr to S3: {e}")
     return s3_path
 
-def get_bronze (years, var, bronze_bucket_nm, batch_size=1):
-    # TO DO - Validate year input, batch size input
+def get_bronze (year_start, year_end, var, bronze_bucket_nm):
+    # TO DO - Validate year and var input
 
     # download raw and save to local directory
-    local_zarr = netcdf_to_zarr(years, var, zarr_output=f"{var}_all.zarr", batch_size=batch_size)
+    local_zarr = download_multiple_years(year_start, year_end, var)
+
 
     # upload to bronze bucket
+    time_start = time.time()
     s3_path = upload_zarr_to_s3(local_zarr, bronze_bucket_nm, s3_path=None)
-
+    du.elapsed(time_start)
     return s3_path

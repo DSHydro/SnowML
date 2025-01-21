@@ -74,4 +74,3 @@ def get_geos(huc_id, final_huc_lev, save = True, bucket_nm = "shape-bronze"):
         s3_client.upload_file(f_out, bucket_nm, f_out)
         os.remove(f_out)
         print(f"File {f_out} successfully uploaded to {bucket_nm}")
-

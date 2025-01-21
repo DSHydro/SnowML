@@ -2,7 +2,7 @@
 
 def create_bucket_dict(b_type):
     permitted_types = ["prod", "test"]
-    assert type in permitted_types, f"Type must be one of {permitted_types}"
+    assert b_type in permitted_types, f"Type must be one of {permitted_types}"
     bucket_types = ["shape-bronze", "swe-bronze",  "swe-silver", "swe-gold", \
                 "wrf-bronze", "wrf-silver", "wrf-gold", "model-ready", "sues-test"]
     if b_type == "prod":
@@ -22,8 +22,6 @@ def create_var_dict():
     #var_names = ["SWE", "precipitation_amount", "air_temperature", "daily_mean_specific_humidity"]
     var_list = ["swe", "pr", "tmmn"]
     var_names = ["SWE", "precipitation_amount", "air_temperature"]
-
-
     var_dict = dict(zip(var_list, var_names))
     return var_dict
 

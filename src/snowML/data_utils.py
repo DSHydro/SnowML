@@ -8,21 +8,20 @@ as Environment Variables.
 
 
 import io
-import boto3
 import os
-import requests
+import time
+from io import StringIO
 import s3fs
-import re
-import zarr
+import boto3
 import xarray as xr
 import pandas as pd
 import geopandas as gpd
+import requests
 from botocore.exceptions import NoCredentialsError, ClientError
-from io import StringIO
-from s3fs.core import S3FileSystem
-import rasterio
 from rasterio.transform import from_bounds
 from affine import Affine
+
+
 
 # use calc_transform instead of Affine if the data is normally sorted
 def calc_transform(ds):
@@ -34,7 +33,7 @@ def calc_transform(ds):
         height=ds.dims["lat"],
         )
     return transform
-  
+
 def calc_Affine(ds):
     """
     Calculates the affine transformation matrix for datasets with latitude
@@ -47,6 +46,10 @@ def calc_Affine(ds):
 
     # Construct and return the affine matrix
     return Affine(lon_res, 0, lon_min, 0, lat_res, lat_max)
+
+def crude_filter(ds, min_lon, min_lat, max_lon, max_lat):
+    filtered_ds = ds.sel(lat=slice(min_lat, max_lat), lon=slice(min_lon, max_lon))
+    return filtered_ds
 
 def filter_by_geo (ds, geo):
     """
@@ -65,9 +68,22 @@ def filter_by_geo (ds, geo):
     return ds_final
 
 def ds_mean(ds):
-    ds_mean = ds.mean(dim=['lat','lon'])
-    ds_mean = ds_mean.rename({var: f"mean_{var}" for var in ds_mean.data_vars})
-    return ds_mean
+    ds_m = ds.mean(dim=['lat','lon'])
+    ds_m = ds_m.rename({var: f"mean_{var}" for var in ds_m.data_vars})
+    return ds_m
+
+def get_url_pattern(var):
+    if var == "swe":
+        root = "https://daacdata.apps.nsidc.org/pub/DATASETS/nsidc0719_SWE_Snow_Depth_v1/"
+        file_name_pattern = "4km_SWE_Depth_WY{year}_v01.nc"
+        url_pattern = root+file_name_pattern
+    elif var in ["pr", "tmmn", "sph", "vs"]:
+        url_p = f"http://www.northwestknowledge.net/metdata/data/{var}"
+        url_pattern = url_p + "_{year}.nc"
+    else:
+        print("var not regognized")
+        url_pattern = ""
+    return url_pattern
 
 def url_to_ds(root, file_name,requires_auth=False, username=None, password=None):
     """ Direct load from url to netcdf file """
@@ -76,7 +92,7 @@ def url_to_ds(root, file_name,requires_auth=False, username=None, password=None)
     auth = (username, password) if requires_auth else None
 
     url = root + file_name
-    response = requests.get(url, auth=auth)
+    response = requests.get(url, auth=auth, timeout=60)
 
     # Check if the request was successful
     if response.status_code == 200:
@@ -92,43 +108,10 @@ def url_to_ds(root, file_name,requires_auth=False, username=None, password=None)
     return None
 
 
-def url_to_ds_muliti(root, file_names, requires_auth=False, username=None, password=None):
-    """Load multiple NetCDF files from URLs and combine them into a single dataset.
-    
-    Parameters:
-        root (str): The root URL where files are located.
-        file_names (list of str): List of file names to load.
-        requires_auth (bool): Whether authentication is required.
-        username (str): Username for authentication (if required).
-        password (str): Password for authentication (if required).
-        
-    Returns:
-        xarray.Dataset: Combined dataset from all files.
-    """
-    # Prepare authentication if required
-    auth = (username, password) if requires_auth else None
+def elapsed(time_start):
+    elapsed_time = time.time() - time_start
+    print(f"______Elapsed time is {int(elapsed_time)} seconds")
 
-    file_like_objects = []
-
-    for file_name in file_names:
-        url = root + file_name
-        response = requests.get(url, auth=auth)
-
-        # Check if the request was successful
-        if response.status_code == 200:
-            # Convert the raw response content to a file-like object
-            file_like_objects.append(io.BytesIO(response.content))
-        else:
-            print(f"Failed to fetch {file_name}. Status code: {response.status_code}")
-
-    if not file_like_objects:
-        print("No files could be loaded. Returning None.")
-        return None
-
-    # Open multiple file-like objects as a single dataset
-    ds = xr.open_mfdataset(file_like_objects, combine="by_coords")
-
-    return ds
 
 def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
                requires_auth=False, username=None, password=None,
@@ -167,7 +150,7 @@ def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
     # Download the file and upload to S3
     s3_client = boto3.client("s3", region_name=region_name)
     try:
-        with requests.get(url, stream=True, auth=auth) as response:
+        with requests.get(url, stream=True, auth=auth, timeout=60) as response:
             response.raise_for_status()
 
             # Stream directly to S3 using boto3
@@ -190,8 +173,6 @@ def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
 def s3_to_ds(bucket_name, file_name):
     s3_path = f"s3://{bucket_name}/{file_name}"
     fs = s3fs.S3FileSystem(anon=False)
-    #fs = s3fs.S3FileSystem(cache_regions=False)
-    #fs.invalidate_cache
     with fs.open(s3_path) as f:
         ds = xr.open_dataset(f, engine="h5netcdf")
         ds.load()
@@ -268,16 +249,16 @@ def dat_to_s3(dat, bucket_name, f_out, file_type="netcdf", region_name="us-east-
     #     # Save Zarr directly to S3
     #     dat.to_zarr(f"s3://{bucket_name}/{output_file}/", mode="w")
     #     print(f"Zarr dataset successfully uploaded to s3://{bucket_name}/{output_file}")
-    #     return  
+    #     return
 
 
     if file_type == "csv":
-        dat.to_csv(output_file)
+        dat.to_csv(output_file, index=False)
     elif file_type == "parquet":
         dat.to_dataframe().to_parquet(output_file)
     elif file_type == "netcdf":
         dat.to_netcdf(output_file)
-   
+
 
     # Upload to S3
     s3_client = boto3.client('s3', region_name=region_name)
@@ -297,7 +278,7 @@ def isin_s3(bucket_name, file_name):
         return True
     except s3.exceptions.ClientError:
         return False
-    
+
 def s3_to_df(file_name, bucket_name):
     """
     Loads a CSV file from an S3 bucket into a pandas DataFrame.
@@ -316,11 +297,36 @@ def s3_to_df(file_name, bucket_name):
     return df
 
 # Returns a geo dataframe of geometries from the shape bornze bucket
-def get_basin_geos (huc_lev, huc_no, bucket_nm = "shape-bronze"):    
+def get_basin_geos (huc_lev, huc_no, bucket_nm = "shape-bronze"):
     file_nm = f"{huc_lev}_in_{huc_no}.geojson"
     if not isin_s3(bucket_nm, file_nm):
         raise ValueError(f"No shape file found for {file_nm} in {bucket_nm}")
     basin_gdf = s3_to_gdf (bucket_nm, file_nm)
     print(f"Shapefile {file_nm} uploaded from {bucket_nm}")
+    # Rename the second column to "huc_id"
+    second_column_name = basin_gdf.columns[1]  # Get the name of the second column
+    basin_gdf = basin_gdf.rename(columns={second_column_name: "huc_id"})
+    # Sort the GeoDataFrame by the second column
+    basin_gdf = basin_gdf.sort_values(by="huc_id")
     return basin_gdf
-    
+
+
+def s3_to_ds_zarr (bucket_name, zarr_path):
+    """
+    Create an xarray by opening a Zarr store on S3.
+
+    Parameters:
+    - bucket_name (str): The name of the S3 bucket.
+    - zarr_path (str): The path to the Zarr file within the bucket.
+    - anon (bool): Whether to access the bucket anonymously (default: True).
+
+    Returns:
+    - Dataset(xarray): The loaded dataset.
+
+    Example:
+    >>> ds = load_zarr_from_s3('my-bucket', 'my-data.zarr')
+    """
+    s3_url = f"s3://{bucket_name}/{zarr_path}"
+    dat = xr.open_zarr(store=s3_url, chunks={}, consolidated=True)
+
+    return dat

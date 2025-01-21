@@ -123,9 +123,12 @@ def upload_zarr_to_s3(zarr_path, s3_bucket, s3_path=None):
 
     # Upload the Zarr directory to S3
     try:
-        # Using s3fs to copy the entire directory
-        fs.put(zarr_path, f"s3://{s3_bucket}/{s3_path}", recursive=True)
-        print(f"Zarr data uploaded successfully to s3://{s3_bucket}/{s3_path}")
+        # Using s3fs to copy the entire directory with resume capability
+        try:
+            fs.put(zarr_path, f"s3://{s3_bucket}/{s3_path}", recursive=True, resume=True)
+            print(f"Zarr data uploaded successfully to s3://{s3_bucket}/{s3_path}")
+        except Exception as e:
+            print(f"Error uploading Zarr to S3: {e}")
 
         # If upload is successful, delete the local Zarr directory
         if os.path.isdir(zarr_path):
@@ -138,7 +141,7 @@ def upload_zarr_to_s3(zarr_path, s3_bucket, s3_path=None):
         print(f"Error uploading Zarr to S3: {e}")
     return s3_path
 
-def get_bronze(year_start, year_end, var, bronze_bucket_nm):
+def get_bronze(var, bronze_bucket_nm, year_start = 1995, year_end =  2023):
     # Validate year input
     if year_start < 1983 or year_end >= 2024:
         raise ValueError("Year start must be >= 1983 and year end must be < 2024")

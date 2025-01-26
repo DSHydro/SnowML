@@ -4,15 +4,12 @@
 
 import warnings
 import time
-import shutil
 import io
 import os
+import json
 import s3fs
 import requests
 import xarray as xr
-import dask
-from dask.distributed import Client
-from dask.diagnostics import ProgressBar
 import data_utils as du
 
 def url_to_ds(url, requires_auth=False, username=None, password=None, timeout=60):
@@ -50,14 +47,16 @@ def download_year(var, year):
     ds = url_to_ds(url)
     return ds
 
-def download_multiple_years(start_year, end_year, var):
+def download_multiple_years(start_year, end_year, var, s3_bucket, append_to=False):
     time_start = time.time()
-    zarr_store = f"{var}_all.zarr"
+    s3_path = f"{var}_all.zarr"
 
-    #zarr_store = f"s3://{bucket}/{var}_all.zarr"
+    # Initialize the S3 filesystem
+    fs = s3fs.S3FileSystem()
 
-    if os.path.exists(zarr_store):
-        raise ValueError(f"Zarr file {zarr_store} already exists. Please delete it first.")
+    # Check if the S3 Zarr path already exists
+    if fs.exists(f"s3://{s3_bucket}/{s3_path}") and not append_to:
+        raise ValueError(f"Warning: The path s3://{s3_bucket}/{s3_path} already exists in the S3 bucket.")
 
     # define some data-specific attributes
     if var == "swe":
@@ -65,96 +64,56 @@ def download_multiple_years(start_year, end_year, var):
     else:
         dim_to_concat = "day"
 
-    # Initialize Dask client within the context of the progress bar
-    with ProgressBar():
-        client = Client()
+    # Load progress from a local file to keep track of completed years
+    progress_file = f"{var}_progress.json"  # TO DO - make this an S3 file?
+    completed_years = set()
+    if os.path.exists(progress_file):
+        with open(progress_file, "r") as f:
+            completed_years = set(json.load(f))
+    print(f"Resuming with completed years: {sorted(completed_years)}")
 
-        # Process years sequentially
-        for year in range(start_year, end_year + 1):
-            print(f"Processing year: {year}")
-            # download the file
-            ds = download_year(var, year)
-            #print("Finished downloading")
-            if var == "swe":
-                ds = ds["SWE"] # drop DEPTH variable from SWE Dataset
-            ds_rechunked = ds.chunk({dim_to_concat: -1, "lat": 50, "lon": 50})
-            #print("finished rechunking")
-            # Append to the existing Zarr file
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=UserWarning)
-                if not os.path.exists(zarr_store):
-                    # Create a new Zarr file for the first year
-                    ds_rechunked.to_zarr(zarr_store, mode="w")
-                    print(f"Created new Zarr file at {zarr_store}")
-                else:
-                    # Append data to the existing Zarr file
-                    ds_rechunked.to_zarr(zarr_store, mode="a", append_dim=dim_to_concat)
-                    print(f"Appended year {year} to {zarr_store}")
-                    du.elapsed(time_start)
+    # Process years sequentially
+    for year in range(start_year, end_year + 1):
 
-    # Close the Dask client when done (after processing all years)
-    client.close()
-    print("Dask client closed.")
+        if year in completed_years:
+            print(f"Skipping year {year} (already processed)")
+            continue
+
+        print(f"Processing year: {year}")
+        # download the file
+        ds = download_year(var, year)
+        #print("Finished downloading")
+        if var == "swe":
+            ds = ds["SWE"] # drop DEPTH variable from SWE Dataset
+        ds_rechunked = ds.chunk({dim_to_concat: -1, "lat": 50, "lon": 50})
+        print("finished rechunking")
+        # Append to the existing Zarr file on S3
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=UserWarning)
+            if not fs.exists(f"s3://{s3_bucket}/{s3_path}"):
+                # Create a new Zarr file for the first year
+                ds_rechunked.to_zarr(f"s3://{s3_bucket}/{s3_path}", mode="w", consolidated=True)
+                print(f"Created new Zarr file at s3://{s3_bucket}/{s3_path}")
+                completed_years.add(year)
+            else:
+                # Append data to the existing Zarr file
+                ds_rechunked.to_zarr(f"s3://{s3_bucket}/{s3_path}", mode="a", append_dim=dim_to_concat, consolidated=True)
+                print(f"Appended year {year} to s3://{s3_bucket}/{s3_path}")
+                completed_years.add(year)
+                with open(progress_file, "w") as f:
+                    json.dump(sorted(completed_years), f)
+                du.elapsed(time_start)
+
     du.elapsed(time_start)
-
-    print(f"Final dataset saved to {zarr_store}")
-    return zarr_store
-
-def upload_zarr_to_s3(zarr_path, s3_bucket, s3_path=None):
-    """
-    Upload a Zarr dataset to an S3 bucket.
-    
-    Args:
-        zarr_path (str): Path to the local Zarr directory or file.
-        s3_bucket (str): Name of the S3 bucket.
-        s3_path (str, optional): Path in the S3 bucket where the Zarr file will be uploaded. 
-                                  If None, it uses the name of the local Zarr file.
-    """
-    # Initialize the S3 filesystem
-    fs = s3fs.S3FileSystem()
-
-    # If no s3_path is specified, use the base name of the local zarr_path
-    if s3_path is None:
-        s3_path = os.path.basename(zarr_path)
-
-    # Check if the local Zarr path exists
-    if not os.path.exists(zarr_path):
-        raise FileNotFoundError(f"The local Zarr directory {zarr_path} does not exist.")
-
-    # Upload the Zarr directory to S3
-    try:
-        # Using s3fs to copy the entire directory with resume capability
-        try:
-            fs.put(zarr_path, f"s3://{s3_bucket}/{s3_path}", recursive=True, resume=True)
-            print(f"Zarr data uploaded successfully to s3://{s3_bucket}/{s3_path}")
-        except Exception as e:
-            print(f"Error uploading Zarr to S3: {e}")
-
-        # If upload is successful, delete the local Zarr directory
-        if os.path.isdir(zarr_path):
-            shutil.rmtree(zarr_path)  # Use shutil.rmtree for directories with contents
-            print(f"Local Zarr directory {zarr_path} has been deleted.")
-        else:
-            os.remove(zarr_path)  # If it's a file, remove it
-            print(f"Local Zarr file {zarr_path} has been deleted.")
-    except Exception as e:
-        print(f"Error uploading Zarr to S3: {e}")
+    print(f"Final dataset saved to s3://{s3_bucket}/{s3_path}")
     return s3_path
 
-def get_bronze(var, bronze_bucket_nm, year_start = 1995, year_end =  2023):
+def get_bronze(var, bronze_bucket_nm, year_start = 1995, year_end =  2023, append_to = False):
     # Validate year input
     if year_start < 1983 or year_end >= 2024:
         raise ValueError("Year start must be >= 1983 and year end must be < 2024")
 
-    # check to see if zarr path already exists
-    fs = s3fs.S3FileSystem()
-    if fs.exists(f"s3://{bronze_bucket_nm}/{var}_all.zarr"):
-        raise ValueError(f"The path s3://{bronze_bucket_nm}/{var}_all.zarr already exists in the S3 bucket.")
+    # download raw and save to S3 directly
+    s3_path = download_multiple_years(year_start, year_end, var, bronze_bucket_nm, append_to = append_to)
 
-    # download raw and save to local directory
-    local_zarr = download_multiple_years(year_start, year_end, var)
-
-    # upload to bronze bucket
-    print(f"Saving to s3 bucket {bronze_bucket_nm}")
-    s3_path = upload_zarr_to_s3(local_zarr, bronze_bucket_nm, s3_path=None)
     return s3_path

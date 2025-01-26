@@ -13,15 +13,18 @@ def create_bucket_dict(b_type):
     # if b_type is not prod, then b_type == "test"
     bucket_names = ["sues-scratch"] * len(bucket_types)
     bucket_dict = dict(zip(bucket_types, bucket_names))
-    bucket_dict['swe-bronze'] = 'swe-bronze'
-    bucket_dict['wrf-bronze'] = 'wrf-bronze'
+    #bucket_dict['swe-bronze'] = 'swe-bronze'
+    #bucket_dict['wrf-bronze'] = 'wrf-bronze'
     return bucket_dict
 
 def create_var_dict():
-    #var_list = ["swe", "pr", "tmmn", "sph"]
-    #var_names = ["SWE", "precipitation_amount", "air_temperature", "daily_mean_specific_humidity"]
-    var_list = ["swe", "pr", "tmmn"]
-    var_names = ["SWE", "precipitation_amount", "air_temperature"]
+    # var_list = ["swe", "pr", "tmmn", "vs", "srad", "tmmx", "rmax", "rmin"]
+    # var_names = ["SWE", "precipitation_amount", "air_temperature", "wind_speed", \
+    #              "surface_downwelling_shortwave_flux_in_air", "air_temperature", \
+    #               "maximum relative humidity", "minimum relative humidity"]
+    var_list = ["swe", "pr", "tmmn", "vs", "srad"]
+    var_names = ["SWE", "precipitation_amount", "air_temperature", "wind_speed", \
+                 "surface_downwelling_shortwave_flux_in_air", "air_temperature"]
     var_dict = dict(zip(var_list, var_names))
     return var_dict
 

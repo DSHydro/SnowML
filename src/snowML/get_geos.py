@@ -3,22 +3,41 @@ savess to a local file, or optionally to an S3 bucket
 defined by the user."""
 
 import os
+import json
 import boto3
 import ee
-import geemap
-import json
 import geopandas as gpd
-import easysnowdata
-from shapely.geometry import box
 
 
 def get_geos(huc_id, final_huc_lev, s3_save = True, bucket_nm = "shape-bronze"):
+    """
+    Retrieves and processes geographic data from the USGS Watershed Boundary Dataset (WBD) 
+    for a specified Hydrologic Unit Code (HUC) level and ID, and optionally saves the 
+    resulting GeoJSON to an S3 bucket.
+
+    Parameters:
+    huc_id (str or int): The starting HUC ID to filter the dataset.
+    final_huc_lev (str): The final HUC level to retrieve. Must be one of 
+        ['02', '04', '06', '08', '10', '12'].
+    s3_save (bool, optional): Whether to save the resulting GeoJSON to an 
+        S3 bucket. Defaults to True.
+    bucket_nm (str, optional): The name of the S3 bucket to save the file to. 
+        Defaults to "shape-bronze".
+
+    Returns:
+    gpd.GeoDataFrame: A GeoDataFrame containing the filtered geographic data.
+
+    Raises:
+    ValueError: If there is an issue with Earth Engine credentials, or if the
+    input HUC levels are invalid.
+    """
+
     # make sure earth engine credentials are working
     try:
         ee.Authenticate()
-        ee.Initialize(project = "ee-frostydawgs")
-    except:
-        raise ValueError("Problem with earth link credentials")
+        ee.Initialize(project="ee-frostydawgs")
+    except Exception as exc:
+        raise ValueError("Problem with earth link credentials") from exc
 
     # validate inputs
     huc_levs = ['02', '04', '06', '08', '10', '12']
@@ -31,12 +50,9 @@ def get_geos(huc_id, final_huc_lev, s3_save = True, bucket_nm = "shape-bronze"):
         raise ValueError("Huc id must be an even number between 2 and 12")
 
     # Define the feature collection
-    asset_id = f'USGS/WBD/2017/HUC{final_huc_lev}'
-    collection = ee.FeatureCollection(asset_id)
-    print(f"collection retreived: {asset_id}")
-    
+    collection = ee.FeatureCollection(f'USGS/WBD/2017/HUC{final_huc_lev}')
 
-    # Filter the collection to only include features within top level huc 
+    # Filter the collection to only include features within top level huc
     filtered_collection = collection.filter(ee.Filter.stringStartsWith(f"huc{final_huc_lev}", huc_id))
 
     # Extract HUC IDs and geometries
@@ -47,18 +63,24 @@ def get_geos(huc_id, final_huc_lev, s3_save = True, bucket_nm = "shape-bronze"):
 
     # Modify the GeoJSON dictionary
     for feature in geojson_dict["features"]:
-        # Remove the 'id' field if it exists
-        if "id" in feature:
-            feature.pop("id")
+        feature.pop("id")
+        feature["properties"]["huc_id"] = feature["properties"].pop(f"huc{final_huc_lev}")
+
+     # Sort features by 'huc_id'
+    geojson_dict["features"].sort(key=lambda x: x["properties"]["huc_id"])
 
     # Save the GeoJSON dictionary to a file
     f_out = f"Huc{final_huc_lev}_in_{huc_id}.geojson"
     with open(f_out, "w") as file:
         json.dump(geojson_dict, file)
 
+    gdf = gpd.read_file(f_out)
+
     if s3_save:
-        gdf.to_file(f_out, driver="GeoJSON")
+        # Save the file to S3
         s3_client = boto3.client('s3')
         s3_client.upload_file(f_out, bucket_nm, f_out)
         os.remove(f_out)
         print(f"File {f_out} successfully uploaded to {bucket_nm}")
+
+    return gdf

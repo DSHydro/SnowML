@@ -17,6 +17,7 @@ import xarray as xr
 import pandas as pd
 import geopandas as gpd
 import requests
+import warnings
 from botocore.exceptions import NoCredentialsError, ClientError
 from rasterio.transform import from_bounds
 from affine import Affine
@@ -24,14 +25,17 @@ from affine import Affine
 
 
 # use calc_transform instead of Affine if the data is normally sorted
+# TO DO - fix the future warning issue
 def calc_transform(ds):
-    transform = from_bounds(west=ds.lon.min().item(),
-        south=ds.lat.min().item(),
-        east=ds.lon.max().item(),
-        north=ds.lat.max().item(),
-        width=ds.dims["lon"],
-        height=ds.dims["lat"],
-        )
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=FutureWarning)
+        transform = from_bounds(west=ds.lon.min().item(),
+            south=ds.lat.min().item(),
+            east=ds.lon.max().item(),
+            north=ds.lat.max().item(),
+            width=ds.dims["lon"],
+            height=ds.dims["lat"],
+            )
     return transform
 
 def calc_Affine(ds):
@@ -48,7 +52,19 @@ def calc_Affine(ds):
     return Affine(lon_res, 0, lon_min, 0, lat_res, lat_max)
 
 def crude_filter(ds, min_lon, min_lat, max_lon, max_lat):
-    filtered_ds = ds.sel(lat=slice(min_lat, max_lat), lon=slice(min_lon, max_lon))
+    # Check if latitude is ascending or descending
+    if ds.lat[0] < ds.lat[-1]:
+        lat_slice = slice(min_lat, max_lat)
+    else:
+        lat_slice = slice(max_lat, min_lat)
+    
+    # Check if longitude is ascending or descending
+    if ds.lon[0] < ds.lon[-1]:
+        lon_slice = slice(min_lon, max_lon)
+    else:
+        lon_slice = slice(max_lon, min_lon)
+
+    filtered_ds = ds.sel(lat=lat_slice, lon=lon_slice)
     return filtered_ds
 
 def filter_by_geo (ds, geo):
@@ -77,7 +93,7 @@ def get_url_pattern(var):
         root = "https://daacdata.apps.nsidc.org/pub/DATASETS/nsidc0719_SWE_Snow_Depth_v1/"
         file_name_pattern = "4km_SWE_Depth_WY{year}_v01.nc"
         url_pattern = root+file_name_pattern
-    elif var in ["pr", "tmmn", "sph", "vs"]:
+    elif var in ["pr", "tmmn", "sph", "vs", "srad", "tmmx", "rmin", "rmax"]:
         url_p = f"http://www.northwestknowledge.net/metdata/data/{var}"
         url_pattern = url_p + "_{year}.nc"
     else:
@@ -112,63 +128,6 @@ def elapsed(time_start):
     elapsed_time = time.time() - time_start
     print(f"______Elapsed time is {int(elapsed_time)} seconds")
 
-
-def url_to_s3(root, file_name, bucket_name, region_name="us-east-1",
-               requires_auth=False, username=None, password=None,
-               quiet = True):
-    """
-    Download a data file from a given URL and save it to an S3 bucket.
-
-    Args:
-        root (str): The first part of the URL from which to download.
-        file_name (str): The name of the file to save to S3.
-        bucket_name (str): The name of the S3 bucket to save the file.
-        region_name (str): The AWS region of S3 bucket. Default is us-east-1.
-        requires_auth (bool): Indicates if the URL requires authentication.
-                 Default is False.
-        username (str): Username for authentication (required if 
-                requires_auth is True).
-        password (str): Password for authentication (required if 
-                requires_auth is True).
-
-    Returns:
-        str: The name of the uploaded file, or None if the operation fails.
-    """
-
-    url = root + file_name
-
-    # Check if the file already exists in the bucket
-    if isin_s3(bucket_name, file_name):
-        if not quiet:
-            print(f"File '{file_name}' already exists in \
-                  bucket '{bucket_name}', skipping download.")
-        return None
-
-    # Prepare authentication if required
-    auth = (username, password) if requires_auth else None
-
-    # Download the file and upload to S3
-    s3_client = boto3.client("s3", region_name=region_name)
-    try:
-        with requests.get(url, stream=True, auth=auth, timeout=60) as response:
-            response.raise_for_status()
-
-            # Stream directly to S3 using boto3
-            with response.raw as data_stream:
-                s3_client.upload_fileobj(data_stream, bucket_name, file_name)
-
-        if not quiet:
-            print(f"File {file_name} uploaded to S3 bucket '{bucket_name}'.")
-        return file_name
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error downloading file: {e}")
-    except NoCredentialsError:
-        print("AWS credentials not found.")
-    except ClientError as e:
-        print(f"Error uploading file to S3: {e}")
-
-    return None
 
 def s3_to_ds(bucket_name, file_name):
     s3_path = f"s3://{bucket_name}/{file_name}"
@@ -253,7 +212,7 @@ def dat_to_s3(dat, bucket_name, f_out, file_type="netcdf", region_name="us-east-
 
 
     if file_type == "csv":
-        dat.to_csv(output_file, index=False)
+        dat.to_csv(output_file, index=True)
     elif file_type == "parquet":
         dat.to_dataframe().to_parquet(output_file)
     elif file_type == "netcdf":
@@ -303,11 +262,6 @@ def get_basin_geos (huc_lev, huc_no, bucket_nm = "shape-bronze"):
         raise ValueError(f"No shape file found for {file_nm} in {bucket_nm}")
     basin_gdf = s3_to_gdf (bucket_nm, file_nm)
     print(f"Shapefile {file_nm} uploaded from {bucket_nm}")
-    # Rename the second column to "huc_id"
-    second_column_name = basin_gdf.columns[1]  # Get the name of the second column
-    basin_gdf = basin_gdf.rename(columns={second_column_name: "huc_id"})
-    # Sort the GeoDataFrame by the second column
-    basin_gdf = basin_gdf.sort_values(by="huc_id")
     return basin_gdf
 
 

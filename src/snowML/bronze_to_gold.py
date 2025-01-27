@@ -29,26 +29,22 @@ def prep_bronze(geo, var, bucket_dict = None):
     zarr_store_url = f's3://{b_bronze}/{var}_all.zarr'
     ds = xr.open_zarr(store=zarr_store_url, consolidated=True)
 
-    # Perform first cut crude filter
-    min_lon, min_lat, max_lon, max_lat = geo.bounds
-    small_ds = du.crude_filter(ds, min_lon, min_lat, max_lon, max_lat)
-
     # Sort if necessary
-    if not small_ds['lat'].to_index().is_monotonic_increasing:
-        small_ds = small_ds.sortby("lat")
+    if not ds['lat'].to_index().is_monotonic_increasing:
+        ds = ds.sortby("lat")
 
     if var != "swe":
-        transform = du.calc_transform(small_ds)
-        small_ds = small_ds.rio.write_transform(transform, inplace=True)
+        transform = du.calc_transform(ds)
+        ds = ds.rio.write_transform(transform, inplace=True)
     else:
-        small_ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace = True)
-    small_ds.rio.write_crs("EPSG:4326", inplace=True)
-    return small_ds
+        ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace = True)
+    ds.rio.write_crs("EPSG:4326", inplace=True)
+    return ds
 
 
 def create_mask(ds, row, crs):
     # Create a mask for the geometry
-    mask = ds.rio.clip([row.geometry], crs, drop=False, invert=False)
+    mask = ds.rio.clip([row.geometry], crs, drop=True, invert=False)
     return mask
 
 # def view_slice(ds):
@@ -121,5 +117,5 @@ def bronze_to_gold (geos, var, bucket_dict = None, overwrite = False):
                     gold_df = gold_df.rename(columns={var_name: f"mean_{var_name}"})
                 du.dat_to_s3(gold_df, b_gold, f_gold, file_type="csv")
                 du.elapsed(time_start)
-        except: 
-            print(f"Failure in processing huc {huc_id} for var {var}")
+        except Exception as e: 
+            print(f"Failure in processing huc {huc_id} for var {var}: {e}")

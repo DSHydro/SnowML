@@ -92,7 +92,9 @@ def get_gold_all_df(var_list, huc_id_list, bucket_dict):
         new_df = get_gold_var(files)
         if var == "swe":
             new_df = new_df.rename(columns={'time': 'day'})
+        new_df = new_df[new_df.columns.drop("spatial_ref")]    
         df_list.append(new_df)
+        print(new_df.head())    
     gold_all_df = merge_data(df_list)
     return gold_all_df
 

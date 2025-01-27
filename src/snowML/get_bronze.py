@@ -45,7 +45,22 @@ def download_year(var, year):
     url = url_pattern.format(year=year)
     print(f"Downloading {url}")
     ds = url_to_ds(url)
-    return ds
+    return ds 
+
+def process_year(ds, var):
+    if var == "swe":
+        ds = ds.rename({"time": "day"})
+        ds = ds["SWE"] # drop DEPTH variable from SWE Dataset
+    if not ds['lat'].to_index().is_monotonic_increasing:
+        ds = ds.sortby("lat")
+    if not ds['lon'].to_index().is_monotonic_increasing:
+        ds = ds.sortby("lon")
+    
+    # resample on daily time scale 
+    ds_sampled = ds.resample(day='D').mean()
+    
+    return ds_sampled
+
 
 def download_multiple_years(start_year, end_year, var, s3_bucket, append_to=False):
     time_start = time.time()
@@ -59,10 +74,7 @@ def download_multiple_years(start_year, end_year, var, s3_bucket, append_to=Fals
         raise ValueError(f"Warning: The path s3://{s3_bucket}/{s3_path} already exists in the S3 bucket.")
 
     # define some data-specific attributes
-    if var == "swe":
-        dim_to_concat = "time"
-    else:
-        dim_to_concat = "day"
+    dim_to_concat = "day"
 
     # Load progress from a local file to keep track of completed years
     progress_file = f"{var}_progress.json"  # TO DO - make this an S3 file?
@@ -80,13 +92,11 @@ def download_multiple_years(start_year, end_year, var, s3_bucket, append_to=Fals
             continue
 
         print(f"Processing year: {year}")
-        # download the file
         ds = download_year(var, year)
-        #print("Finished downloading")
-        if var == "swe":
-            ds = ds["SWE"] # drop DEPTH variable from SWE Dataset
+        ds = process_year(ds, var)
         ds_rechunked = ds.chunk({dim_to_concat: -1, "lat": 50, "lon": 50})
-        print("finished rechunking")
+        
+    
         # Append to the existing Zarr file on S3
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning)

@@ -1,45 +1,24 @@
 # pylint: disable=C0103
 
-"""
-This module provides functions to gather, process, and merge gold data from S3 
-for specified variables, HUC levels, and HUC IDs. The resulting data is prepared 
-for modeling and uploaded back to S3.
-
-Functions:
-- gather_s3_files(var, huc_lev, huc_id, bucket_dict): Gathers S3 file URIs based 
-  on the specified variable, HUC level, and HUC ID.
-- get_gold_data(files): Reads and concatenates CSV files from S3 into a df.
-- merge_data(df_list): Merges a list of DataFrames on the 'day' and 'huc_id'  
-  columns using an outer join.
-- get_model_ready(huc_id, huc_lev, var_list, bucket_dict): Gathers, processes,  
-  and merges gold data from S3 for the specified variables, HUC level, and 
-  HUC ID; uploads the resulting DataFrame to S3.
-"""
-
-
 import re
 import s3fs
 import pandas as pd
 import data_utils as du
 import set_data_constants as sdc
 
-def gather_s3_files(var, huc_id_list, bucket_dict):
-
-    # list of files in gold bucket
-    if var == "swe":
-        bucket = bucket_dict.get(f"{var}-gold")
-    else:
-        bucket = bucket_dict.get("wrf-gold")
-    s3 = s3fs.S3FileSystem(anon=False)
-    s3_files = s3.ls(f"s3://{bucket}")
-
-
+def gather_s3_files(var, huc_id_list, bucket_dict = None):
+    # define bucket
+    if bucket_dict is None:
+        bucket_dict = sdc.create_bucket_dict("prod")
+    bucket_nm = bucket_dict.get("gold")
+    
     # files we are expecting
     f_out_dict = sdc.create_f_out_dict()
     f_out_pat = f_out_dict.get("gold")
     gold_files = [f_out_pat.format(var=var, huc_id=huc_id) for huc_id in huc_id_list]
-    gold_files_long = [f"{bucket}/{file}" for file in gold_files]
-
+    gold_files_long = [f"{bucket_nm}/{file}" for file in gold_files]
+    s3 = s3fs.S3FileSystem(anon=False)
+    s3_files = s3.ls(bucket_nm)
     matching_files = [f for f in gold_files_long if f in s3_files]
     #print(f"Matching files are: {matching_files}")
     missing_files = [f for f in gold_files_long if f not in s3_files]
@@ -90,11 +69,8 @@ def get_gold_all_df(var_list, huc_id_list, bucket_dict):
         print(f"gathering data for {var} . . .")
         files = gather_s3_files(var, huc_id_list, bucket_dict)
         new_df = get_gold_var(files)
-        if var == "swe":
-            new_df = new_df.rename(columns={'time': 'day'})
-        new_df = new_df[new_df.columns.drop("spatial_ref")]    
         df_list.append(new_df)
-        print(new_df.head())    
+        # print(new_df.head())    
     gold_all_df = merge_data(df_list)
     return gold_all_df
 
@@ -111,7 +87,7 @@ def clean_and_filter(df, start_date):
     return df
 
 
-def get_model_ready (huc_id, huc_lev, var_list, bucket_dict, start_date = "1996-10-01"):
+def get_model_ready(huc_id, huc_lev, var_list, bucket_dict = None, start_date = "1996-10-01"):
     """
     Gathers, processes, and merges gold data from S3 for the specified variables, 
     HUC level, and HUC ID, and uploads the resulting DataFrame to S3.
@@ -126,6 +102,9 @@ def get_model_ready (huc_id, huc_lev, var_list, bucket_dict, start_date = "1996-
     pd.DataFrame: The merged DataFrame ready for modeling.
 
     """
+    if bucket_dict is None:
+        bucket_dict = sdc.create_bucket_dict("prod")
+
     geos = du.get_basin_geos(huc_lev, huc_id)
     huc_id_list = geos["huc_id"].unique().tolist()
     gold_all_df = get_gold_all_df(var_list, huc_id_list, bucket_dict)

@@ -9,7 +9,7 @@ Sections include
 
 # Model Ready Data <br>
 Data ready to be deployed into the Frosty Dawgs SnowML model can be downloaded from the S3 bucket named "dawgs-model-ready". <br>
-Each file contains data for one discrete HUC unit (watershed/subwatershed) 
+Each file contains data for one discrete HUC unit (watershed/subwatershed).
 
 **Naming convention**
 - Each file is named "model_ready_{huc_id}.csv"
@@ -18,3 +18,8 @@ Each file contains data for one discrete HUC unit (watershed/subwatershed)
 **Time Period** <br>
 Each file contains data for the water years 1984 through 2022. <br>
 Each variable is measured daily for the period "1983-10-01" through "2022-09-30"
+
+**Regions Available for Analysis** <br>
+The following regions have been process and are currently available in the "dawgs-model-ready" bucket: <br>
+  - All the HUC10 subunits within the Skagit Basin (17110005)
+  - All the HUC 12 subunits within the Chelan Basin (17020009)

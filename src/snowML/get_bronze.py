@@ -27,7 +27,7 @@ def url_to_ds(url, requires_auth=False, username=None, password=None, timeout=60
             file_like_object = io.BytesIO(response.content)
 
             # Open the dataset from the file-like object
-            ds = xr.open_dataset(file_like_object)
+            ds = xr.open_dataset(file_like_object, chunks={"day": -1, "lat": None, "lon": None})
 
             return ds
 
@@ -47,6 +47,17 @@ def download_year(var, year):
     ds = url_to_ds(url)
     return ds
 
+def process_year(ds, var):
+    if var == "swe":
+        ds = ds.rename({"time": "day"})
+        ds = ds["SWE"] # drop DEPTH variable from SWE Dataset
+    if not ds['lat'].to_index().is_monotonic_increasing:
+        ds = ds.sortby("lat")
+    if not ds['lon'].to_index().is_monotonic_increasing:
+        ds = ds.sortby("lon")
+
+    return ds
+
 def download_multiple_years(start_year, end_year, var, s3_bucket, append_to=False):
     time_start = time.time()
     s3_path = f"{var}_all.zarr"
@@ -59,10 +70,7 @@ def download_multiple_years(start_year, end_year, var, s3_bucket, append_to=Fals
         raise ValueError(f"Warning: The path s3://{s3_bucket}/{s3_path} already exists in the S3 bucket.")
 
     # define some data-specific attributes
-    if var == "swe":
-        dim_to_concat = "time"
-    else:
-        dim_to_concat = "day"
+    dim_to_concat = "day"
 
     # Load progress from a local file to keep track of completed years
     progress_file = f"{var}_progress.json"  # TO DO - make this an S3 file?
@@ -80,24 +88,21 @@ def download_multiple_years(start_year, end_year, var, s3_bucket, append_to=Fals
             continue
 
         print(f"Processing year: {year}")
-        # download the file
         ds = download_year(var, year)
-        #print("Finished downloading")
-        if var == "swe":
-            ds = ds["SWE"] # drop DEPTH variable from SWE Dataset
-        ds_rechunked = ds.chunk({dim_to_concat: -1, "lat": 50, "lon": 50})
-        print("finished rechunking")
+        ds = process_year(ds, var)
+        ds = ds.chunk({dim_to_concat: -1, "lat": None, "lon": None})
+
         # Append to the existing Zarr file on S3
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning)
             if not fs.exists(f"s3://{s3_bucket}/{s3_path}"):
                 # Create a new Zarr file for the first year
-                ds_rechunked.to_zarr(f"s3://{s3_bucket}/{s3_path}", mode="w", consolidated=True)
+                ds.to_zarr(f"s3://{s3_bucket}/{s3_path}", mode="w", consolidated=True)
                 print(f"Created new Zarr file at s3://{s3_bucket}/{s3_path}")
                 completed_years.add(year)
             else:
                 # Append data to the existing Zarr file
-                ds_rechunked.to_zarr(f"s3://{s3_bucket}/{s3_path}", mode="a", append_dim=dim_to_concat, consolidated=True)
+                ds.to_zarr(f"s3://{s3_bucket}/{s3_path}", mode="a", append_dim=dim_to_concat, consolidated=True)
                 print(f"Appended year {year} to s3://{s3_bucket}/{s3_path}")
                 completed_years.add(year)
                 with open(progress_file, "w") as f:

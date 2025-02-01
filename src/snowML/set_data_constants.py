@@ -12,10 +12,10 @@ def create_bucket_dict(b_type):
     return bucket_dict
 
 def create_var_dict():
-    var_list = ["swe", "pr", "tmmn", "vs", "srad", "tmmx", "rmax", "rmin"]
-    var_names = ["SWE", "precipitation_amount", "air_temperature", "wind_speed", \
-                 "surface_downwelling_shortwave_flux_in_air", "air_temperature", \
-                  "relative_humidity", "relative_humidity"]
+    var_list = ["pr", "tmmn", "tmmx", "vs", "srad", "rmax", "rmin", "swe"]
+    var_names = ["precipitation_amount", "air_temperature", "air_temperature", \
+                 "wind_speed", "surface_downwelling_shortwave_flux_in_air",  \
+                  "relative_humidity", "relative_humidity", "SWE"]
     var_dict = dict(zip(var_list, var_names))
     return var_dict
 

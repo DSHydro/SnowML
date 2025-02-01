@@ -25,8 +25,11 @@ def gather_gold_files(huc_id, var_list = None, bucket_dict = None):
 
 def clean_and_filter(df, start_date = "1983-10-01", end_date = "2022-09-30"):
     df['day'] = pd.to_datetime(df['day'])
-    df_filtered = df[(df["day"] >= start_date) & (df["day"] < end_date)]
-    return df_filtered
+    df =  df[(df["day"] >= start_date) & (df["day"] < end_date)]
+    df = df[df.columns.drop("huc_id")]
+    return df
+
+
 
 def huc_gold(huc_id, var_list = None, bucket_dict = None):
 
@@ -48,16 +51,25 @@ def huc_gold(huc_id, var_list = None, bucket_dict = None):
 
     model_df = dfs_clean[0]
     for df in dfs_clean[1:]:
-        df = df[df.columns.drop("huc_id")]
         model_df = pd.merge(model_df, df, on="day", how="outer")
 
-    # reorder columns
-    new_order = ['day', 'huc_id'] + [col for col in model_df.columns if col not in ['day', 'huc_id']]
-    model_df = model_df[new_order]
+    # update units & columns 
+    model_df["mean_swe"] = model_df["mean_swe"] / 1000  #set units to be mm
+    model_df["mean_tair"] = model_df["mean_tmmx"]/2 +  model_df["mean_tmmn"] / 2  # avg of max and min
+    model_df["mean_tair"] = model_df["mean_tair"] - 273.15  # set units to be C
+    model_df = model_df[model_df.columns.drop(["mean_tmmx", "mean_tmmn"])]
+    #model_df["mean_pr"] = model_df["mean_pr"] / (100**2) # TO DO - why 100^2. Just to normalize?
+    model_df["mean_rmax"] = model_df["mean_rmax"] / 100  # set units to be %
+    model_df["mean_rmin"] = model_df["mean_rmin"] / 100  # set units to be %
+
 
     # reset index
     model_df.reset_index(drop=True, inplace=True)  
     model_df.set_index("day", inplace=True)
+
+    # reorder columns 
+    new_order = ["mean_pr", "mean_tair", "mean_vs", "mean_srad", "mean_rmax", "mean_rmin", "mean_swe"]
+    model_df = model_df[new_order]
 
     f_out = f"model_ready_huc{huc_id}"
     du.dat_to_s3(model_df, bucket_dict.get("model-ready"), f_out, file_type = "csv")

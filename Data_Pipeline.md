@@ -1,11 +1,14 @@
 This Document Describes the Data used in Training the Frosty Dawgs SnowML Model. <br>
 Sections include  
-  - Raw Data
-  - Processing Pipeline
-  - Model Ready Data
+-   [Raw Data](#raw-data)
+-   [Data Pipeline Repo Steps](#data-pipeline---repo-steps)
+-   [Model Ready Data](#model-ready-data)
 
-  If you are most interested in understanding the final data used in the model, jump straight to Model Ready Data!
+  If you are most interested in understanding the final data used in the model, jump straight to [Model Ready Data](#model-ready-data)!
 
+# Raw Data <br>
+
+# Data Pipeline - Repo Steps <br>
 
 # Model Ready Data <br>
 Data ready to be deployed into the Frosty Dawgs SnowML model can be downloaded from the S3 bucket named "dawgs-model-ready". <br>

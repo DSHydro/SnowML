@@ -27,7 +27,7 @@ def url_to_ds(url, requires_auth=False, username=None, password=None, timeout=60
             file_like_object = io.BytesIO(response.content)
 
             # Open the dataset from the file-like object
-            ds = xr.open_dataset(file_like_object)
+            ds = xr.open_dataset(file_like_object, chunks={"day": -1, "lat": None, "lon": None})
 
             return ds
 
@@ -45,7 +45,7 @@ def download_year(var, year):
     url = url_pattern.format(year=year)
     print(f"Downloading {url}")
     ds = url_to_ds(url)
-    return ds 
+    return ds
 
 def process_year(ds, var):
     if var == "swe":
@@ -55,12 +55,8 @@ def process_year(ds, var):
         ds = ds.sortby("lat")
     if not ds['lon'].to_index().is_monotonic_increasing:
         ds = ds.sortby("lon")
-    
-    # resample on daily time scale 
-    ds_sampled = ds.resample(day='D').mean()
-    
-    return ds_sampled
 
+    return ds
 
 def download_multiple_years(start_year, end_year, var, s3_bucket, append_to=False):
     time_start = time.time()
@@ -94,20 +90,19 @@ def download_multiple_years(start_year, end_year, var, s3_bucket, append_to=Fals
         print(f"Processing year: {year}")
         ds = download_year(var, year)
         ds = process_year(ds, var)
-        ds_rechunked = ds.chunk({dim_to_concat: -1, "lat": 50, "lon": 50})
-        
-    
+        ds = ds.chunk({dim_to_concat: -1, "lat": None, "lon": None})
+
         # Append to the existing Zarr file on S3
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning)
             if not fs.exists(f"s3://{s3_bucket}/{s3_path}"):
                 # Create a new Zarr file for the first year
-                ds_rechunked.to_zarr(f"s3://{s3_bucket}/{s3_path}", mode="w", consolidated=True)
+                ds.to_zarr(f"s3://{s3_bucket}/{s3_path}", mode="w", consolidated=True)
                 print(f"Created new Zarr file at s3://{s3_bucket}/{s3_path}")
                 completed_years.add(year)
             else:
                 # Append data to the existing Zarr file
-                ds_rechunked.to_zarr(f"s3://{s3_bucket}/{s3_path}", mode="a", append_dim=dim_to_concat, consolidated=True)
+                ds.to_zarr(f"s3://{s3_bucket}/{s3_path}", mode="a", append_dim=dim_to_concat, consolidated=True)
                 print(f"Appended year {year} to s3://{s3_bucket}/{s3_path}")
                 completed_years.add(year)
                 with open(progress_file, "w") as f:

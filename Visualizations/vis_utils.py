@@ -18,7 +18,7 @@ def basic_map(initial_huc, final_huc_lev):
     # Load the shapefile
     geos = gg.get_geos(initial_huc, final_huc_lev)
     map_object = geos.explore()
-    output_dir = "basic_maps"
+    output_dir = os.path.join("../docs/Visualizations", "basic_maps")
     file_name = f"Huc{final_huc_lev}_in_{initial_huc}.html"
     file_path = os.path.join(output_dir, file_name)
     map_object.save(file_path)

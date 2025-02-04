@@ -37,6 +37,6 @@ Each variable is measured daily for the period "1983-10-01" through "2022-09-30"
 
 # Regions Available for Analysis <br>
 The following regions have been process and are currently available in the "dawgs-model-ready" bucket: <br>
-  - All the HUC10 subunits within the Skagit Basin (17110005)
-  - All the HUC 12 subunits within the Chelan Basin (17020009)
-  - All the HUC 12 subunits within the Toulumne Basin (18040009)
+  - All the HUC10 subunits within the [Skagit Basin](https://dshydro.github.io/SnowML/Visualizations/basic_maps/Huc10_in_17110005.html) (17110005) 
+  - All the HUC12 subunits within the Chelan Basin (17020009)
+  - All the HUC12 subunits within the Toulumne Basin (18040009)

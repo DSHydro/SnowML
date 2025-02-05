@@ -8,6 +8,11 @@ Sections include
   If you are most interested in understanding the final data used in the model, jump straight to [Model Ready Data](#model-ready-data)!
 
 # Raw Data <br>
+- Data related to Snow Water Equivilent ("Swe") was obtained from teh University of Arizona https://climate.arizona.edu/data/UA_SWE/
+- Data for meteorological variables was obtaind from the University of Idaho https://www.climatologylab.org/gridmet.html.
+- Data related to HUC geometries, i.e. the geojson files for each of the Huc units we modeled were obtained from [FILL IN]
+- Snow type classification data was obtained from [FILL IN]  
+
 
 # Data Pipeline - Repo Steps <br>
 

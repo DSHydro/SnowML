@@ -7,6 +7,7 @@ import numpy as np
 import s3fs
 import time
 import data_utils as du 
+import get_geos as gg
 
 
 def get_snow_class_data(geos = None):
@@ -51,14 +52,14 @@ def snow_class_data_from_s3(geos = None):
     
 def map_snow_class_names(): 
     snow_class_names = {
-        1: "1. Tundra",
-        2: "2. Boreal Forest",
-        3: "3. Maritime",
-        4: "4. Ephemeral",
-        5: "5. Prairie",
-        6: "6. Montane Forest",
-        7: "7. Ice",
-        8: "8. Ocean"
+        1: "Tundra",
+        2: "Boreal Forest",
+        3: "Maritime",
+        4: "Ephemeral",
+        5: "Prairie",
+        6: "Montane Forest",
+        7: "Ice",
+        8: "Ocean"
     }
     return snow_class_names
 
@@ -104,10 +105,6 @@ def display_df(df):
     # Filter out columns where the average value is zero (for both df and ave_row)
     non_zero_columns = ave_row.loc[:, ave_row.iloc[0] > 0].columns  # Filter out zero averages
     
-    # Keep only the non-zero columns in both df and ave_row
-    df = df[non_zero_columns.tolist() + ['huc_id']]  # Keep only non-zero columns in df
-    ave_row = ave_row[non_zero_columns]  # Keep only non-zero columns in ave_row
-    
     # Add 'huc_id' to the ave_row after filtering
     ave_row['huc_id'] = "Average"
     
@@ -119,14 +116,15 @@ def display_df(df):
     
     return df
 
-def save_snow_types(df): 
+def save_snow_types(df, huc_id): 
     markdown_table = df.to_markdown(index=False)
-    with open('../../docs/tables/data_table.md', 'w') as f:
+    with open(f'../../docs/tables/snow_types{huc_id}.md', 'w') as f:
         f.write(markdown_table)
     print("Markdown table saved to ../../docs/tables/data_table.md")
 
-def process_all(geos):
+def process_all(huc_id, huc_lev):
+    geos = gg.get_geos(huc_id, huc_lev)
     df_snow_types = snow_class(geos)
     df_snow_types = display_df(df_snow_types)
-    save_snow_types(df_snow_types)
+    save_snow_types(df_snow_types, huc_id)
     return df_snow_types

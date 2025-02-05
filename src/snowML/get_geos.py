@@ -9,7 +9,7 @@ import ee
 import geopandas as gpd
 
 
-def get_geos(huc_id, final_huc_lev, s3_save = True, bucket_nm = "shape-bronze"):
+def get_geos(huc_id, final_huc_lev, s3_save = False, bucket_nm = "shape-bronze"):
     """
     Retrieves and processes geographic data from the USGS Watershed Boundary Dataset (WBD) 
     for a specified Hydrologic Unit Code (HUC) level and ID, and optionally saves the 
@@ -82,7 +82,6 @@ def get_geos(huc_id, final_huc_lev, s3_save = True, bucket_nm = "shape-bronze"):
         # Save the file to S3
         s3_client = boto3.client('s3')
         s3_client.upload_file(f_out, bucket_nm, f_out)
-        os.remove(f_out)
         print(f"File {f_out} successfully uploaded to {bucket_nm}")
-
+    os.remove(f_out)
     return gdf

@@ -97,7 +97,6 @@ def snow_class(geos):
         df_snow_classes = calc_snow_class(ds, snow_class_names)
         df_snow_classes["huc_id"] = row["huc_id"].values[0]
         results = pd.concat([results, df_snow_classes], ignore_index=True)
-    du.elapsed(time_start)
     return results
 
 def display_df(df):
@@ -120,11 +119,12 @@ def save_snow_types(df, huc_id):
     markdown_table = df.to_markdown(index=False)
     with open(f'../../docs/tables/snow_types{huc_id}.md', 'w') as f:
         f.write(markdown_table)
-    print("Markdown table saved to ../../docs/tables/data_table.md")
+    print(f"Markdown table saved to ../../docs/tables/now_types{huc_id}.md")
 
-def process_all(huc_id, huc_lev):
+def process_all(huc_id, huc_lev, save = False):
     geos = gg.get_geos(huc_id, huc_lev)
     df_snow_types = snow_class(geos)
     df_snow_types = display_df(df_snow_types)
-    save_snow_types(df_snow_types, huc_id)
+    if save: 
+        save_snow_types(df_snow_types, huc_id)
     return df_snow_types

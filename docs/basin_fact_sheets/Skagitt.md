@@ -5,3 +5,8 @@
 
 <iframe src="https://dshydro.github.io/SnowML/Visualizations/basic_maps/Huc10_in_17110005.html" width="100%" height="600px" style="border:none;"></iframe>
 
+## Snow Classes
+
+![Snow Classes Map](../basic_maps/Snow_classes_in_17110005.png)
+
+

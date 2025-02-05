@@ -53,7 +53,9 @@ def get_geos(huc_id, final_huc_lev, s3_save = True, bucket_nm = "shape-bronze"):
     collection = ee.FeatureCollection(f'USGS/WBD/2017/HUC{final_huc_lev}')
 
     # Filter the collection to only include features within top level huc
+    final_huc_lev = final_huc_lev.lstrip('0')
     filtered_collection = collection.filter(ee.Filter.stringStartsWith(f"huc{final_huc_lev}", huc_id))
+
 
     # Extract HUC IDs and geometries
     output = filtered_collection.map(lambda feature: feature.select([f"huc{final_huc_lev}"]))

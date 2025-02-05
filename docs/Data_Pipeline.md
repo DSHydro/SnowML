@@ -3,6 +3,7 @@ Sections include
 -   [Raw Data](#raw-data)
 -   [Data Pipeline Repo Steps](#data-pipeline---repo-steps)
 -   [Model Ready Data](#model-ready-data)
+-   [Regions Available for Analysis](#Regions-Available-for-Analysis)
 
   If you are most interested in understanding the final data used in the model, jump straight to [Model Ready Data](#model-ready-data)!
 
@@ -34,7 +35,8 @@ Each variable is measured daily for the period "1983-10-01" through "2022-09-30"
 | mean_swe           | The mean snow water equivalent on a daily scale, aggregated over the entire HUC unit. | meters    |
 
 
-**Regions Available for Analysis** <br>
+# Regions Available for Analysis <br>
 The following regions have been process and are currently available in the "dawgs-model-ready" bucket: <br>
-  - All the HUC10 subunits within the Skagit Basin (17110005)
-  - All the HUC 12 subunits within the Chelan Basin (17020009)
+  - All the HUC10 subunits within the [Skagit Basin](https://dshydro.github.io/SnowML/Visualizations/basic_maps/Huc10_in_17110005.html) (17110005) 
+  - All the HUC12 subunits within the Chelan Basin (17020009)
+  - All the HUC12 subunits within the Toulumne Basin (18040009)

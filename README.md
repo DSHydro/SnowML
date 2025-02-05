@@ -3,6 +3,11 @@ UW MSDS SnowML capstone project
 
 ## Development
 
+### Installation Instructions
+Clone the repo and then do the following:
+`cd SnowML`
+`pip install -e .`
+
 ### MLflow
 Follow [installation instructions](https://mlflow.org/docs/latest/getting-started/tracking-server-overview/index.html#minute-tracking-server-overview) or quickly install and run below:
 1. Activiate a virtual environment through conda or pip first

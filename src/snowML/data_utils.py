@@ -51,21 +51,21 @@ def calc_Affine(ds):
     # Construct and return the affine matrix
     return Affine(lon_res, 0, lon_min, 0, lat_res, lat_max)
 
-def crude_filter(ds, min_lon, min_lat, max_lon, max_lat):
-    # Check if latitude is ascending or descending
-    if ds.lat[0] < ds.lat[-1]:
-        lat_slice = slice(min_lat, max_lat)
-    else:
-        lat_slice = slice(max_lat, min_lat)
+# def crude_filter(ds, min_lon, min_lat, max_lon, max_lat):
+#     # Check if latitude is ascending or descending
+#     if ds.lat[0] < ds.lat[-1]:
+#         lat_slice = slice(min_lat, max_lat)
+#     else:
+#         lat_slice = slice(max_lat, min_lat)
     
-    # Check if longitude is ascending or descending
-    if ds.lon[0] < ds.lon[-1]:
-        lon_slice = slice(min_lon, max_lon)
-    else:
-        lon_slice = slice(max_lon, min_lon)
+#     # Check if longitude is ascending or descending
+#     if ds.lon[0] < ds.lon[-1]:
+#         lon_slice = slice(min_lon, max_lon)
+#     else:
+#         lon_slice = slice(max_lon, min_lon)
 
-    filtered_ds = ds.sel(lat=lat_slice, lon=lon_slice)
-    return filtered_ds
+#     filtered_ds = ds.sel(lat=lat_slice, lon=lon_slice)
+#     return filtered_ds
 
 def filter_by_geo (ds, geo):
     """
@@ -83,10 +83,10 @@ def filter_by_geo (ds, geo):
     ds_final = ds.rio.clip(geo.geometry, geo.crs, drop=True)
     return ds_final
 
-def ds_mean(ds):
-    ds_m = ds.mean(dim=['lat','lon'])
-    ds_m = ds_m.rename({var: f"mean_{var}" for var in ds_m.data_vars})
-    return ds_m
+# def ds_mean(ds):
+#     ds_m = ds.mean(dim=['lat','lon'])
+#     ds_m = ds_m.rename({var: f"mean_{var}" for var in ds_m.data_vars})
+#     return ds_m
 
 def get_url_pattern(var):
     if var == "swe":

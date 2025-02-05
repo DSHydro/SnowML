@@ -9,10 +9,6 @@ import xarray as xr
 import data_utils as du
 import set_data_constants as sdc
 
-modules_to_reload = [sdc]
-for m in modules_to_reload:
-    importlib.reload(m)
-
 # define constants
 VAR_DICT = sdc.create_var_dict()
 

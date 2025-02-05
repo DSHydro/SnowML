@@ -10,10 +10,6 @@ import bronze_to_gold as btg
 import gold_to_model as gtm
 import get_geos as gg
 
-modules_to_reload = [sdc, gb, btg, gtm]
-for m in modules_to_reload:
-    importlib.reload(m)
-
 def process_one_huc (huc_id, bucket_dict = None, var_list = None, overwrite = False):
     # verify inputs
     huc_lev = str(len(str(huc_id))).zfill(2)

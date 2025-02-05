@@ -51,14 +51,14 @@ def snow_class_data_from_s3(geos = None):
     
 def map_snow_class_names(): 
     snow_class_names = {
-        1: "Tundra",
-        2: "Boreal Forest",
-        3: "Maritime",
-        4: "Ephemeral",
-        5: "Prairie",
-        6: "Montane Forest",
-        7: "Ice",
-        8: "Ocean"
+        1: "1. Tundra",
+        2: "2. Boreal Forest",
+        3: "3. Maritime",
+        4: "4. Ephemeral",
+        5: "5. Prairie",
+        6: "6. Montane Forest",
+        7: "7. Ice",
+        8: "8. Ocean"
     }
     return snow_class_names
 
@@ -89,7 +89,7 @@ def snow_class(geos):
     snow_class_names = map_snow_class_names()
     ds_conus = get_snow_class_data(geos = None)
     for i in range(geos.shape[0]):
-        print(f"processing geos {i+1} of {geos.shape[0]}")
+        #print(f"processing geos {i+1} of {geos.shape[0]}")
         row = geos.iloc[[i]]
         row = row.to_crs(ds_conus.rio.crs)
         ds = ds_conus.rio.clip(row.geometry, row.crs, drop=True)
@@ -98,3 +98,35 @@ def snow_class(geos):
         results = pd.concat([results, df_snow_classes], ignore_index=True)
     du.elapsed(time_start)
     return results
+
+def display_df(df):
+    ave_row = df.drop(columns=['huc_id']).mean().round(1).to_frame().T
+    # Filter out columns where the average value is zero (for both df and ave_row)
+    non_zero_columns = ave_row.loc[:, ave_row.iloc[0] > 0].columns  # Filter out zero averages
+    
+    # Keep only the non-zero columns in both df and ave_row
+    df = df[non_zero_columns.tolist() + ['huc_id']]  # Keep only non-zero columns in df
+    ave_row = ave_row[non_zero_columns]  # Keep only non-zero columns in ave_row
+    
+    # Add 'huc_id' to the ave_row after filtering
+    ave_row['huc_id'] = "Average"
+    
+    # Concatenate the filtered average row
+    df = pd.concat([df, ave_row], ignore_index=True)
+    
+    # Reordering so 'huc_id' is the first column
+    df = df[['huc_id'] + [col for col in df.columns if col != 'huc_id']]
+    
+    return df
+
+def save_snow_types(df): 
+    markdown_table = df.to_markdown(index=False)
+    with open('../../docs/tables/data_table.md', 'w') as f:
+        f.write(markdown_table)
+    print("Markdown table saved to ../../docs/tables/data_table.md")
+
+def process_all(geos):
+    df_snow_types = snow_class(geos)
+    df_snow_types = display_df(df_snow_types)
+    save_snow_types(df_snow_types)
+    return df_snow_types

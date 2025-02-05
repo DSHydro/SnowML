@@ -86,7 +86,7 @@ def huc_gold(huc_id, var_list = None, bucket_dict = None):
     snow_types_broadcasted = pd.DataFrame([snow_types.iloc[0]] * len(snow_types), columns=snow_types.columns, index=model_df.index)
     df_final = pd.concat([model_df, snow_types_broadcasted], axis=1)
     f_out = f"model_ready_huc{huc_id}"
-    du.dat_to_s3(model_df, bucket_dict.get("model-ready"), f_out, file_type = "csv")
+    du.dat_to_s3(df_final, bucket_dict.get("model-ready"), f_out, file_type = "csv")
     return df_final
 
 

@@ -7,6 +7,9 @@
 
 ## Snow Classes
 
+<!-- Include the table from the file -->
+{% include snow_types17110005.md %}
+
 ![Snow Classes Map](../basic_maps/Snow_classes_in_17110005.png)
 
 

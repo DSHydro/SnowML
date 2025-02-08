@@ -1,9 +1,9 @@
-# Module to set the hyperparams for the LSTM model 
+# Module to set the hyperparams for the LSTM model
 
 
-def create_hyper_dict(type=None):
-    # set baseline values: 
-    dict = {
+def create_hyper_dict(param_type=None):
+    # set baseline values:
+    param_dict = {
         "hidden_size": 2**6,
         "num_class": 1,
         "num_layers": 1,
@@ -16,13 +16,11 @@ def create_hyper_dict(type=None):
         "n_steps": 1,
         "self_only": False,
     }
-    
-    if type == "Skagit_orig": 
-        dict["self_only"] = True
-        dict["dropout"] = 0.5
-        dict["batch_size"] = 8
-        dict["n_epochs"] = 30
 
-    
-    return dict
+    if param_type == "Skagit_orig":
+        param_dict["self_only"] = True
+        param_dict["dropout"] = 0.5
+        param_dict["batch_size"] = 8
+        param_dict["n_epochs"] = 30
 
+    return param_dict

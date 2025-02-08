@@ -1,9 +1,11 @@
+# pylint: disable=C0103
+
 import torch
 from torch import nn
 import random
 import numpy as np
-import LSTM_pre_process as pp
 import matplotlib.pyplot as plt
+import LSTM_pre_process as pp
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 
@@ -31,9 +33,9 @@ def train_model(model, optimizer, loss_fn, df_dict, target_key, n_epochs, \
 
     if self_only:
         print("training_will_proceed_with_this_huc_only")
-    else: 
+    else:
         print("training will proceed with multi_hucs until the final 10% of epochs")
-        
+
     # Initialize available keys for sampling without replacement
     available_keys = [key for key in df_dict.keys() if key != target_key]
     random.shuffle(available_keys)  # Shuffle for randomness
@@ -45,7 +47,7 @@ def train_model(model, optimizer, loss_fn, df_dict, target_key, n_epochs, \
     X_val_target, y_val_target = pp.create_tensor(df_target, lookback, var_list)
 
     for epoch in range(n_epochs):
-        
+
         # Determine which dataset to use for training
         if epoch < 0.9 * n_epochs and not self_only:
             # If available_keys is empty, reset it
@@ -57,16 +59,16 @@ def train_model(model, optimizer, loss_fn, df_dict, target_key, n_epochs, \
             # Sample without replacement
             selected_key = available_keys.pop()
             used_keys.append(selected_key)  # Track used key
-            if not self_only: 
+            if not self_only:
                 print(f"Epoch {epoch}: Training data used = {selected_key}")
                 
-            # prep data 
+            # prep data
             data = df_dict[selected_key]
             train_main, _, _, _ = pp.train_test_split(data, train_size_fraction)
             X_train, y_train = pp.create_tensor(train_main, lookback, var_list)
 
         else:
-            # Use df_target 
+            # Use df_target
             X_train, y_train = X_val_target, y_val_target
             selected_key = target_key
             

@@ -1,25 +1,29 @@
-import pandas as pd
-import numpy as np
-import torch
-import time
+
+# pylint: disable=C0103
 
 import sys
 import os
+import time
+import pandas as pd
+import numpy as np
+import torch
+
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import data_utils as du
 
 
 # Excluded Hucs Due to Missing SWE Data (Canada)
 EXCLUDED_HUCS = ["1711000501", "1711000502", "1711000503"]
-# Excluded Hucs Due to > 50% Ephemeral -- TO DO 
+# Excluded Hucs Due to > 50% Ephemeral -- TO DO
 
 
 
-def assemble_huc_list(input_pairs): 
+def assemble_huc_list(input_pairs):
     hucs = []
-    bucket_name = "shape-bronze"  # TO DO MAKE DYNAMIC 
-    for input in input_pairs: 
-        f_name = f"Huc{input[1]}_in_{input[0]}.geojson"
+    bucket_name = "shape-bronze"  # TO DO MAKE DYNAMIC
+    for pair in input_pairs:
+        f_name = f"Huc{pair[1]}_in_{pair[0]}.geojson"
         geos = du.s3_to_gdf(bucket_name, f_name)
         hucs.extend(geos["huc_id"].to_list())  # Use extend() to flatten
     print(f"number of sub units to process is {len(hucs)}")
@@ -28,7 +32,7 @@ def assemble_huc_list(input_pairs):
 
 def z_score_normalize(df):
     normalized_df = df.copy()
-    
+
     for column in ["mean_pr", "mean_tair", "mean_vs", "mean_srad", "mean_rmax", "mean_rmin"]:
         column_mean = df[column].mean()
         column_std = df[column].std()
@@ -36,16 +40,16 @@ def z_score_normalize(df):
 
     return normalized_df
 
-def pre_process (huc_list, var_list): 
+def pre_process (huc_list, var_list):
     df_dict = {}  # Initialize dictionary
     bucket_name = "dawgs-model-ready"  # TO DO make dynamic
-    for huc in huc_list: 
+    for huc in huc_list:
         if huc not in EXCLUDED_HUCS:
             file_name = f"model_ready_huc{huc}.csv"
             df = du.s3_to_df(file_name, bucket_name)
             df['day'] = pd.to_datetime(df['day'])
             df.set_index('day', inplace=True)  # Set 'day' as the index
-            col_to_keep = var_list + ["mean_swe"]  
+            col_to_keep = var_list + ["mean_swe"]
             df = z_score_normalize(df)
             df = df[col_to_keep]
             df_dict[huc] = df  # Store DataFrame in dictionary
@@ -65,12 +69,12 @@ def create_tensor(dataset, lookback, var_list):
         lookback: Size of window for prediction
         var_list: List of column names to be used as features
     """
-    time_start = time.time()
-    X, y = [], []   
-        
+    #time_start = time.time()
+    X, y = [], []
+
     for i in range(len(dataset) - lookback):
         feature = dataset.iloc[i:(i + lookback)][var_list].values  # Select the columns in var_list
-        target = np.array([dataset.iloc[i + lookback]["mean_swe"]])  # Selects the "mean_swe" column as target
+        target = np.array([dataset.iloc[i + lookback]["mean_swe"]])  # Selects "mean_swe" as target
         X.append(feature)
         y.append(target)
 

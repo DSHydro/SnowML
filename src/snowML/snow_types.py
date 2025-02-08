@@ -13,7 +13,7 @@ import get_geos as gg
 def get_snow_class_data(geos = None):
     url = "https://daacdata.apps.nsidc.org/pub/DATASETS/nsidc0768_global_seasonal_snow_classification_v01/SnowClass_NA_05km_2.50arcmin_2021_v01.0.nc"
     response = requests.get(url)
-    ds = xr.open_dataset(io.BytesIO(response.content))
+    ds = xr.open_dataset(io.BytesIO(response.content), engine="h5netcdf")  
     if geos is None: # return the data for CONUS
         lat_min, lat_max = 24.396308, 49.384358
         lon_min, lon_max = -125.0, -66.93457
@@ -122,7 +122,7 @@ def save_snow_types(df, huc_id):
     print(f"Markdown table saved to ../../docs/tables/now_types{huc_id}.md")
 
 def process_all(huc_id, huc_lev, save = False):
-    geos = gg.get_geos(huc_id, huc_lev)
+    geos = du.get_basin_geos(f"Huc{huc_lev}", huc_id)
     df_snow_types = snow_class(geos)
     df_snow_types = display_df(df_snow_types)
     if save: 

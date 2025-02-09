@@ -60,27 +60,24 @@ def pre_train(model, optimizer, loss_fn, df_dict, target_key, var_list, params):
     available_keys = [key for key in df_dict.keys() if key != target_key]
     random.shuffle(available_keys)  # Shuffle for randomness
 
-    # Create DataLoaders for all available HUCs before the loop starts
-    huc_loaders = {
-        key: create_dataloader(
-            df_dict[key],
-            var_list,
-            params)
-        for key in available_keys
-    }
-
     for epoch in range(pre_train_epochs):
         model.train()  # Set model to training mode
         print(f"Epoch {epoch}: Pre-training on multiple HUCs")
-        # Shuffle the order of HUCs at the beginning of each epoch
         random.shuffle(available_keys)
 
+
         # Iterate over all the HUCs and train on them
-        i = 0 
-        for selected_key in available_keys:
+        for i, selected_key in enumerate(available_keys, start=1):
             i+=1
-            loader = huc_loaders[selected_key]
-            print(f"Epoch {epoch}: Training on HUC {selected_key}")
+            #if i % 5 == 0: 
+            print(f"Epoch {epoch}: Training on HUC {i} {selected_key}")
+
+            loader = create_dataloader(
+                df_dict[selected_key],
+                var_list,
+                params,
+            )
+
 
             # Training Loop
             for X_batch, y_batch in loader:
@@ -90,11 +87,8 @@ def pre_train(model, optimizer, loss_fn, df_dict, target_key, var_list, params):
                 loss.backward()
                 optimizer.step()
             
-            if i % 5 == 0: 
-                #print(f"Allocated memory: {torch.cuda.memory_allocated() / 1e6} MB")
-                #print(f"Max allocated memory: {torch.cuda.max_memory_allocated() / 1e6} MB")
-                #print(f"Cached memory: {torch.cuda.memory_reserved() / 1e6} MB")
-
+            
+            
         # Perform validation every 5 epochs
         df_target = df_dict[target_key]
         if epoch % 5 == 0:

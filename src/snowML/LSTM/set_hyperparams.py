@@ -9,14 +9,14 @@ def create_hyper_dict(param_type=None):
         "num_layers": 1,
         "dropout": 0.3,
         "learning_rate": 1e-3,  # 3e-3
-        "n_epochs": 5,
-        "pre_train_fraction" : .9,
+        "n_epochs": 1,
+        "pre_train_fraction" : 1,
         "train_size_fraction": 0.67,
         "lookback": 180,
         "batch_size": 16,
         "n_steps": 1,
-        "self_only": False,
-        "num_workers": 2
+        "self_only": True,
+        "num_workers": 8
     }
 
     if param_type == "Skagit_orig":

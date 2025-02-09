@@ -1,12 +1,12 @@
 # pylint: disable=C0103
 
+import random
 import torch
 from torch import nn
-import random
 import numpy as np
 import matplotlib.pyplot as plt
-import LSTM_pre_process as pp
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+import LSTM_pre_process as pp
 
 
 class SnowModel(nn.Module):
@@ -15,7 +15,12 @@ class SnowModel(nn.Module):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
         self.dropout = dropout
-        self.lstm1 = nn.LSTM(input_size, hidden_size, num_layers, dropout=self.dropout, batch_first=True)
+        self.lstm1 = nn.LSTM(
+            input_size,
+            hidden_size,
+            num_layers,
+            dropout=self.dropout,
+            batch_first=True)
         self.linear = nn.Linear(hidden_size, num_class)
         self.leaky_relu = nn.LeakyReLU()
 
@@ -28,83 +33,115 @@ class SnowModel(nn.Module):
         out = self.leaky_relu(out)
         return out
 
-def train_model(model, optimizer, loss_fn, df_dict, target_key, n_epochs, \
-                batch_size, lookback, var_list, train_size_fraction, self_only = True):
 
-    if self_only:
-        print("training_will_proceed_with_this_huc_only")
-    else:
-        print("training will proceed with multi_hucs until the final 10% of epochs")
+# Helper Function: Load data into DataLoader
+def create_dataloader(df, var_list, params):
+    """ Creates a DataLoader for a given HUC dataset """
+    train_data, _, _, _ = pp.train_test_split(df, params["train_size_fraction"])
+    X_train, y_train = pp.create_tensor(train_data, params["lookback"], var_list)
+
+    # Create a DataLoader
+    loader = torch.utils.data.DataLoader(
+        torch.utils.data.TensorDataset(X_train, y_train),
+        shuffle=True,
+        batch_size=params["batch_size"],
+        num_workers=params["num_workers"]  # Enable multi-threading for data loading
+    )
+    return loader
+
+# Pre-training Phase: Train on multiple HUCs
+def pre_train(model, optimizer, loss_fn, df_dict, target_key, var_list, params):
+    """ Pre-train the model on multiple HUCs """
+
+    # Calculate the number of pre-train epochs
+    pre_train_epochs = int(params['n_epochs'] * params['pre_train_fraction'])
 
     # Initialize available keys for sampling without replacement
     available_keys = [key for key in df_dict.keys() if key != target_key]
     random.shuffle(available_keys)  # Shuffle for randomness
-    used_keys = []  # Tracks used keys
 
-    # Prepare validation data from df_target
+    # Create DataLoaders for all available HUCs before the loop starts
+    huc_loaders = {
+        key: create_dataloader(
+            df_dict[key],
+            var_list,
+            params)
+        for key in available_keys
+    }
+
+    for epoch in range(pre_train_epochs):
+        model.train()  # Set model to training mode
+        print(f"Epoch {epoch}: Pre-training on multiple HUCs")
+        # Shuffle the order of HUCs at the beginning of each epoch
+        random.shuffle(available_keys)
+
+        # Iterate over all the HUCs and train on them
+        for selected_key in available_keys:
+            loader = huc_loaders[selected_key]
+            print(f"Epoch {epoch}: Training on HUC {selected_key}")
+
+            # Training Loop
+            for X_batch, y_batch in loader:
+                optimizer.zero_grad()
+                y_pred = model(X_batch)
+                loss = loss_fn(y_pred, y_batch)
+                loss.backward()
+                optimizer.step()
+
+        # Perform validation every 5 epochs
+        df_target = df_dict[target_key]
+        if epoch % 5 == 0:
+            validate_model(model, loss_fn, df_target, var_list, params['lookback'])
+
+# Fine-tuning Phase: Train on target HUC
+def fine_tune(model, optimizer, loss_fn, df_dict, target_key, var_list, params):
+    """ Fine-tune the model on the target HUC """
+
+    n_epochs = int(params['n_epochs']*(1-params['pre_train_fraction']))
     df_target = df_dict[target_key]
-    train_target, _, _, _ = pp.train_test_split(df_target, train_size_fraction)
-    X_val_target, y_val_target = pp.create_tensor(df_target, lookback, var_list)
 
-    for epoch in range(n_epochs):
-
-        # Determine which dataset to use for training
-        if epoch < 0.9 * n_epochs and not self_only:
-            # If available_keys is empty, reset it
-            if not available_keys:
-                available_keys = used_keys  # Refill from used keys
-                random.shuffle(available_keys)  # Reshuffle
-                used_keys = []  # Clear used list
-
-            # Sample without replacement
-            selected_key = available_keys.pop()
-            used_keys.append(selected_key)  # Track used key
-            if not self_only:
-                print(f"Epoch {epoch}: Training data used = {selected_key}")
-                
-            # prep data
-            data = df_dict[selected_key]
-            train_main, _, _, _ = pp.train_test_split(data, train_size_fraction)
-            X_train, y_train = pp.create_tensor(train_main, lookback, var_list)
-
-        else:
-            # Use df_target
-            X_train, y_train = X_val_target, y_val_target
-            selected_key = target_key
-            
-
-        # Create DataLoader
-        loader = torch.utils.data.DataLoader(
-            torch.utils.data.TensorDataset(X_train, y_train), shuffle=True, batch_size=batch_size
+    # Create DataLoader for fine-tuning (target HUC)
+    loader = create_dataloader(
+        df_target,
+        var_list,
+        params
         )
 
-        # Training Loop
-        model.train()
+    for epoch in range(n_epochs):
+        model.train()  # Set model to training mode
+        print(f"Epoch {epoch}: Fine-tuning on target HUC {target_key}")
+
+        # Training Loop on target HUC
         for X_batch, y_batch in loader:
+            optimizer.zero_grad()
             y_pred = model(X_batch)
             loss = loss_fn(y_pred, y_batch)
-            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
         # Perform validation every 5 epochs
         if epoch % 5 == 0:
-            model.eval()
-            with torch.no_grad():
-                # Evaluate on target dataset
-                y_pred_target = model(X_val_target)
-                val_rmse_target = np.sqrt(loss_fn(y_pred_target, y_val_target))
+            validate_model(model, loss_fn, df_target, var_list, params['lookback'])
 
-                # Evaluate on current training dataset
-                y_pred_train = model(X_train)
-                val_rmse_train = np.sqrt(loss_fn(y_pred_train, y_train))
 
-                print(f"Epoch {epoch}: Validation RMSE on target dataset ({target_key}): {val_rmse_target:.4f}")
-                print(f"Epoch {epoch}: Validation RMSE on current training dataset ({selected_key}): {val_rmse_train:.4f}")
+def validate_model(model, loss_fn, df_target, var_list, lookback):
+    """ Performs validation on target datasets """
+    model.eval()
+    with torch.no_grad():
+        # Evaluate on target dataset
+        X_val_target, y_val_target = pp.create_tensor(df_target, lookback, var_list)
+        y_pred_target = model(X_val_target)
+        val_rmse_target = np.sqrt(loss_fn(y_pred_target, y_val_target))
+        print(f"Validation RMSE on target dataset: {val_rmse_target:.4f}")
 
-    return target_key
 
-def predict(data, model, X_train,X_test, lookback, train_size, var_list, huc_id, self_only):
+# End-to-End Model Training Function
+def train_model(model, optimizer, loss_fn, df_dict, target_key, var_list, params):
+    """Train the model using pre-train and fine-tune phases"""
+    pre_train(model, optimizer, loss_fn, df_dict, target_key, var_list, params)
+    fine_tune(model, optimizer, loss_fn, df_dict, target_key, var_list, params)
+
+def predict(data, model, X_train, X_test, train_size, var_list, huc_id, params):
     data = data.astype(object)  # Keeping this line if needed for some other processing
     with torch.no_grad():
         # Initialize empty arrays with NaNs for plotting
@@ -122,39 +159,42 @@ def predict(data, model, X_train,X_test, lookback, train_size, var_list, huc_id,
         y_pred_new = y_pred[:, -1].unsqueeze(1)
 
         # Convert tensor to numpy safely
-        train_plot[lookback:train_size] = y_pred_new.detach().cpu().numpy().flatten()
+        train_plot[params["lookback"]:train_size] = y_pred_new.detach().cpu().numpy().flatten()
 
         # Predict on test data
         y_pred_test = model(X_test)[:, -1].unsqueeze(1)
-        test_plot[train_size + lookback : len(data)] = y_pred_test.detach().cpu().numpy().flatten()
+        test_plot[train_size + params["lookback"] : len(data)] = y_pred_test.detach().cpu().numpy().flatten()
 
     # plot
     plt.figure(figsize=(12,  6))
     plt.plot(data.index, data['mean_swe'], c='b', label='Actual')
     plt.plot(data.index, train_plot, c='r', label='Train Predictions')
-    plt.plot(data.index[train_size+lookback:], test_plot[train_size+lookback:], c='g', label='Test Predictions')
+    plt.plot(
+        data.index[train_size+params["lookback"]:],
+        test_plot[train_size+params["lookback"]:],
+        c='g',
+        label='Test Predictions')
     plt.legend()
     plt.xlabel('Date')
     plt.ylabel('swe')
-    var_list_string= "_".join(var.split("_", 1)[1] for var in var_list[0:3]) + "snow_class_vars"  # TO DO - DEAL WITH THE CLASSIFICATION VARS ALSO
-    tit = f'SWE_Predictions_for_huc{huc_id}_using_vars_{var_list_string}_and_self_only_is{self_only}'
-    plt.title(tit)
-    f_out = "predict_plot.png"
-    plt.savefig(f_out) 
+    # TO DO - DEAL WITH THE CLASSIFICATION VARS ALSO
+    var_list_string= "_".join(var.split("_", 1)[1] for var in var_list[0:3]) + "snow_class_vars"
+    plt.title(f'SWE_Predictions_for_huc{huc_id}_using_vars_{var_list_string}_and_self_only_is{params["self_only"]}')
+    plt.savefig("predict_plot.png")
     #mlflow.log_figure(plt.gcf(), tit+".png")
     #plt.show()
 
-def evaluate_metrics(model, X_train, y_train, X_test, y_test, huc, step_value, self_only):
+def evaluate_metrics(model, X_train, y_train, X_test, y_test):
 
     with torch.no_grad():
         y_train_pred = model(X_train)
         y_test_pred = model(X_test)
 
         #var_list_string= "_".join(var.split("_", 1)[1] for var in var_list)
-        
+
         train_mse = mean_squared_error(y_train.numpy(), y_train_pred.numpy())
         #mlflow.log_metric(f"train_mse_{str(huc)}_self_only_is{self_only}", train_mse, step=step_value)
         test_mse = mean_squared_error(y_test.numpy(), y_test_pred.numpy())
         #mlflow.log_metric(f"test_mse_{str(huc)}_self_only_is{self_only}", test_mse, step=step_value)
-        
+
     return  [train_mse, test_mse]

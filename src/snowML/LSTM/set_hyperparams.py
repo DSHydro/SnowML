@@ -13,7 +13,7 @@ def create_hyper_dict(param_type=None):
         "pre_train_fraction" : .9,
         "train_size_fraction": 0.67,
         "lookback": 180,
-        "batch_size": 32,
+        "batch_size": 16,
         "n_steps": 1,
         "self_only": False,
         "num_workers": 2

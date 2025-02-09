@@ -10,6 +10,7 @@ from torch import nn
 import LSTM_pre_process as pp
 import snow_LSTM as snow
 import set_hyperparams as sh
+from smdebug.pytorch import Hook
 
 import importlib
 importlib.reload(snow)  # TO DO - Remove once stable
@@ -18,9 +19,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import data_utils as du
 
 
+
+
 def set_inputs():
-    #input_pairs = [[17110005, '10'], [17020009, '12']]
-    input_pairs = [[17110005, '10']]
+    input_pairs = [[17110005, '10'], [17020009, '12']]
+    #input_pairs = [[17110005, '10']]
     var_list = ["mean_pr", "mean_tair"]
     return input_pairs, var_list
 
@@ -54,6 +57,10 @@ def run_expirement():
     )
     optimizer_dawgs = optim.Adam(model_dawgs.parameters())
     loss_fn_dawgs = nn.MSELoss()
+    # Create the hook from your JSON config or default configuration
+    #hook = Hook.create_from_json_file()  # Optional: You can specify your own config file
+    # Register the model with the hook
+    #hook.register_module(model_dawgs)
 
     # train
     start_time = time.time()
@@ -82,3 +89,8 @@ def run_expirement():
     print(dawgs_metrics)
 
     du.elapsed(start_time)
+
+
+# Start an MLflow run and log the parameters
+#with mlflow.start_run():
+    #mlflow.log_params(params)

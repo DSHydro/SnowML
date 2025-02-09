@@ -76,7 +76,9 @@ def pre_train(model, optimizer, loss_fn, df_dict, target_key, var_list, params):
         random.shuffle(available_keys)
 
         # Iterate over all the HUCs and train on them
+        i = 0 
         for selected_key in available_keys:
+            i+=1
             loader = huc_loaders[selected_key]
             print(f"Epoch {epoch}: Training on HUC {selected_key}")
 
@@ -87,6 +89,11 @@ def pre_train(model, optimizer, loss_fn, df_dict, target_key, var_list, params):
                 loss = loss_fn(y_pred, y_batch)
                 loss.backward()
                 optimizer.step()
+            
+            if i % 5 == 0: 
+                #print(f"Allocated memory: {torch.cuda.memory_allocated() / 1e6} MB")
+                #print(f"Max allocated memory: {torch.cuda.max_memory_allocated() / 1e6} MB")
+                #print(f"Cached memory: {torch.cuda.memory_reserved() / 1e6} MB")
 
         # Perform validation every 5 epochs
         df_target = df_dict[target_key]

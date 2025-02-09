@@ -41,7 +41,7 @@ def run_expirement():
     # get_data
     df_dict = prep()
     _ , var_list = set_inputs()
-    target_key = "1711000504"  # TO DO make dynamic
+    target_key = "1711000510"  # TO DO make dynamic
 
     # initalize model
     input_size=len(var_list)
@@ -57,19 +57,15 @@ def run_expirement():
 
     # train
     start_time = time.time()
-    target_key = snow.train_model(
-        model_dawgs,
-        optimizer_dawgs,
-        loss_fn_dawgs,
-        df_dict,
-        target_key,
-        params['n_epochs'],
-        params['batch_size'],
-        params['lookback'],
-        var_list,
-        params['train_size_fraction'],
-        self_only = params['self_only']
-    )
+    snow.train_model(
+        model_dawgs, 
+        optimizer_dawgs, 
+        loss_fn_dawgs, 
+        df_dict, 
+        target_key, 
+        var_list, 
+        params)
+    
 
     # test  - use selected huc for testing
     data = df_dict[target_key]
@@ -78,12 +74,11 @@ def run_expirement():
     X_train, y_train = pp.create_tensor(train_main, params['lookback'], var_list)
     X_test, y_test = pp.create_tensor(test_main, params['lookback'], var_list)
 
-    # predict/plot for final step only:
-    if True:   # TO DO
+    
     #if step_val == n_steps:
-        snow.predict(data, model_dawgs,  X_train, X_test, params['lookback'], train_size_main, var_list, int(target_key), params['self_only'])
-        step_val = 1 # TO DO
-        dawgs_metrics = snow.evaluate_metrics(model_dawgs, X_train, y_train, X_test, y_test, int(target_key), step_val, params['self_only'])
-        print(dawgs_metrics)
+    snow.predict(data, model_dawgs,  X_train, X_test, train_size_main, var_list, int(target_key), params)
+    step_val = 1 # TO DO
+    dawgs_metrics = snow.evaluate_metrics(model_dawgs, X_train, y_train, X_test, y_test)
+    print(dawgs_metrics)
 
     du.elapsed(start_time)

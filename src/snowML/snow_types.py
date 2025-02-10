@@ -115,16 +115,35 @@ def display_df(df):
     
     return df
 
+import pandas as pd
+
+def classify_hucs(df):
+    # Exclude the last row (average row)
+    df_without_avg = df.iloc[:-1]
+    
+    # List of snow classes (excluding huc_id)
+    snow_classes = df.columns[1:]  
+    
+    # Determine predominant snow type for each huc_id
+    df_without_avg["Predominant_Snow"] = df_without_avg[snow_classes].idxmax(axis=1)
+
+    # Count occurrences of each snow class and convert to dictionary
+    snow_class_counts = df_without_avg["Predominant_Snow"].value_counts().to_dict()
+
+    return df_without_avg, snow_class_counts  # Return updated DataFrame and counts as a dictionary
+
 def save_snow_types(df, huc_id): 
     markdown_table = df.to_markdown(index=False)
     with open(f'../../docs/tables/snow_types{huc_id}.md', 'w') as f:
         f.write(markdown_table)
-    print(f"Markdown table saved to ../../docs/tables/now_types{huc_id}.md")
+    print(f"Markdown table saved to ../../docs/tables/snow_types{huc_id}.md")
 
 def process_all(huc_id, huc_lev, save = False):
-    geos = du.get_basin_geos(f"Huc{huc_lev}", huc_id)
+    #geos = du.get_basin_geos(f"Huc{huc_lev}", huc_id)
+    geos = gg.get_geos(huc_id, huc_lev)
     df_snow_types = snow_class(geos)
     df_snow_types = display_df(df_snow_types)
+    df_predominant, snow_class_counts = classify_hucs(df_snow_types)
     if save: 
-        save_snow_types(df_snow_types, huc_id)
-    return df_snow_types
+        save_snow_types(df_predominant, huc_id)
+    return snow_class_counts

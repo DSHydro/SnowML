@@ -10,7 +10,7 @@ from torch import nn
 import LSTM_pre_process as pp
 import snow_LSTM as snow
 import set_hyperparams as sh
-from smdebug.pytorch import Hook
+#from smdebug.pytorch import Hook
 
 import importlib
 importlib.reload(snow)  # TO DO - Remove once stable

@@ -1,15 +1,21 @@
 # Skagitt
 
 
-[Skagit Basin](https://dshydro.github.io/SnowML/Visualizations/basic_maps/Huc10_in_17110005.html) (17110005) 
+**Name:**             Skagitt <br>
+**Huc No:**           17110005 <br> 
+**Predominant Snow:** Maritime <br>
+**Huc 12 Sub Units By Predominant Snow Classification:**
+- Maritime: 52
+- Montane Forest: 3
+- Ephemeral: 2
 
-<iframe src="https://dshydro.github.io/SnowML/Visualizations/basic_maps/Huc10_in_17110005.html" width="100%" height="600px" style="border:none;"></iframe>
 
-## Snow Classes
-
-<!-- Include the table from the file -->
-{% include snow_types17110005.md %}
+## Skagit Map with Snow Classification 
 
 ![Snow Classes Map](../basic_maps/Snow_classes_in_17110005.png)
+
+Snow Classification Data Reference: 
+- Sturm, M., and G. E. Liston, 2021: Revisiting the global seasonal snow classification: An updated dataset for Earth System applications.  Journal of Hydrometeorology, 22, 2917-2938, https://doi.org/10.1175/JHM-D-21-0070.1.
+- Liston, G. E., and M. Sturm, 2021: Global Seasonal-Snow Classification, Version 1. National Snow and Ice Data Center, https://doi.org/10.5067/99FTCYYYLAQ0.
 
 

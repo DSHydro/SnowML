@@ -10,7 +10,7 @@
 - Ephemeral: 6
 
 
-## CHelan Map with Snow Classification 
+## Upper Yakima Map with Snow Classification 
 
 ![Snow Classes Map](../basic_maps/Snow_classes_in_17030002.png)
 

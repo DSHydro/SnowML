@@ -5,9 +5,10 @@
 **Huc No:**           17020009 <br> 
 **Predominant Snow:** Maritime <br>
 **Huc 12 Sub Units By Predominant Snow Classification:**
-- Maritime: TBD
-- Montane Forest: TBD
-- Ephemeral: TBD
+- Maritime: 18
+- Montane Forest: 5
+- Ephemeral: 5
+- Other: 1 (Boreal Forrest)
 
 
 ## CHelan Map with Snow Classification 

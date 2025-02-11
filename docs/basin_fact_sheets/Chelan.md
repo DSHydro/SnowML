@@ -8,7 +8,7 @@
 - Maritime: 18
 - Montane Forest: 5
 - Ephemeral: 5
-- Other: 1 (Boreal Forrest)
+- Other: 1 
 
 
 ## Chelan Map with Snow Classification 

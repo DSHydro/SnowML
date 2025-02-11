@@ -52,8 +52,8 @@ Each variable is measured daily for the period "1983-10-01" through "2022-09-30"
 
 # Regions Available for Analysis <br>
 The following regions have been process and are currently available in the "dawgs-model-ready" bucket: <br>
-  - All the HUC10 or Huc 12 subunits within the [Skagit Basin](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/Skagitt.md) (17110005) 
+  - All the HUC10 or Huc 12 subunits within the [Skagit Basin](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/Skagit.md) (17110005) 
   - All the HUC12 subunits within the [Chelan Basin](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/Chelan.md) (17020009)
   - All the HUC12 subunits within the [Upper Yakima Basin](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/UpperYakima.md) (17030002)
-  - All the HUC12 subunits within the [Toulumne Basin](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/Toulumne.md) (18040009)
+  - All the HUC12 subunits within the [Tuolumne Basin](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/Tuolumne.md) (18040009)
 

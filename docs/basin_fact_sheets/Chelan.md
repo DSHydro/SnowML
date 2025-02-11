@@ -11,7 +11,7 @@
 - Other: 1 (Boreal Forrest)
 
 
-## CHelan Map with Snow Classification 
+## Chelan Map with Snow Classification 
 
 ![Snow Classes Map](../basic_maps/Snow_classes_in_17020009.png)
 

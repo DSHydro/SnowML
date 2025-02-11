@@ -1,7 +1,7 @@
-# Skagitt
+# Skagit
 
 
-**Name:**             Skagitt <br>
+**Name:**             Skagit <br>
 **Huc No:**           17110005 <br> 
 **Predominant Snow:** Maritime <br>
 **Huc 12 Sub Units By Predominant Snow Classification:**

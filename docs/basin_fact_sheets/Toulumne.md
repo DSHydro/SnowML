@@ -1,7 +1,7 @@
-# Toloumne
+# Tuolumne
 
 
-**Name:**             Tolumne <br>
+**Name:**             Tuolumne <br>
 **Huc No:**           18040009 <br> 
 **Predominant Snow:** TBD <br>
 **Huc 12 Sub Units By Predominant Snow Classification:**
@@ -11,7 +11,7 @@
   
 
 
-## Toloumne Map with Snow Classification 
+## Toulumne Map with Snow Classification 
 
 ![Snow Classes Map](../basic_maps/Snow_classes_in_18040009.png)
 

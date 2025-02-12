@@ -7,7 +7,6 @@ import json
 import boto3
 import ee
 import geopandas as gpd
-from io import StringIO
 
 
 def get_geos(huc_id, final_huc_lev, s3_save = False, bucket_nm = "shape-bronze"):

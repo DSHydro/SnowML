@@ -1,33 +1,32 @@
+# pylint: disable=C0103
+
+
+import io
+import requests
 import xarray as xr
 import pandas as pd
-import requests, io
-import geopandas as gpd
-import boto3
 import numpy as np
 import s3fs
-import time
-import data_utils as du 
-import get_geos as gg
+from snowML import get_geos as gg
 
 
 def get_snow_class_data(geos = None):
     url = "https://daacdata.apps.nsidc.org/pub/DATASETS/nsidc0768_global_seasonal_snow_classification_v01/SnowClass_NA_05km_2.50arcmin_2021_v01.0.nc"
     response = requests.get(url)
-    ds = xr.open_dataset(io.BytesIO(response.content), engine="h5netcdf")  
+    ds = xr.open_dataset(io.BytesIO(response.content), engine="h5netcdf")
     if geos is None: # return the data for CONUS
         lat_min, lat_max = 24.396308, 49.384358
         lon_min, lon_max = -125.0, -66.93457
         ds_conus = ds.sel(lat=slice(lat_min, lat_max), lon=slice(lon_min, lon_max))
         # properly set the crs (from metadata, should be "EPSG:4326")
-        ds_conus = ds_conus.rio.write_crs("EPSG:4326")    
+        ds_conus = ds_conus.rio.write_crs("EPSG:4326")
         return ds_conus
-    else: # return all data witin the geo 
-        # properly set the crs (from metadata, should be "EPSG:4326")
-        ds = ds.rio.write_crs("EPSG:4326")  
-        geos = geos.to_crs(ds.rio.crs)
-        ds_final = ds.rio.clip(geos.geometry, geos.crs, drop=True)
-        return ds_final
-    
+    # else return all data witin the geo
+    ds = ds.rio.write_crs("EPSG:4326")
+    geos = geos.to_crs(ds.rio.crs)
+    ds_final = ds.rio.clip(geos.geometry, geos.crs, drop=True)
+    return ds_final
+
 def save_snow_class_data(ds):
     bucket = "dawgs-bronze" # TO DO: make this a parameter
     file_name = "snow_class_data.zarr"
@@ -45,12 +44,12 @@ def snow_class_data_from_s3(geos = None):
     ds_conus = xr.open_zarr(store=zarr_store_url, consolidated=True)
     if geos is None: # return the full data for CONUS
         return ds_conus
-    else: # return all data witin the geo 
-        geos = geos.to_crs(ds.rio.crs)
-        ds_clipped = ds_conus.rio.clip(geos.geometry, geos.crs, drop=True)
-        return ds_clipped
-    
-def map_snow_class_names(): 
+    # if not None return all data witin the geo
+    geos = geos.to_crs(ds_conus.rio.crs)
+    ds_clipped = ds_conus.rio.clip(geos.geometry, geos.crs, drop=True)
+    return ds_clipped
+
+def map_snow_class_names():
     snow_class_names = {
         1: "Tundra",
         2: "Boreal Forest",
@@ -84,8 +83,7 @@ def calc_snow_class(ds, snow_class_names):
 
     return df_snow_classes
 
-def snow_class(geos): 
-    time_start = time.time()
+def snow_class(geos):
     results = pd.DataFrame()
     snow_class_names = map_snow_class_names()
     ds_conus = get_snow_class_data(geos = None)
@@ -100,30 +98,36 @@ def snow_class(geos):
     return results
 
 def display_df(df):
+    """
+    Appends an average row to the DataFrame and reorders columns.
+
+    This function calculates the average of all columns except 'huc_id' in the given DataFrame,
+    appends this average as a new row with 'huc_id' set to "Average", and reorders the columns
+    so that 'huc_id' is the first column.
+
+    Parameters:
+    df (pandas.DataFrame): The input DataFrame with a column named 'huc_id'.
+
+    Returns:
+    pandas.DataFrame: The modified DataFrame with an appended average row and reordered columns.
+    """
     ave_row = df.drop(columns=['huc_id']).mean().round(1).to_frame().T
-    # Filter out columns where the average value is zero (for both df and ave_row)
-    non_zero_columns = ave_row.loc[:, ave_row.iloc[0] > 0].columns  # Filter out zero averages
-    
     # Add 'huc_id' to the ave_row after filtering
     ave_row['huc_id'] = "Average"
-    
     # Concatenate the filtered average row
     df = pd.concat([df, ave_row], ignore_index=True)
-    
     # Reordering so 'huc_id' is the first column
     df = df[['huc_id'] + [col for col in df.columns if col != 'huc_id']]
-    
     return df
 
-import pandas as pd
 
 def classify_hucs(df):
     # Exclude the last row (average row)
-    df_without_avg = df.iloc[:-1]
-    
+    df_without_avg = df.iloc[:-1].copy()
+
     # List of snow classes (excluding huc_id)
-    snow_classes = df.columns[1:]  
-    
+    snow_classes = df.columns[1:]
+
     # Determine predominant snow type for each huc_id
     df_without_avg["Predominant_Snow"] = df_without_avg[snow_classes].idxmax(axis=1)
 
@@ -132,7 +136,7 @@ def classify_hucs(df):
 
     return df_without_avg, snow_class_counts  # Return updated DataFrame and counts as a dictionary
 
-def save_snow_types(df, huc_id): 
+def save_snow_types(df, huc_id):
     markdown_table = df.to_markdown(index=False)
     with open(f'../../docs/tables/snow_types{huc_id}.md', 'w') as f:
         f.write(markdown_table)
@@ -144,6 +148,6 @@ def process_all(huc_id, huc_lev, save = False):
     df_snow_types = snow_class(geos)
     df_snow_types = display_df(df_snow_types)
     df_predominant, snow_class_counts = classify_hucs(df_snow_types)
-    if save: 
+    if save:
         save_snow_types(df_predominant, huc_id)
-    return snow_class_counts
+    return df_snow_types, snow_class_counts

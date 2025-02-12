@@ -76,16 +76,18 @@ def huc_gold(huc_id, var_list = None, bucket_dict = None):
     if bucket_dict  is None:
         bucket_dict = sdc.create_bucket_dict("prod")
 
+    f_out = f"model_ready_huc{huc_id}"
+    if du.isin_s3(bucket_dict.get("model-ready"), f"{f_out}.csv"):
+        print(f"{f_out} already exists, skipping processing")
+        return None
+
     model_df = huc_gold_wrf(huc_id, bucket_dict, var_list = var_list)
-    #print(f"model_df shape: {model_df.shape}")
-    #print(f"model_df columns: {model_df.columns}")
-    #print(model_df.head())
     huc_lev = str(len(str(huc_id))).zfill(2)
-    snow_types = st.process_all(huc_id, huc_lev).iloc[[0]]
+    snow_types, _ = st.process_all(huc_id, huc_lev)
+    snow_types = snow_types.loc[[0]].copy()
     # Broadcasting the values from snow_types to model_df
     snow_types_broadcasted = pd.DataFrame([snow_types.iloc[0]] * len(snow_types), columns=snow_types.columns, index=model_df.index)
     df_final = pd.concat([model_df, snow_types_broadcasted], axis=1)
-    f_out = f"model_ready_huc{huc_id}"
     du.dat_to_s3(df_final, bucket_dict.get("model-ready"), f_out, file_type = "csv")
     return df_final
 

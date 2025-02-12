@@ -14,7 +14,7 @@ import get_geos as gg
 
 def process_multi_huc (huc_id_start, final_huc_lev, bucket_dict = None, var_list = None, overwrite_gold = False):
     # verify inputs
-    huc_lev_permitted = ['10', '12']  # TO DO: FIX TO ALLOW 4/6/8 ETC
+    huc_lev_permitted = ['10', '12']  
     assert final_huc_lev in huc_lev_permitted, f"Type must be one of {huc_lev_permitted}"
 
     # some set up
@@ -37,12 +37,12 @@ def process_multi_huc (huc_id_start, final_huc_lev, bucket_dict = None, var_list
         huc_id = row["huc_id"]
         if overwrite_gold: 
             print(f"Creating necessary gold files for {var}")
-            btg.bronze_to_gold (geos, var)  # create gold files for all geos while var bronze open
+            btg.process_geos(geos, var)  # create gold files for all geos while var bronze open
         for var in var_list:
             f =  f"mean_{var}_in_{huc_id}.csv" 
             if not du.isin_s3(b_gold, f):
                 print(f"Creating necessary gold files for {var}")
-                btg.bronze_to_gold (geos, var)  # create gold files for all geos while var bronze open
+                btg.process_geos(geos, var)  # create gold files for all geos while var bronze open
 
         #create model ready data
         model_df = gtm.huc_gold(huc_id) 

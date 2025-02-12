@@ -2,12 +2,41 @@
 "Module to create basin and watershed visualizations"
 
 import os
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import matplotlib.patches as mpatches
 import cartopy.crs as ccrs
 import snow_types as st
 import get_geos as gg
+import data_utils as du
+import set_data_constants as sdc
+
+
+def plot_actual(huc, var, bucket_dict = None):
+    if bucket_dict is None:
+        bucket_dict = sdc.create_bucket_dict("prod")
+    bucket_name = bucket_dict.get("model-ready")
+    print(bucket_name)
+    file_name = f"model_ready_huc{huc}.csv"
+    df = du.s3_to_df(file_name, bucket_name)
+    df['day'] = pd.to_datetime(df['day'])
+    df.set_index('day', inplace=True)  # Set 'day' as the index
+    plt.figure(figsize=(12,  6))
+    plt.plot(df.index, df[var], c='b', label= f"Actual {var}")  
+    plt.legend()
+    plt.xlabel('Date')
+    plt.ylabel(var)
+    ttl = f'Actual {var} for huc{huc}'
+    plt.title(ttl)
+    # save file
+    output_dir = os.path.join("../../docs", "var_plots_actuals")
+    file_name = f"{ttl}.png"
+    file_path = os.path.join(output_dir, file_name)
+    plt.savefig(file_path)
+    plt.close(fig)  # Close the figure to free memory
+    print(f"Map saved to {file_path}")
+    
 
 
 def basic_map(geos, final_huc_lev, initial_huc):
@@ -41,6 +70,9 @@ def map_snow_types(ds, geos, huc):
     figsize=(10, 6),
     subplot_kw={"projection": ccrs.PlateCarree()}
     )
+
+    # Add a baselayer
+    
 
     class_colors = snow_colors()
     # Create a colormap and normalization based on the dictionary

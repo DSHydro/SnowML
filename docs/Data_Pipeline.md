@@ -39,14 +39,14 @@ Each variable is measured daily for the period "1983-10-01" through "2022-09-30"
 | mean_rmax          | The mean maximum relative humidity on a daily scale, aggregated over the entire HUC unit. | %     |
 | mean_rmin          | The mean minimum relative humidity on a daily scale, aggregated over the entire HUC unit. | %     |
 | mean_swe           | The mean snow water equivalent on a daily scale, aggregated over the entire HUC unit. | meters |
-| tundra            | Percent of the region with snow type Tundra.                    | %     |
-| boreal_forest     | Percent of the region with snow type Boreal Forest.             | %     |
-| maritime          | Percent of the region with snow type Maritime.                  | %     |
-| ephemeral         | Percent of the region with snow type Ephemeral.                 | %     |
-| prairie          | Percent of the region with snow type Prairie.                    | %     |
-| montane_forest    | Percent of the region with snow type Montane Forest.            | %     |
-| ice              | Percent of the region with snow type Ice.                        | %     |
-| ocean            | Percent of the region with snow type Ocean.                      | %     |
+| Tundra            | Percent of the region with snow type Tundra.                    | %     |
+| Boreal_Forest     | Percent of the region with snow type Boreal Forest.             | %     |
+| Maritime          | Percent of the region with snow type Maritime.                  | %     |
+| Ephemeral         | Percent of the region with snow type Ephemeral.                 | %     |
+| Prairie          | Percent of the region with snow type Prairie.                    | %     |
+| Montane Forest    | Percent of the region with snow type Montane Forest.            | %     |
+| Ice              | Percent of the region with snow type Ice.                        | %     |
+| Ocean            | Percent of the region with snow type Ocean.                      | %     |
 
 
 

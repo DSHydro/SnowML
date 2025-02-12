@@ -1,36 +1,67 @@
 
 # pylint: disable=C0103
 
-import sys
-import os
-import time
 import pandas as pd
 import numpy as np
 import torch
-
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-import data_utils as du
+from snowML import data_utils as du
 
 
 # Excluded Hucs Due to Missing SWE Data (Canada)
-EXCLUDED_HUCS = ["1711000501", "1711000502", "1711000503"]
+EXCLUDED_HUCS = ["1711000501", "1711000502", "1711000503", "171100050101", "171100050102", \
+                "171100050201", "171100050202", "171100050203", "171100050301", \
+                "171100050302", "171100050303", "171100050304", "171100050305", \
+                "171100050306"]  # TO DO - ARE ALL THE '12' in Canada?
 # Excluded Hucs Due to > 50% Ephemeral -- TO DO
 
 
 
 def assemble_huc_list(input_pairs):
+    """
+    Assembles a list of HUC (Hydrologic Unit Code) IDs from a list of input pairs.
+
+    Args:
+        input_pairs (list of tuples): A list of tuples where each tuple contains two elements:
+            - The first element is a string representing the huc code for the region of interest.
+            - The second element is a string or integer representing the lowest huc subunit to study.
+
+    Returns:
+        list: A list of HUC IDs extracted from the geojson files corresponding to the input pairs.
+
+    Note:
+        The function assumes that the geojson files are stored in an S3 bucket named "shape-bronze".
+
+    Example:
+        input_pairs = [("RegionA", "01"), ("RegionB", "02")]
+        huc_list = assemble_huc_list(input_pairs)
+    """
     hucs = []
     bucket_name = "shape-bronze"  # TO DO MAKE DYNAMIC
     for pair in input_pairs:
         f_name = f"Huc{pair[1]}_in_{pair[0]}.geojson"
         geos = du.s3_to_gdf(bucket_name, f_name)
-        hucs.extend(geos["huc_id"].to_list())  # Use extend() to flatten
-    print(f"number of sub units to process is {len(hucs)}")
+        hucs.extend(geos["huc_id"].to_list())
     return hucs
 
 
 def z_score_normalize(df):
+    """
+    Normalize the specified columns of a DataFrame using z-score normalization.
+
+    Parameters:
+    df (pandas.DataFrame): The input DataFrame containing the data to be normalized.
+
+    Returns:
+    pandas.DataFrame: A new DataFrame with the specified columns normalized using z-score normalization.
+
+    The columns that will be normalized are:
+    - "mean_pr"
+    - "mean_tair"
+    - "mean_vs"
+    - "mean_srad"
+    - "mean_rmax"
+    - "mean_rmin"
+    """
     normalized_df = df.copy()
 
     for column in ["mean_pr", "mean_tair", "mean_vs", "mean_srad", "mean_rmax", "mean_rmin"]:
@@ -53,6 +84,7 @@ def pre_process (huc_list, var_list):
             df = z_score_normalize(df)
             df = df[col_to_keep]
             df_dict[huc] = df  # Store DataFrame in dictionary
+    print(f"number of sub units for pre training is {len(df_dict)}")
     return df_dict
 
 def train_test_split(data, train_size_fraction):

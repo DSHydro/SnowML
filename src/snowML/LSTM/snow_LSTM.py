@@ -5,7 +5,8 @@ import torch
 from torch import nn
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+import mlflow
+from sklearn.metrics import mean_squared_error
 import LSTM_pre_process as pp
 
 
@@ -35,10 +36,10 @@ class SnowModel(nn.Module):
 
 
 # Helper Function: Load data into DataLoader
-def create_dataloader(df, var_list, params):
+def create_dataloader(df, params):
     """ Creates a DataLoader for a given HUC dataset """
     train_data, _, _, _ = pp.train_test_split(df, params["train_size_fraction"])
-    X_train, y_train = pp.create_tensor(train_data, params["lookback"], var_list)
+    X_train, y_train = pp.create_tensor(train_data, params["lookback"], params["var_list"])
 
     # Create a DataLoader
     loader = torch.utils.data.DataLoader(
@@ -50,14 +51,14 @@ def create_dataloader(df, var_list, params):
     return loader
 
 # Pre-training Phase: Train on multiple HUCs
-def pre_train(model, optimizer, loss_fn, df_dict, target_key, var_list, params):
+def pre_train(model, optimizer, loss_fn, df_dict, params):
     """ Pre-train the model on multiple HUCs """
 
     # Calculate the number of pre-train epochs
     pre_train_epochs = int(params['n_epochs'] * params['pre_train_fraction'])
 
     # Initialize available keys for sampling without replacement
-    available_keys = [key for key in df_dict.keys() if key != target_key]
+    available_keys = [key for key in df_dict.keys()]
     random.shuffle(available_keys)  # Shuffle for randomness
 
     for epoch in range(pre_train_epochs):
@@ -68,16 +69,13 @@ def pre_train(model, optimizer, loss_fn, df_dict, target_key, var_list, params):
 
         # Iterate over all the HUCs and train on them
         for i, selected_key in enumerate(available_keys, start=1):
-            i+=1
-            #if i % 5 == 0: 
-            print(f"Epoch {epoch}: Training on HUC {i} {selected_key}")
+            if i % 5 == 0:
+                print(f"Epoch {epoch}: Pre-training on HUC{i}: {selected_key}")
 
             loader = create_dataloader(
                 df_dict[selected_key],
-                var_list,
-                params,
+                params
             )
-
 
             # Training Loop
             for X_batch, y_batch in loader:
@@ -86,16 +84,15 @@ def pre_train(model, optimizer, loss_fn, df_dict, target_key, var_list, params):
                 loss = loss_fn(y_pred, y_batch)
                 loss.backward()
                 optimizer.step()
-            
-            
-            
-        # Perform validation every 5 epochs
-        df_target = df_dict[target_key]
+
+
+        # Perform validation every 5 epochs; use the most recent selected key
+        df_validation = df_dict[selected_key]
         if epoch % 5 == 0:
-            validate_model(model, loss_fn, df_target, var_list, params['lookback'])
+            validate_model(model, loss_fn, df_validation, params["var_list"], params['lookback'])
 
 # Fine-tuning Phase: Train on target HUC
-def fine_tune(model, optimizer, loss_fn, df_dict, target_key, var_list, params):
+def fine_tune(model, optimizer, loss_fn, df_dict, target_key, params):
     """ Fine-tune the model on the target HUC """
 
     n_epochs = int(params['n_epochs']*(1-params['pre_train_fraction']))
@@ -104,7 +101,6 @@ def fine_tune(model, optimizer, loss_fn, df_dict, target_key, var_list, params):
     # Create DataLoader for fine-tuning (target HUC)
     loader = create_dataloader(
         df_target,
-        var_list,
         params
         )
 
@@ -122,7 +118,7 @@ def fine_tune(model, optimizer, loss_fn, df_dict, target_key, var_list, params):
 
         # Perform validation every 5 epochs
         if epoch % 5 == 0:
-            validate_model(model, loss_fn, df_target, var_list, params['lookback'])
+            validate_model(model, loss_fn, df_target, params["var_list"], params['lookback'])
 
 
 def validate_model(model, loss_fn, df_target, var_list, lookback):
@@ -133,17 +129,10 @@ def validate_model(model, loss_fn, df_target, var_list, lookback):
         X_val_target, y_val_target = pp.create_tensor(df_target, lookback, var_list)
         y_pred_target = model(X_val_target)
         val_rmse_target = np.sqrt(loss_fn(y_pred_target, y_val_target))
-        print(f"Validation RMSE on target dataset: {val_rmse_target:.4f}")
+        print(f"Validation RMSE on most recently trained huc: {val_rmse_target:.4f}")
 
-
-# End-to-End Model Training Function
-def train_model(model, optimizer, loss_fn, df_dict, target_key, var_list, params):
-    """Train the model using pre-train and fine-tune phases"""
-    pre_train(model, optimizer, loss_fn, df_dict, target_key, var_list, params)
-    fine_tune(model, optimizer, loss_fn, df_dict, target_key, var_list, params)
-
-def predict(data, model, X_train, X_test, train_size, var_list, huc_id, params):
-    data = data.astype(object)  # Keeping this line if needed for some other processing
+def predict(data, model, X_train, X_test, train_size, huc_id, params):
+    data = data.astype(object)
     with torch.no_grad():
         # Initialize empty arrays with NaNs for plotting
         train_plot = np.full_like(data['mean_swe'].values, np.nan, dtype=float)
@@ -178,24 +167,57 @@ def predict(data, model, X_train, X_test, train_size, var_list, huc_id, params):
     plt.legend()
     plt.xlabel('Date')
     plt.ylabel('swe')
-    # TO DO - DEAL WITH THE CLASSIFICATION VARS ALSO
-    var_list_string= "_".join(var.split("_", 1)[1] for var in var_list[0:3]) + "snow_class_vars"
-    plt.title(f'SWE_Predictions_for_huc{huc_id}_using_vars_{var_list_string}_and_self_only_is{params["self_only"]}')
-    plt.savefig("predict_plot.png")
-    #mlflow.log_figure(plt.gcf(), tit+".png")
-    #plt.show()
+    ttle = f"SWE_Predictions_for_huc{huc_id} using Baseline Model" # TO DO: Make dynamic
+    plt.title(ttle)
+    #plt.savefig(f"{ttle}.png")
+    mlflow.log_figure(plt.gcf(), ttle+".png")
+    plt.close()
 
-def evaluate_metrics(model, X_train, y_train, X_test, y_test):
+def kling_gupta_efficiency(y_true, y_pred):
+    r = np.corrcoef(y_true.ravel(), y_pred.ravel())[0, 1] # Correlation coefficient
+    alpha = np.std(y_pred) / np.std(y_true)  # Variability ratio
+    beta = np.mean(y_pred) / np.mean(y_true)  # Bias ratio
+    kg = 1 - np.sqrt((r - 1)**2 + (alpha - 1)**2 + (beta - 1)**2)
+    #print(f"r: {r}, alpha: {alpha}, beta: {beta}")
+    return kg, r, alpha, beta
+
+def evaluate_metrics(model, X_train, y_train, X_test, y_test, target_key, step_value):
 
     with torch.no_grad():
-        y_train_pred = model(X_train)
-        y_test_pred = model(X_test)
+        y_train_pred = model(X_train).cpu().numpy()
+        y_test_pred = model(X_test).cpu().numpy()
+        y_train_pred = model(X_train).numpy()
+        y_test_pred = model(X_test).numpy()
+        y_train_true = y_train.numpy()
+        y_test_true = y_test.numpy()
 
-        #var_list_string= "_".join(var.split("_", 1)[1] for var in var_list)
+        # check for NaNs
+        # for arr, name in [(y_train_pred, "y_train_pred"),
+        #                           (y_test_pred, "y_test_pred"),
+        #                           (y_train_true, "y_train_true"),
+        #                           (y_test_true, "y_test_true")]:
+        #             print(f"{name}: NaNs: {np.isnan(arr).any()}, Infs: {np.isinf(arr).any()}")
 
-        train_mse = mean_squared_error(y_train.numpy(), y_train_pred.numpy())
-        #mlflow.log_metric(f"train_mse_{str(huc)}_self_only_is{self_only}", train_mse, step=step_value)
-        test_mse = mean_squared_error(y_test.numpy(), y_test_pred.numpy())
-        #mlflow.log_metric(f"test_mse_{str(huc)}_self_only_is{self_only}", test_mse, step=step_value)
 
-    return  [train_mse, test_mse]
+        # Compute MSE
+        train_mse = mean_squared_error(y_train_true, y_train_pred)
+        test_mse = mean_squared_error(y_test_true, y_test_pred)
+
+        # Compute KGE
+        train_kge, _, _, _ = kling_gupta_efficiency(y_train_true, y_train_pred)
+        test_kge, _, _, _ = kling_gupta_efficiency(y_test_true, y_test_pred)
+
+        # Log metrics
+        mlflow.log_metric(f"train_mse_{str(target_key)}", train_mse, step=step_value)
+        mlflow.log_metric(f"test_mse_{str(target_key)}", test_mse, step=step_value)
+        mlflow.log_metric(f"train_kge_{str(target_key)}", train_kge, step=step_value)
+        mlflow.log_metric(f"test_kge_{str(target_key)}", test_kge, step=step_value)
+
+        # Print metrics
+        print(f"train_mse_{str(target_key)}: {train_mse}")
+        print(f"test_mse_{str(target_key)}: {test_mse}")
+        print(f"train_kge_{str(target_key)}: {train_kge}")
+        print(f"test_kge_{str(target_key)}: {test_kge}")
+
+        return (train_mse, test_mse, train_kge, test_kge)
+    

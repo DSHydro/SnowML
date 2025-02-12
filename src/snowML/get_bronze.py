@@ -13,8 +13,19 @@ import xarray as xr
 import data_utils as du
 
 def url_to_ds(url, requires_auth=False, username=None, password=None, timeout=60):
-    """ Direct load from url to xarray"""
+    """
+    Load data from a URL into an xarray Dataset.
 
+    Parameters:
+    url (str): The URL to fetch the data from.
+    requires_auth (bool): Whether authentication is required. Default is False.
+    username (str): The username for authentication, if required. Default is None.
+    password (str): The password for authentication, if required. Default is None.
+    timeout (int): The timeout for the request in seconds. Default is 60.
+
+    Returns:
+    xarray.Dataset: The dataset loaded from the URL, or None if the request failed.
+    """
     # Prepare authentication if required
     auth = (username, password) if requires_auth else None
 
@@ -41,6 +52,18 @@ def url_to_ds(url, requires_auth=False, username=None, password=None, timeout=60
 
 
 def download_year(var, year):
+    """
+    Downloads data for a given variable and year. Fetches the relevant
+    url pattern from data_utils module based on the specified var. Review dawgs
+    pipeline documentation for an explanation of datasources."
+
+    Args:
+        var (str): The variable for which data is to be downloaded.
+        year (int): The year for which data is to be downloaded.
+
+    Returns:
+        xarray.Dataset: The dataset containing the downloaded data.
+    """
     url_pattern = du.get_url_pattern(var)
     url = url_pattern.format(year=year)
     print(f"Downloading {url}")
@@ -113,12 +136,40 @@ def download_multiple_years(start_year, end_year, var, s3_bucket, append_to=Fals
     print(f"Final dataset saved to s3://{s3_bucket}/{s3_path}")
     return s3_path
 
-def get_bronze(var, bronze_bucket_nm, year_start = 1995, year_end =  2023, append_to = False):
+def get_bronze(var,
+               bronze_bucket_nm,
+               year_start = 1995,
+               year_end =  2023,
+               append_to = False):
+    """
+    Downloads raw data for the specified variable and saves it to an S3 bucket.
+
+    Parameters:
+    var (str): The variable for which data is to be downloaded.
+    bronze_bucket_nm (str): The name of the S3 bucket where the data will
+        be saved.
+    year_start (int, optional): The starting year for the data download. 
+        Must be >= 1983. Default is 1995.
+    year_end (int, optional): The ending year for the data download. 
+        Must be < 2024. Default is 2023.
+    append_to (bool, optional): If True, appends data to the 
+        existing data in the S3 bucket. Default is False.
+
+    Returns:
+    str: The S3 path where the data has been saved.
+
+    Raises:
+    ValueError: If year_start is less than 1983 or year_end is greater than or equal to 2024.
+    """
     # Validate year input
     if year_start < 1983 or year_end >= 2024:
-        raise ValueError("Year start must be >= 1983 and year end must be < 2024")
+        raise ValueError("Year start must be >= 1983; year end must be < 2024")
 
     # download raw and save to S3 directly
-    s3_path = download_multiple_years(year_start, year_end, var, bronze_bucket_nm, append_to = append_to)
+    s3_path = download_multiple_years(year_start,
+                                      year_end,
+                                      var,
+                                      bronze_bucket_nm,
+                                      append_to = append_to)
 
     return s3_path

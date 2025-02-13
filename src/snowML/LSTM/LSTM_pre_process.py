@@ -80,6 +80,7 @@ def pre_process (huc_list, var_list):
             df = du.s3_to_df(file_name, bucket_name)
             df['day'] = pd.to_datetime(df['day'])
             df.set_index('day', inplace=True)  # Set 'day' as the index
+            #print(df.columns)
             col_to_keep = var_list + ["mean_swe"]
             df = z_score_normalize(df)
             df = df[col_to_keep]
@@ -88,6 +89,21 @@ def pre_process (huc_list, var_list):
     return df_dict
 
 def train_test_split(data, train_size_fraction):
+    """
+    Splits the given data into training and testing sets based on the specified fraction.
+
+    Parameters:
+    data (list or array-like): The dataset to be split.
+    train_size_fraction (float): The fraction of the data to be used for the training set. 
+                                 Should be a value between 0 and 1.
+
+    Returns:
+    tuple: A tuple containing:
+        - train_main (list or array-like): The training set.
+        - test_main (list or array-like): The testing set.
+        - train_size_main (int): The size of the training set.
+        - test_size_main (int): The size of the testing set.
+    """
     train_size_main = int(len(data) * train_size_fraction)
     test_size_main = len(data) - train_size_main
     train_main, test_main = data[:train_size_main], data[train_size_main:]

@@ -87,8 +87,9 @@ def initialize_model(params):
     loss_fn_dawgs = nn.MSELoss()
     return model_dawgs, optimizer_dawgs, loss_fn_dawgs
 
-def run_expirement():
-    params = sh.create_hyper_dict()
+def run_expirement(param_dict = None):
+    if param_dict is None:
+        params = sh.create_hyper_dict()
     df_dict = prep_input_data(params)
     set_ML_server(params)
     model_dawgs, optimizer_dawgs, loss_fn_dawgs = initialize_model(params)

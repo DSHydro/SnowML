@@ -8,10 +8,14 @@ import xarray as xr
 import rioxarray
 import logging
 import aiohttp
+import warnings
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from snowML import data_utils as du
 from snowML import set_data_constants as sdc
 import xarray as xr
+
+# Suppress only the specific warning for unclosed connector
+warnings.filterwarnings('ignore', message="Unclosed connector")
 
 # Suppress unclosed connector warnings from aiohttp
 logging.getLogger('aiohttp').setLevel(logging.WARNING)

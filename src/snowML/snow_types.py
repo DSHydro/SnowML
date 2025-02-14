@@ -7,7 +7,11 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 import s3fs
+import warnings
 from snowML import get_geos as gg
+from snowML import set_data_constants as sdc
+
+warnings.filterwarnings('ignore', message="Unclosed connector")
 
 
 def get_snow_class_data(geos = None):
@@ -27,8 +31,10 @@ def get_snow_class_data(geos = None):
     ds_final = ds.rio.clip(geos.geometry, geos.crs, drop=True)
     return ds_final
 
-def save_snow_class_data(ds):
-    bucket = "dawgs-bronze" # TO DO: make this a parameter
+def save_snow_class_data(ds, bucket_dict = None):
+    if bucket_dict is None: 
+        bucket_dict = sdc.create_bucket_dict("prod")
+    bucket = bucket_dict["bronze"]
     file_name = "snow_class_data.zarr"
     s3_path = f"s3://{bucket}/{file_name}"
     fs = s3fs.S3FileSystem()
@@ -38,10 +44,13 @@ def save_snow_class_data(ds):
         ds.to_zarr(s3_path, mode="w", consolidated=True)
         print(f"Created new Zarr file at s3://{bucket}/{s3_path}")
 
-def snow_class_data_from_s3(geos = None):
-    bucket  = "dawgs-bronze"# TO DO: make this a parameter
+def snow_class_data_from_s3(geos = None, bucket_dict = None):
+    if bucket_dict is None: 
+        bucket_dict = sdc.create_bucket_dict("prod")
+    bucket = bucket_dict["bronze"]
     zarr_store_url = f's3://{bucket}/snow_class_data.zarr'
     ds_conus = xr.open_zarr(store=zarr_store_url, consolidated=True)
+    ds_conus = ds_conus.rio.write_crs("EPSG:4326")
     if geos is None: # return the full data for CONUS
         return ds_conus
     # if not None return all data witin the geo
@@ -86,15 +95,19 @@ def calc_snow_class(ds, snow_class_names):
 def snow_class(geos):
     results = pd.DataFrame()
     snow_class_names = map_snow_class_names()
-    ds_conus = get_snow_class_data(geos = None)
+    #ds_conus = get_snow_class_data(geos = None)
+    ds_conus = snow_class_data_from_s3(geos = None)
     for i in range(geos.shape[0]):
         #print(f"processing geos {i+1} of {geos.shape[0]}")
         row = geos.iloc[[i]]
-        row = row.to_crs(ds_conus.rio.crs)
-        ds = ds_conus.rio.clip(row.geometry, row.crs, drop=True)
-        df_snow_classes = calc_snow_class(ds, snow_class_names)
-        df_snow_classes["huc_id"] = row["huc_id"].values[0]
-        results = pd.concat([results, df_snow_classes], ignore_index=True)
+        try:
+            row = row.to_crs(ds_conus.rio.crs)
+            ds = ds_conus.rio.clip(row.geometry, row.crs, drop=True)
+            df_snow_classes = calc_snow_class(ds, snow_class_names)
+            df_snow_classes["huc_id"] = row["huc_id"].values[0]
+            results = pd.concat([results, df_snow_classes], ignore_index=True)
+        except Exception as e:
+            print(f"Error processing HUC ID {row['huc_id'].values[0]}: {e}, omitting from dataset")
     return results
 
 def display_df(df):

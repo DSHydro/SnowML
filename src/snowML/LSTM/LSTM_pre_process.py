@@ -2,9 +2,11 @@
 # pylint: disable=C0103
 
 import pandas as pd
+import geopandas as gpd
 import numpy as np
 import torch
 from snowML import data_utils as du
+from snowML import get_geos as gg
 
 
 # Excluded Hucs Due to Missing SWE Data (Canada)
@@ -39,7 +41,10 @@ def assemble_huc_list(input_pairs):
     bucket_name = "shape-bronze"  # TO DO MAKE DYNAMIC
     for pair in input_pairs:
         f_name = f"Huc{pair[1]}_in_{pair[0]}.geojson"
-        geos = du.s3_to_gdf(bucket_name, f_name)
+        path = f"../../../../local_data/shape_files/{f_name}"
+        geos = gpd.read_file(path)
+        #geos = du.s3_to_gdf(bucket_name, f_name)
+        #geos = gg.get_geos(pair[1], pair[0])
         hucs.extend(geos["huc_id"].to_list())
     return hucs
 
@@ -77,7 +82,9 @@ def pre_process (huc_list, var_list):
     for huc in huc_list:
         if huc not in EXCLUDED_HUCS:
             file_name = f"model_ready_huc{huc}.csv"
-            df = du.s3_to_df(file_name, bucket_name)
+            path = f"../../../../local_data/{file_name}"
+            df = pd.read_csv(path)
+            #df = du.s3_to_df(file_name, bucket_name)
             df['day'] = pd.to_datetime(df['day'])
             df.set_index('day', inplace=True)  # Set 'day' as the index
             #print(df.columns)

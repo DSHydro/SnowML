@@ -48,8 +48,9 @@ def set_ML_server(params):
         None
     """
     # Set our tracking server uri for logging
-    mlflow.set_tracking_uri(uri="http://127.0.0.1:5000")
-
+    #mlflow.set_tracking_uri(uri="http://127.0.0.1:5000")
+    mlflow.set_tracking_uri(uri="http://172.17.0.2:5000")
+     
     # Create a new MLflow Experiment called "LSTM"
     mlflow.set_experiment(params["expirement_name"])
 

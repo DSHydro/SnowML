@@ -14,7 +14,7 @@ def create_hyper_dict():
         "lookback": 180,
         "batch_size": 16,
         "n_steps": 1,
-        "num_workers": 16,
+        "num_workers": 8,
         "var_list": ["mean_pr", "mean_tair"],
         #"var_list": ["mean_pr", "mean_tair", "Maritime", "Ephemeral", "Montane Forest", "Ice"], 
         "expirement_name": "Debugging"

@@ -139,7 +139,7 @@ def s3_to_ds(bucket_name, file_name):
 
 
 
-def s3_to_gdf(bucket_name, file_name, region_name="us-east-1"):
+def s3_to_gdf(bucket_name, file_name, region_name="us-west-2"):
     """
     Download a file from S3 and load it into a GeoDataFrame.
 
@@ -171,7 +171,7 @@ def s3_to_gdf(bucket_name, file_name, region_name="us-east-1"):
 
 
 
-def dat_to_s3(dat, bucket_name, f_out, file_type="netcdf", region_name="us-east-1"):
+def dat_to_s3(dat, bucket_name, f_out, file_type="netcdf", region_name="us-west-2"):
     """
     Save a Dataset to an S3 bucket in the specified format.
 

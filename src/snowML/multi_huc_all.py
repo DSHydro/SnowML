@@ -12,6 +12,7 @@ from snowML import get_geos as gg
 
 
 
+
 def process_multi_huc (huc_id_start, final_huc_lev, bucket_dict = None, var_list = None, overwrite_gold = False):
     # verify inputs
     huc_lev_permitted = ['10', '12']  
@@ -45,5 +46,8 @@ def process_multi_huc (huc_id_start, final_huc_lev, bucket_dict = None, var_list
                 btg.process_geos(geos, var)  # create gold files for all geos while var bronze open
 
         #create model ready data
-        model_df = gtm.huc_gold(huc_id) 
+        try: 
+            model_df = gtm.huc_gold(huc_id) 
+        except Exception as e:
+            print(f"Error processing huc{huc_id}: {e}, omitting from dataset")
     

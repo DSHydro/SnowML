@@ -3,12 +3,12 @@
 
 import importlib
 import s3fs
-import data_utils as du
-import set_data_constants as sdc
-import get_bronze as gb
-import bronze_to_gold as btg
-import gold_to_model as gtm
-import get_geos as gg
+from snowML import data_utils as du
+from snowML import set_data_constants as sdc
+from snowML import get_bronze as gb
+from snowML import bronze_to_gold as btg
+from snowML import gold_to_model as gtm
+from snowML import get_geos as gg
 
 
 

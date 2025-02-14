@@ -3,9 +3,9 @@
 
 import s3fs
 import pandas as pd
-import data_utils as du
-import set_data_constants as sdc
-import snow_types as st 
+from snowML import data_utils as du
+from snowML import set_data_constants as sdc
+from snowML import snow_types as st 
 
 
 def gather_gold_files(huc_id, var_list = None, bucket_dict = None):

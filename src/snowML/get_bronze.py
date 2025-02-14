@@ -10,7 +10,7 @@ import json
 import s3fs
 import requests
 import xarray as xr
-import data_utils as du
+from snowML import data_utils as du
 
 def url_to_ds(url, requires_auth=False, username=None, password=None, timeout=60):
     """

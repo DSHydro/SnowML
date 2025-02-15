@@ -7,41 +7,49 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import matplotlib.patches as mpatches
 import cartopy.crs as ccrs
-import snow_types as st
-import get_geos as gg
-import data_utils as du
-import set_data_constants as sdc
+import logging
+from snowML import snow_types as st
+from snowML import get_geos as gg
+from snowML import data_utils as du
+from snowML import set_data_constants as sdc
+
+logging.getLogger("aiohttp").setLevel(logging.CRITICAL)
+logging.getLogger("sagemaker").setLevel(logging.CRITICAL)
 
 
 def plot_actual(huc, var, bucket_dict = None):
     if bucket_dict is None:
         bucket_dict = sdc.create_bucket_dict("prod")
     bucket_name = bucket_dict.get("model-ready")
-    print(bucket_name)
     file_name = f"model_ready_huc{huc}.csv"
     df = du.s3_to_df(file_name, bucket_name)
     df['day'] = pd.to_datetime(df['day'])
     df.set_index('day', inplace=True)  # Set 'day' as the index
     plt.figure(figsize=(12,  6))
     plt.plot(df.index, df[var], c='b', label= f"Actual {var}")  
+    
+    # Set y-axis limits for "mean_swe"
+    if var == "mean_swe":
+        plt.ylim(0, 2)
+    
     plt.legend()
     plt.xlabel('Date')
     plt.ylabel(var)
     ttl = f'Actual {var} for huc{huc}'
     plt.title(ttl)
     # save file
-    output_dir = os.path.join("../../docs", "var_plots_actuals")
+    output_dir = os.path.join("docs", "var_plots_actuals")
     file_name = f"{ttl}.png"
     file_path = os.path.join(output_dir, file_name)
     plt.savefig(file_path)
-    plt.close(fig)  # Close the figure to free memory
+    plt.close()  # Close the figure to free memory
     print(f"Map saved to {file_path}")
     
 
 
 def basic_map(geos, final_huc_lev, initial_huc):
     map_object = geos.explore()
-    output_dir = os.path.join("../../docs", "basic_maps")
+    output_dir = os.path.join("docs", "basic_maps")
     file_name = f"Huc{final_huc_lev}_in_{initial_huc}.html"
     file_path = os.path.join(output_dir, file_name)
     map_object.save(file_path)
@@ -129,7 +137,7 @@ def map_snow_types(ds, geos, huc):
     plt.tight_layout()
 
     # Save the plot
-    output_dir = os.path.join("../../docs", "basic_maps")
+    output_dir = os.path.join("docs", "basic_maps")
     file_name = f"Snow_classes_in_{huc}.png"
     file_path = os.path.join(output_dir, file_name)
     plt.savefig(file_path)
@@ -139,6 +147,8 @@ def map_snow_types(ds, geos, huc):
 def create_vis_all(initial_huc, final_huc_lev):
     geos = gg.get_geos(initial_huc, final_huc_lev)
     basic_map(geos, final_huc_lev, initial_huc)
-    ds = st.get_snow_class_data(geos)
+    ds = st.snow_class_data_from_s3(geos)
     map_snow_types(ds, geos, initial_huc)
+    for huc in geos["huc_id"].tolist():
+        plot_actual(huc, "mean_swe", bucket_dict = None)
     return ds

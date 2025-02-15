@@ -6,19 +6,16 @@
 import time
 import xarray as xr
 import rioxarray
-import logging
-import aiohttp
-import warnings
+import fsspec
+import logging 
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from snowML import data_utils as du
 from snowML import set_data_constants as sdc
-import xarray as xr
 
-# Suppress only the specific warning for unclosed connector
-warnings.filterwarnings('ignore', message="Unclosed connector")
 
-# Suppress unclosed connector warnings from aiohttp
-logging.getLogger('aiohttp').setLevel(logging.WARNING)
+logging.getLogger("aiohttp").setLevel(logging.CRITICAL)
+
+
 
 # define constants
 VAR_DICT = sdc.create_var_dict()
@@ -26,29 +23,54 @@ VAR_DICT = sdc.create_var_dict()
 def prep_bronze(var, bucket_dict = None):
     if bucket_dict is None:
         bucket_dict = sdc.create_bucket_dict("prod")
-
-    b_bronze = bucket_dict.get("bronze")
+    b_bronze = bucket_dict["bronze"] 
     zarr_store_url = f's3://{b_bronze}/{var}_all.zarr'
-    
-  
-    async def open_zarr_async():
-        async with aiohttp.ClientSession() as session:
-            ds = await xr.open_zarr(store=zarr_store_url, consolidated=True, session=session)
-            return ds
 
-    ds = open_zarr_async()
-    
-    #ds = xr.open_zarr(store=zarr_store_url, consolidated=True)
-    
+    # Create an S3 file system using fsspec (no need for 'client' here)
+    fs = fsspec.filesystem('s3')
+
+    # Open the Zarr file directly with storage options
+    ds = xr.open_zarr(zarr_store_url, consolidated=True, storage_options={'anon': False})
+
+    # Process the dataset as needed
     if var != "swe":
         transform = du.calc_transform(ds)
         ds = ds.rio.write_transform(transform, inplace=True)
     else:
-        ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace = True)
+        ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace=True)
+        
     ds.rio.write_crs("EPSG:4326", inplace=True)
-    ds.close()  # Close the dataset after processing ## SUGGESTED CHANGE
-    
+
+    ds.close()  # Close the dataset after processing
+
     return ds
+
+# def prep_bronze(var, bucket_dict = None):
+#     if bucket_dict is None:
+#         bucket_dict = sdc.create_bucket_dict("prod")
+
+#     b_bronze = bucket_dict.get("bronze")
+#     zarr_store_url = f's3://{b_bronze}/{var}_all.zarr'
+    
+  
+#     async def open_zarr_async():
+#         async with aiohttp.ClientSession() as session:
+#             ds = await xr.open_zarr(store=zarr_store_url, consolidated=True, session=session)
+#             return ds
+
+#     ds = open_zarr_async()
+    
+#     #ds = xr.open_zarr(store=zarr_store_url, consolidated=True)
+    
+#     if var != "swe":
+#         transform = du.calc_transform(ds)
+#         ds = ds.rio.write_transform(transform, inplace=True)
+#     else:
+#         ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace = True)
+#     ds.rio.write_crs("EPSG:4326", inplace=True)
+#     ds.close()  # Close the dataset after processing ## SUGGESTED CHANGE
+    
+#     return ds
 
 
 def create_mask(ds, row, crs):

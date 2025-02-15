@@ -30,28 +30,24 @@ def prep_bronze(var, bucket_dict = None):
     b_bronze = bucket_dict.get("bronze")
     zarr_store_url = f's3://{b_bronze}/{var}_all.zarr'
     
-    # with xr.open_zarr(store=zarr_store_url, consolidated=True) as ds:
-    #     if var != "swe":
-    #         transform = du.calc_transform(ds)
-    #         ds = ds.rio.write_transform(transform, inplace=True)
-    #     else:
-    #         ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace=True)
-        
-    #     ds.rio.write_crs("EPSG:4326", inplace=True)
-    
+  
+    async def open_zarr_async():
+        async with aiohttp.ClientSession() as session:
+            ds = await xr.open_zarr(store=zarr_store_url, consolidated=True, session=session)
+            return ds
 
-    ds = xr.open_zarr(store=zarr_store_url, consolidated=True)
-    ds.close()  # Close the dataset after processing ## SUGGESTED CHANGE
+    ds = open_zarr_async()
+    
+    #ds = xr.open_zarr(store=zarr_store_url, consolidated=True)
+    
     if var != "swe":
         transform = du.calc_transform(ds)
         ds = ds.rio.write_transform(transform, inplace=True)
     else:
         ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace = True)
     ds.rio.write_crs("EPSG:4326", inplace=True)
-
+    ds.close()  # Close the dataset after processing ## SUGGESTED CHANGE
     
-    
-
     return ds
 
 
@@ -133,7 +129,7 @@ def process_geos(geos, var, bucket_dict= None, overwrite=False):
         bucket_dict = sdc.create_bucket_dict("prod")
 
     # Use ProcessPoolExecutor to parallelize the tasks
-    with ProcessPoolExecutor(max_workers=8) as executor: # TO DO- Make Max Workers Dynamic
+    with ProcessPoolExecutor(max_workers=4) as executor: # TO DO- Make Max Workers Dynamic
         futures = [
             executor.submit(process_row, row, var, idx, bucket_dict, crs, var_name, overwrite)
             for idx, row in geos.iterrows()

@@ -3,9 +3,12 @@
 
 import s3fs
 import pandas as pd
+import logging
 from snowML import data_utils as du
 from snowML import set_data_constants as sdc
 from snowML import snow_types as st 
+
+logging.getLogger("aiohttp").setLevel(logging.CRITICAL)
 
 
 def gather_gold_files(huc_id, var_list = None, bucket_dict = None):

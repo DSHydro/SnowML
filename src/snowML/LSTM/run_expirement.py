@@ -2,7 +2,9 @@
 # # pylint: disable=C0103
 
 # Script to run an expiriment
+import os
 import importlib
+import torch
 from torch import optim
 from torch import nn
 import mlflow
@@ -11,19 +13,25 @@ from snowML.LSTM import snow_LSTM as snow
 from snowML.LSTM import set_hyperparams as sh
 
 
+#input_pairs = [[17020009, '12'], [17110005, '12'], [17030002, '12']]
+#input_pairs = [[17110005, '12']]
+
 libs_to_reload = [snow, pp, sh]
 for lib in libs_to_reload:
     importlib.reload(lib)
 
 
-def set_inputs():
-    #input_pairs = [[17020009, '12'], [17110005, '12'], [17030002, '12']]
-    #input_pairs = [[17110005, '12']]
-    input_pairs = [[17020009, '12']]
+def set_inputs(mode):
+    if mode not in {"train", "eval"}:
+        raise ValueError(f"Invalid mode: {mode}. Expected 'train' or 'eval'.")
+    if mode == "train":
+        input_pairs = [[17020009, '12']]
+    else: # eval mode
+        input_pairs = [[17020009, '12']]
     return input_pairs
 
 
-def prep_input_data(params):
+def prep_input_data(params, mode):
     """
     Prepares input data for the experiment.
 
@@ -35,7 +43,9 @@ def prep_input_data(params):
     Returns:
         df_dict: A dictionary where keys are HUCs and values are preprocessed dataframes.
     """
-    input_pairs = set_inputs()
+    if mode not in {"train", "eval"}:
+        raise ValueError(f"Invalid mode: {mode}. Expected 'train' or 'eval'.")
+    input_pairs = set_inputs(mode)
     hucs = pp.assemble_huc_list(input_pairs)
     df_dict = pp.pre_process(hucs, params["var_list"])
     return df_dict
@@ -89,9 +99,11 @@ def initialize_model(params):
 def run_expirement(params = None):
     if params is None:
         params = sh.create_hyper_dict()
-    df_dict = prep_input_data(params)
+    df_dict_train = prep_input_data(params, "train")
+    df_dict_eval = prep_input_data(params, "eval")
     set_ML_server(params)
-    model_dawgs, optimizer_dawgs, loss_fn_dawgs = initialize_model(params)
+    model_dawgs_pretrain, optimizer_dawgs, loss_fn_dawgs = initialize_model(params)
+
 
     with mlflow.start_run():
         # log all the params
@@ -105,41 +117,57 @@ def run_expirement(params = None):
 
             # pre-train
             snow.pre_train(
-                model_dawgs,
+                model_dawgs_pretrain,
                 optimizer_dawgs,
                 loss_fn_dawgs,
-                df_dict,
+                df_dict_train,
                 params
                 )
 
             # evaluate
             snow.evaluate(
-                model_dawgs,
-                df_dict,
+                model_dawgs_pretrain,
+                df_dict_train,
                 params,
                 epoch)
 
+        # log the pre-trained model & save locally
+        mlflow.pytorch.log_model(model_dawgs_pretrain, artifact_path="pre_trained_model")
+        local_path = "model_dawgs_pretrain.pth"
+        torch.save(model_dawgs_pretrain.state_dict(), local_path)
+
         # fine_tune (if applicable)
+
+
         if params["pre_train_fraction"] < 1:
-            fine_tune_epochs = int(params['n_epochs'] - pre_train_epochs)
+            for i, target_key in enumerate(df_dict_eval.keys(), start=1):
 
-            for epoch in range(pre_train_epochs, fine_tune_epochs):
+                model_dawgs_ft, optimizer_dawgs_ft, loss_dawgs_ft = initialize_model(params)
+                if params["pre_train_fraction"] > 0:
+                    model_dawgs_ft.load_state_dict(torch.load(local_path))
 
-                for i, target_key in enumerate(df_dict.keys(), start=1):
-                    print(f"Fine-tuning on {target_key}, number {i}")
+                fine_tune_epochs = int(params['n_epochs'] - pre_train_epochs)
+
+                for epoch in range(pre_train_epochs, fine_tune_epochs):
+
+                    print(f"Epoch{epoch}, Fine-tuning on {target_key}, number {i}")
                     snow.fine_tune(
-                        model_dawgs,
-                        optimizer_dawgs,
-                        loss_fn_dawgs,
-                        df_dict,
+                        model_dawgs_ft,
+                        optimizer_dawgs_ft,
+                        loss_dawgs_ft,
+                        df_dict_eval,
                         target_key,
                         params,
+                        epoch,
                     )
 
-                    if (epoch-pre_train_epochs) % 2 == 0:
+                    if ((epoch-pre_train_epochs) % 2 == 0) or (epoch == params["n_epochs"]-1):
                         snow.evaluate(
-                            model_dawgs,
-                            df_dict,
+                            model_dawgs_ft,
+                            df_dict_eval,
                             params,
                             epoch,
                             selected_keys = [target_key])
+
+                mlflow.pytorch.log_model(model_dawgs_ft, artifact_path=f"fit_model_{target_key}")
+    os.remove(local_path)

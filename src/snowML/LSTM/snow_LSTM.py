@@ -82,7 +82,7 @@ def pre_train(model, optimizer, loss_fn, df_dict, params):
 
 
 # Fine-tuning Phase: Train on target HUC
-def fine_tune(model, optimizer, loss_fn, df_dict, target_key, params):
+def fine_tune(model, optimizer, loss_fn, df_dict, target_key, params, epoch):
 
     df_target = df_dict[target_key]
 
@@ -187,9 +187,9 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
             mlflow.log_metric(f"{metric_names[i]}_{str(selected_key)}", metrics[i], step=epoch)
             print(f"{metric_names[i]}_{str(selected_key)}: {metrics[i]}")
             metrics_list_dict[metric_names[i]].append(metrics[i])
-        print("")
 
-         # store plots for final epooch
+
+        # store plots for final epooch
         if epoch == params["n_epochs"] - 1:
             plot(data, y_train_pred, y_test_pred, train_size_main, selected_key, params)
 

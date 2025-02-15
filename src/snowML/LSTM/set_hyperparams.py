@@ -8,15 +8,15 @@ def create_hyper_dict():
         "num_layers": 1,
         "dropout": 0.2,
         "learning_rate": 1e-3,  # 3e-3
-        "n_epochs": 2,
+        "n_epochs": 10,
         "pre_train_fraction" : 0,
         "train_size_fraction": 0.67,
         "lookback": 180,
         "batch_size": 16,
         "n_steps": 1,
-        "num_workers": 16,
+        "num_workers": 8,
         "var_list": ["mean_pr", "mean_tair"],
         #"var_list": ["mean_pr", "mean_tair", "Maritime", "Ephemeral", "Montane Forest", "Ice"], 
-        "expirement_name": "Debugging"
+        "expirement_name": "TestingSagemaker"
     }
     return param_dict

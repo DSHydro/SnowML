@@ -133,7 +133,7 @@ def process_geos(geos, var, bucket_dict= None, overwrite=False):
         bucket_dict = sdc.create_bucket_dict("prod")
 
     # Use ProcessPoolExecutor to parallelize the tasks
-    with ProcessPoolExecutor(max_workers=4) as executor: # TO DO- Make Max Workers Dynamic
+    with ProcessPoolExecutor(max_workers=8) as executor: # TO DO- Make Max Workers Dynamic
         futures = [
             executor.submit(process_row, row, var, idx, bucket_dict, crs, var_name, overwrite)
             for idx, row in geos.iterrows()

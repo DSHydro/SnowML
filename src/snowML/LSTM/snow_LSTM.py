@@ -9,7 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import mlflow
 from sklearn.metrics import mean_squared_error
-import LSTM_pre_process as pp
+from snowML.LSTM import LSTM_pre_process as pp
 
 
 class SnowModel(nn.Module):
@@ -82,7 +82,7 @@ def pre_train(model, optimizer, loss_fn, df_dict, params):
 
 
 # Fine-tuning Phase: Train on target HUC
-def fine_tune(model, optimizer, loss_fn, df_dict, target_key, params, epoch):
+def fine_tune(model, optimizer, loss_fn, df_dict, target_key, params):
 
     df_target = df_dict[target_key]
 
@@ -93,7 +93,7 @@ def fine_tune(model, optimizer, loss_fn, df_dict, target_key, params, epoch):
         )
 
     model.train()  # Set model to training mode
-    print(f"Epoch {epoch}: Fine-tuning on target HUC {target_key}")
+    #print(f"Epoch {epoch}: Fine-tuning on target HUC {target_key}")
 
     # Training Loop on target HUC
     for X_batch, y_batch in loader:
@@ -112,25 +112,23 @@ def kling_gupta_efficiency(y_true, y_pred):
     #print(f"r: {r}, alpha: {alpha}, beta: {beta}")
     return kg, r, alpha, beta
 
-def store_metrics(metric_names, metrics_list_dict, df_dict, epoch):
+def store_metrics(metric_names, metrics_list_dict, available_keys, epoch):
     df = pd.DataFrame({
         metric_names[0]: metrics_list_dict[metric_names[0]],
         metric_names[1]: metrics_list_dict[metric_names[1]],
         metric_names[2]: metrics_list_dict[metric_names[2]],
         metric_names[3]: metrics_list_dict[metric_names[3]]
-        }, index=df_dict.keys())
+        }, index=available_keys)
 
-    # Compute the mean for each metric 
-    if len(df) > 1:
+    # Compute the mean for each metric
+    if df.shape[0] > 1:
         mean_values = df.mean()
         print("Mean Metrics:")
         print(mean_values)
         # Log each mean metric in mlflow
         for metric_name, mean_value in mean_values.items():
             mlflow.log_metric(f"mean_{metric_name}", mean_value, step = epoch)
-
-    # Add a total row
-    df.loc['Total'] = mean_values
+        df.loc['Total'] = mean_values
 
     # Log the dataframe in mlflow
     csv_path = f"results_epoch{epoch}.csv"
@@ -138,11 +136,6 @@ def store_metrics(metric_names, metrics_list_dict, df_dict, epoch):
     mlflow.log_artifact(csv_path)
     os.remove(csv_path)
 
-    # Log the dataframe in mlflow
-    csv_path = f"results_epoch{epoch}.csv"
-    df.to_csv(csv_path, index=True)
-    mlflow.log_artifact(csv_path)
-    os.remove(csv_path)
 
 def predict(model_dawgs, df_dict, selected_key, params):
     data = df_dict[selected_key]
@@ -168,7 +161,7 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
     if selected_keys is None:
         available_keys = list(df_dict.keys())
         random.shuffle(available_keys)
-    else: 
+    else:
         available_keys = selected_keys
     metric_names = ["train_mse", "test_mse", "train_kge", "test_kge"]
     metrics_list_dict = {metric: [] for metric in metric_names}
@@ -190,17 +183,17 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
 
 
         # Log, print, & save metrics
-        print("")
         for i in range(len(metrics)):
             mlflow.log_metric(f"{metric_names[i]}_{str(selected_key)}", metrics[i], step=epoch)
             print(f"{metric_names[i]}_{str(selected_key)}: {metrics[i]}")
             metrics_list_dict[metric_names[i]].append(metrics[i])
+        print("")
 
          # store plots for final epooch
         if epoch == params["n_epochs"] - 1:
             plot(data, y_train_pred, y_test_pred, train_size_main, selected_key, params)
 
-    store_metrics(metric_names, metrics_list_dict, df_dict, epoch)
+    store_metrics(metric_names, metrics_list_dict, available_keys, epoch)
 
 
 def plot(data, y_train_pred, y_test_pred, train_size, huc_id, params):

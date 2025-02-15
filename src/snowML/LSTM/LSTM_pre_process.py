@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import torch
 from snowML import data_utils as du
-
+from snowML import set_data_constants as sdc
 
 # Excluded Hucs Due to Missing SWE Data (Canada)
 EXCLUDED_HUCS = ["1711000501", "1711000502", "1711000503", "171100050101", "171100050102", \
@@ -16,7 +16,7 @@ EXCLUDED_HUCS = ["1711000501", "1711000502", "1711000503", "171100050101", "1711
 
 
 
-def assemble_huc_list(input_pairs):
+def assemble_huc_list(input_pairs, bucket_dict = None):
     """
     Assembles a list of HUC (Hydrologic Unit Code) IDs from a list of input pairs.
 
@@ -32,11 +32,13 @@ def assemble_huc_list(input_pairs):
         The function assumes that the geojson files are stored in an S3 bucket named "shape-bronze".
 
     Example:
-        input_pairs = [("RegionA", "01"), ("RegionB", "02")]
+        input_pairs = [("RegionA", "10"), ("RegionB", "12")]
         huc_list = assemble_huc_list(input_pairs)
     """
     hucs = []
-    bucket_name = "shape-bronze"  # TO DO MAKE DYNAMIC
+    if bucket_dict is None:
+        bucket_dict = sdc.create_bucket_dict("prod")
+    bucket_name = bucket_dict["shape-bronze"]
     for pair in input_pairs:
         f_name = f"Huc{pair[1]}_in_{pair[0]}.geojson"
         geos = du.s3_to_gdf(bucket_name, f_name)
@@ -71,9 +73,11 @@ def z_score_normalize(df):
 
     return normalized_df
 
-def pre_process (huc_list, var_list):
+def pre_process (huc_list, var_list, bucket_dict = None):
     df_dict = {}  # Initialize dictionary
-    bucket_name = "dawgs-model-ready"  # TO DO make dynamic
+    if bucket_dict is None: 
+        bucket_dict = sdc.create_bucket_dict("prod")
+    bucket_name = bucket_dict["model-ready"]
     for huc in huc_list:
         if huc not in EXCLUDED_HUCS:
             file_name = f"model_ready_huc{huc}.csv"

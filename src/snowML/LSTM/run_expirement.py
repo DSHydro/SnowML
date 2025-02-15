@@ -48,9 +48,11 @@ def set_ML_server(params):
         None
     """
     # Set our tracking server uri for logging
-    mlflow.set_tracking_uri(uri="http://127.0.0.1:5000")
+    #tracking_uri = "https://t-izowcn0gky2o.us-west-2.experiments.sagemaker.aws"
+    tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
+    mlflow.set_tracking_uri(tracking_uri)
 
-    # Create a new MLflow Experiment called "LSTM"
+    # Define the expirement
     mlflow.set_experiment(params["expirement_name"])
 
 def initialize_model(params):
@@ -84,8 +86,8 @@ def initialize_model(params):
     return model_dawgs, optimizer_dawgs, loss_fn_dawgs
 
 
-def run_expirement(param_dict = None):
-    if param_dict is None:
+def run_expirement(params = None):
+    if params is None:
         params = sh.create_hyper_dict()
     df_dict = prep_input_data(params)
     set_ML_server(params)
@@ -96,7 +98,7 @@ def run_expirement(param_dict = None):
         mlflow.log_params(params)
 
         # pre-train
-        
+
         pre_train_epochs = int(params['n_epochs'] * params['pre_train_fraction'])
         for epoch in range(pre_train_epochs):
             print(f"Epoch {epoch}: Pre-training on multiple HUCs")
@@ -123,8 +125,8 @@ def run_expirement(param_dict = None):
 
             for epoch in range(pre_train_epochs, fine_tune_epochs):
 
-                for target_key in df_dict.keys():
-                    print(f"Fine-tuning on {target_key}")
+                for i, target_key in enumerate(df_dict.keys(), start=1):
+                    print(f"Fine-tuning on {target_key}, number {i}")
                     snow.fine_tune(
                         model_dawgs,
                         optimizer_dawgs,
@@ -132,12 +134,12 @@ def run_expirement(param_dict = None):
                         df_dict,
                         target_key,
                         params,
-                        epoch)
+                    )
 
-                    snow.evaluate(
-                        model_dawgs,
-                        df_dict,
-                        params,
-                        epoch,
-                        selected_keys = [target_key])
-
+                    if (epoch-pre_train_epochs) % 2 == 0:
+                        snow.evaluate(
+                            model_dawgs,
+                            df_dict,
+                            params,
+                            epoch,
+                            selected_keys = [target_key])

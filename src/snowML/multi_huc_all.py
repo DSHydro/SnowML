@@ -3,12 +3,20 @@
 
 import importlib
 import s3fs
+import logging
+import warnings
 from snowML import data_utils as du
 from snowML import set_data_constants as sdc
 from snowML import get_bronze as gb
 from snowML import bronze_to_gold as btg
 from snowML import gold_to_model as gtm
 from snowML import get_geos as gg
+
+importlib.reload(btg)
+
+logging.getLogger("aiohttp").setLevel(logging.CRITICAL)
+logging.getLogger("sagemaker").setLevel(logging.CRITICAL)
+warnings.filterwarnings("ignore", category=ResourceWarning)
 
 
 

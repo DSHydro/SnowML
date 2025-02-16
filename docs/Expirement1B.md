@@ -12,12 +12,13 @@ performed significantly worse.
 
 
 ## ProtoTyped Model - Example Results 
-  - ** BASIN XX **
-  -  ** BASIN YY ** 
+![SWE Predictions](model_results/SWE_Predictions_for_huc171100050404.png)
+![SWE Predictions](model_results/SWE_Predictions_for_huc171100050502.png)
+![SWE Predictions](model_results/SWE_Predictions_for_huc171100051103.png)
+![SWE Predictions](model_results/SWE_Predictions_for_huc171100051005.png)
 
 
-
-## Average Test_MSE and KGE By Watershed - UA Data Modelled at Huc(12)
+## Average Test_MSE and KGE By Watershed - UA Data Modelled at Huc12
 | HUC_ID       | Average Test MSE | Average Test KGE |
 |--------------|------------------|------------------|
 | 1711000504   | 0.005147         | 0.924250         |
@@ -29,7 +30,7 @@ performed significantly worse.
 | 1711000510   | 0.041787         | 0.599238         |
 | 1711000511   | 0.012682         | 0.655579         |
 
-## Test_MSE and KGE By Watershed - UA Data Modelled at Huc(10)
+## Test_MSE and KGE By Watershed - UA Data Modelled at Huc10
 
 | HUC_ID      | Test MSE  | Test KGE  |
 |------------|----------|----------|

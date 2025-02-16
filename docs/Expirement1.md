@@ -1,4 +1,4 @@
-# ** Expirement 1: Add more time series data****
+# ** Expirement 1A: Add more time series data****
 
 The first adjustment we made to the proptoyped LSTM Model was to use the University of Arizona [add link] estimates of Snow Water Equivilent (SWE) as our
 target dataset for training and evaluating the model.  This dataset contains a longer time series of available SWE data, thus augmenting the dataset.  This
@@ -8,9 +8,12 @@ We reran the protoype LSTM model with the new data, leaving all other hyperparme
 - Batch size increased from 8 to 16 to take advantage of increaased computing resources made available (thank you AWS!)
 - We reduced the number of epochs to 10 after observing early convergence of the model likely due to the increased training data available.
 
-The below charts show model results for HUC 1711000504, a sub-watershed in the Skagitt basin, under the two approaches. The Prototyped Model with UA Data has a test_mean_squared_error of .007 which is a significnat improvement over [].  These differences appeared stable over multiple runs of the respective models.  Improvements were also seen in each of the [five] sub-watersheds tested.  
+The below charts show model results for HUC 1711000504, a watershed in the Skagitt basin, under the two approaches. The Prototyped Model with UA Data has a test_mean_squared_error of .007 which is a significnat improvement over [].  These differences appeared stable over multiple runs of the respective models.  
 
-In this expirement, all sub-watersheds were trained *only* using the data from that sub-watershed,as noted below by the paramenter (pre_train_fraction = 0).  
+Improvements were also seen in each of the [five] sub-watersheds tested.  Interestingly, however, under both the Proptotyped Model and the Prototyped Model - UA Data, the model performed better in some sub-watersheds than other.  Again, these differences appeared stable over multiple runs of the respective model. Exploring the differences in model performance by watershed is explored in later expirements. 
+
+
+In this expirement 1A, all sub-watersheds were trained *only* using the data from that sub-watershed,as noted below by the paramenter (pre_train_fraction = 0).  
 
 ## ProtoTyped Model - Original Data 
 

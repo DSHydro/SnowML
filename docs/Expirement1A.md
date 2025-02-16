@@ -13,7 +13,7 @@ The below charts show model results for HUC 1711000504, a watershed in the Skagi
 Improvements were also seen in each of the eight watersheds tested.  Interestingly, however, under both the Proptotyped Model and the Prototyped Model - UA Data, the model performed better in some sub-watersheds than other. Again, these differences appeared stable over multiple runs of the respective model. Exploring the differences in model performance by watershed is explored in later expirements. 
 
 
-In this expirement 1A, all sub-watersheds were trained *only* using the data from that sub-watershed,as noted below by the paramenter (pre_train_fraction = 0).  Train/test split was accomplished by reserving the final two thirds of the time period as test data. 
+In this expirement 1A, all watersheds were trained *only* using the data from that sub-watershed,as noted below by the paramenter (pre_train_fraction = 0).  Train/test split was accomplished by reserving the final two thirds of the time period as test data. 
 
 ## ProtoTyped Model - Original Data 
 

@@ -20,7 +20,6 @@ warnings.filterwarnings("ignore", category=ResourceWarning)
 
 
 
-
 def process_multi_huc (huc_id_start, final_huc_lev, bucket_dict = None, var_list = None, overwrite_gold = False):
     # verify inputs
     huc_lev_permitted = ['10', '12']  

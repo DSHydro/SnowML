@@ -2,29 +2,21 @@
 "Module to create basin and watershed visualizations"
 
 import os
+import fsspec
 import pandas as pd
+import xarray as xr
+import rioxarray
+import zarr
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import matplotlib.patches as mpatches
 import cartopy.crs as ccrs
-import logging
 from snowML import snow_types as st
 from snowML import get_geos as gg
 from snowML import data_utils as du
 from snowML import set_data_constants as sdc
 
-logging.getLogger("aiohttp").setLevel(logging.CRITICAL)
-logging.getLogger("sagemaker").setLevel(logging.CRITICAL)
-
-
-def plot_actual(huc, var, bucket_dict = None):
-    if bucket_dict is None:
-        bucket_dict = sdc.create_bucket_dict("prod")
-    bucket_name = bucket_dict.get("model-ready")
-    file_name = f"model_ready_huc{huc}.csv"
-    df = du.s3_to_df(file_name, bucket_name)
-    df['day'] = pd.to_datetime(df['day'])
-    df.set_index('day', inplace=True)  # Set 'day' as the index
+def plot_var(df, var):
     plt.figure(figsize=(12,  6))
     plt.plot(df.index, df[var], c='b', label= f"Actual {var}")  
     
@@ -44,9 +36,47 @@ def plot_actual(huc, var, bucket_dict = None):
     plt.savefig(file_path)
     plt.close()  # Close the figure to free memory
     print(f"Map saved to {file_path}")
+
+
+
+def plot_actual(huc, var, bucket_dict = None):
+    if bucket_dict is None:
+        bucket_dict = sdc.create_bucket_dict("prod")
+    bucket_name = bucket_dict.get("model-ready")
+    file_name = f"model_ready_huc{huc}.csv"
+    df = du.s3_to_df(file_name, bucket_name)
+    df['day'] = pd.to_datetime(df['day'])
+    df.set_index('day', inplace=True)  # Set 'day' as the index
+    plot_var(df, var)
+
+def plot_actual_from_bronze(huc, var, bucket_dict = None):
+    geos = gg.get_geos(huc, str(len(str(huc))).zfill(2))
+    print(geos.head(2))
     
+    if bucket_dict is None:
+        bucket_dict = sdc.create_bucket_dict("prod")
+    b_name = bucket_dict.get("bronze")
+    zarr_store_url = f's3://{b_name}/{var}_all.zarr'
 
+    # Open the Zarr file directly with storage options
+    ds = xr.open_zarr(zarr_store_url, consolidated=True, storage_options={'anon': False})
+    # Process the dataset as needed
+    if var != "swe":
+        transform = du.calc_transform(ds)
+        ds = ds.rio.write_transform(transform, inplace=True)
+    else:
+        ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace=True)
+        
+    ds.rio.write_crs("EPSG:4326", inplace=True)
+    ds.close()  # Close the dataset after processing
+    
+    geo = geos.iloc[[0]].geometry
+    crs = geos.crs
+    ds_small = ds.rio.clip(geo, crs, drop = True, invert = False)
+    
+    # TO DO - TAKE MEAN, CONVERT TO DF, and PLOT 
 
+    
 def basic_map(geos, final_huc_lev, initial_huc):
     map_object = geos.explore()
     output_dir = os.path.join("docs", "basic_maps")

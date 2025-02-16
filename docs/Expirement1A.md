@@ -52,5 +52,7 @@ In this expirement 1A, all watersheds were trained *only* using the data from th
 | num_workers         | 8                           |
 | var_list            | ['mean_pr', 'mean_tair']    |
 | experiment_name     | BackToBasics_Skagitt        |
+| run_mame            | likeable-vole-19            |
+| run_id              | b1649da4415449c49ad0841fd230d950|
 
 

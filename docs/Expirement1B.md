@@ -40,7 +40,24 @@ as noted below by the paramenter (pre_train_fraction = 0).  Train/test split was
 | 1711000511 | 0.003720 | 0.900734 |
 
 
-## Model Details: ProtoTyped Model - UA Data, Skagitt12 
+## Model Details: ProtoTyped Model - UA Data, Skagit12 
 | Parameter           | Value                       |
+|---------------------|-----------------------------|
+| hidden_size         | 64                          |
+| num_class           | 1                           |
+| num_layers          | 1                           |
+| dropout             | 0.5                         |
+| learning_rate       | 0.001                       |
+| n_epochs            | 10                          |
+| pre_train_fraction  | 0                           |
+| train_size_fraction | 0.67                        |
+| lookback            | 180                         |
+| batch_size          | 16                          |
+| n_steps             | 1                           |
+| num_workers         | 8                           |
+| var_list            | ['mean_pr', 'mean_tair']    |
+| experiment_name     | BackToBasics_Skagitt        |
+| run_mame            |  nosy-robin-713             |
+| run_id              | 215fe6997cc04f4493cce8d003dea9a5      |
 
 

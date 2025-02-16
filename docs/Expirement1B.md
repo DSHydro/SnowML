@@ -5,7 +5,10 @@ are rather than the Huc10 areas. Huc regions are defined on a nested structure, 
 All hyperparameters are unchanged between Expirement 1A and 1B. In this expirement 1B, all sub-watersheds were trained *only* using the data from that sub-watershed,
 as noted below by the paramenter (pre_train_fraction = 0).  Train/test split was accomplished by reserving the final two thirds of the time period as test data. <br>
 
+On average (aggregating to the watershed/HUC10 level), the more granular approach resulted in similar or modest improvements to test_MSE and test_KGE with the exception of waterhshed 1711000511, which showed significant drops in both goodness of fit measures using more granular data. Compare [link] to [link]  <br>  
 
+Inspecting the resutls at the sub-watershed level further emphasized diversion of model performance by region.  In particular, regions with a higher percentage of epheneral snow 
+performed significantly worse.  
 
 
 ## ProtoTyped Model - Example Results 

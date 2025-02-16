@@ -50,11 +50,6 @@ def load_snow_type_data(input_pairs):
         snow_types = pd.concat([snow_types, df])
     return snow_types 
 
-
-
-
-
-
 def plot_kge(df_merged, x_var, y_var):
     # Define colors based on huc_id prefixes
     colors = df_merged.index.astype(str).map(lambda x: 'red' if x.startswith('1702') 
@@ -73,8 +68,6 @@ def plot_kge(df_merged, x_var, y_var):
     
     # Show plot
     return plt
-
-
 
 # print results 
 for desc, uri in results_dict.items():

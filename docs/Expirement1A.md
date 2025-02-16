@@ -10,8 +10,7 @@ We reran the protoype LSTM model with the new data, leaving all other hyperparme
 
 The below charts show model results for HUC 1711000504, a watershed in the Skagitt basin, under the two approaches. The Prototyped Model with UA Data has a test_mean_squared_error of .007 which is a significnat improvement over [].  These differences appeared stable over multiple runs of the respective models.  
 
-Improvements were also seen in each of the eight watersheds tested.  Interestingly, however, under both the Proptotyped Model and the Prototyped Model - UA Data, the model performed better in some sub-watersheds than other. Again, these differences appeared stable over multiple runs of the respective model. Exploring the differences in model performance by watershed is explored in later expirements. 
-
+Improvements were also seen in each of the eight watersheds tested.  Interestingly, however, for both datasets, the model performed better in some watersheds than other. Again, these differences appeared stable over multiple runs of the respective model. We further explore differences in model performance by watershed is explored in later expirements. 
 
 In this expirement 1A, all watersheds were trained *only* using the data from that sub-watershed,as noted below by the paramenter (pre_train_fraction = 0).  Train/test split was accomplished by reserving the final two thirds of the time period as test data. 
 

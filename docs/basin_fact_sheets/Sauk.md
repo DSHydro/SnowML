@@ -5,9 +5,8 @@
 **Huc No:**           17110006 <br> 
 **Predominant Snow:** Maritime <br>
 **Huc 12 Sub Units By Predominant Snow Classification:**
-- Maritime: 
-- Montane Forest: 
-- Ephemeral: 
+- Maritime: 18 
+- Ephemeral: 3
 
 
 ## Skagit Map with Snow Classification 

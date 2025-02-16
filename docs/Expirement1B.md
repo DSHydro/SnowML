@@ -28,7 +28,16 @@ as noted below by the paramenter (pre_train_fraction = 0).  Train/test split was
 
 ## Test_MSE and KGE By Watershed - UA Data Modelled at Huc(10)
 
-
+| HUC_ID      | Test MSE  | Test KGE  |
+|------------|----------|----------|
+| 1711000504 | 0.007089 | 0.923201 |
+| 1711000505 | 0.004568 | 0.977445 |
+| 1711000506 | 0.026291 | 0.701809 |
+| 1711000507 | 0.015769 | 0.818750 |
+| 1711000508 | 0.029625 | 0.644258 |
+| 1711000509 | 0.010326 | 0.806219 |
+| 1711000510 | 0.035046 | 0.621083 |
+| 1711000511 | 0.003720 | 0.900734 |
 
 
 ## Model Details: ProtoTyped Model - UA Data, Skagitt12 

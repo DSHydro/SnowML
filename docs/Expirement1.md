@@ -17,7 +17,7 @@ In this expirement, all sub-watersheds were trained *only* using the data from t
 
 ## ProtoTyped Model - UA Data 
 
-![SWE Predictions](docs/model_results/SWE_Predictions_for_huc1711000504.png)
+![SWE Predictions](model_results/SWE_Predictions_for_huc1711000504.png)
 
 
 ## Model Details: ProtoTyped Model - UA Data 

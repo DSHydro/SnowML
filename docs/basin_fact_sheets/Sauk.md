@@ -9,7 +9,7 @@
 - Ephemeral: 3
 
 
-## Skagit Map with Snow Classification 
+## Sauk Map with Snow Classification 
 
 ![Snow Classes Map](../basic_maps/Snow_classes_in_17110006.png)
 

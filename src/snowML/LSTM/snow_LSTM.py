@@ -125,6 +125,7 @@ def store_metrics(metric_names, metrics_list_dict, available_keys, epoch):
         mean_values = df.mean()
         print("Mean Metrics:")
         print(mean_values)
+        print("")
         # Log each mean metric in mlflow
         for metric_name, mean_value in mean_values.items():
             mlflow.log_metric(f"mean_{metric_name}", mean_value, step = epoch)
@@ -187,6 +188,7 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
             mlflow.log_metric(f"{metric_names[i]}_{str(selected_key)}", metrics[i], step=epoch)
             print(f"{metric_names[i]}_{str(selected_key)}: {metrics[i]}")
             metrics_list_dict[metric_names[i]].append(metrics[i])
+        print("")
 
 
         # store plots for final epooch
@@ -207,6 +209,8 @@ def plot(data, y_train_pred, y_test_pred, train_size, huc_id, params):
 
     # plot
     plt.figure(figsize=(12,  6))
+    # Use consistent y axis to enable comparison between hucs
+    plt.ylim(0, 2)
     plt.plot(data.index, data['mean_swe'], c='b', label='Actual')
     plt.plot(data.index, train_plot, c='r', label='Train Predictions')
     plt.plot(

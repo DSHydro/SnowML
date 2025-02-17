@@ -7,6 +7,9 @@ import json
 import boto3
 import ee
 import geopandas as gpd
+import logging
+
+logging.getLogger("aiohttp").setLevel(logging.CRITICAL)
 
 
 def get_geos(huc_id, final_huc_lev, s3_save = False, bucket_nm = "shape-bronze"):

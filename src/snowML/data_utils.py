@@ -18,11 +18,12 @@ import pandas as pd
 import geopandas as gpd
 import requests
 import warnings
+import logging
 from botocore.exceptions import NoCredentialsError, ClientError
 from rasterio.transform import from_bounds
 from affine import Affine
 
-
+logging.getLogger("aiohttp").setLevel(logging.CRITICAL)
 
 # use calc_transform instead of Affine if the data is normally sorted
 # TO DO - fix the future warning issue

@@ -156,6 +156,17 @@ def plot_kge_v_ephemeral(tracking_uri, run_id, huc_id, huc_lev):
     plt.savefig(f"{ttl}.png")
     return df_all
 
+def plot_kge_v_peak(tracking_uri, run_id, huc_id, huc_lev, df_peaks):
+    input_pairs = [[huc_id, huc_lev]]
+    metrics = load_ml_metrics(tracking_uri, run_id)
+    summary9 =  summarize_bystep(metrics, 9, huc_lev)
+    summary9.index = summary9.index.astype(str)
+    df_peaks.index = df_peaks.index.astype(str)
+    df_all = summary9.merge(df_peaks, left_index=True, right_index=True, how="inner")
+    return df_all
+
+
+
 
 
 

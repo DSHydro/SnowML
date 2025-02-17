@@ -3,9 +3,15 @@
 
 import s3fs
 import pandas as pd
+import logging
+import warnings
 from snowML import data_utils as du
 from snowML import set_data_constants as sdc
 from snowML import snow_types as st 
+
+logging.getLogger("aiohttp").setLevel(logging.CRITICAL)
+logging.getLogger("sagemaker").setLevel(logging.CRITICAL)
+warnings.filterwarnings("ignore", category=ResourceWarning)
 
 
 def gather_gold_files(huc_id, var_list = None, bucket_dict = None):
@@ -47,6 +53,7 @@ def huc_gold_wrf(huc_id, bucket_dict, var_list = None):
     fs = s3fs.S3FileSystem()
     dfs = [pd.read_csv(fs.open(file_path)) for file_path in files]
     dfs_clean = [clean_and_filter(df) for df in dfs]
+    
 
     model_df = dfs_clean[0]
     for df in dfs_clean[1:]:

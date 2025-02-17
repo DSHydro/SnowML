@@ -2,46 +2,109 @@
 "Module to create basin and watershed visualizations"
 
 import os
+import fsspec
 import pandas as pd
+import xarray as xr
+import rioxarray
+import zarr
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import matplotlib.patches as mpatches
 import cartopy.crs as ccrs
-import snow_types as st
-import get_geos as gg
-import data_utils as du
-import set_data_constants as sdc
+from snowML import snow_types as st
+from snowML import get_geos as gg
+from snowML import data_utils as du
+from snowML import set_data_constants as sdc
 
-
-def plot_actual(huc, var, bucket_dict = None):
-    if bucket_dict is None:
-        bucket_dict = sdc.create_bucket_dict("prod")
-    bucket_name = bucket_dict.get("model-ready")
-    print(bucket_name)
-    file_name = f"model_ready_huc{huc}.csv"
-    df = du.s3_to_df(file_name, bucket_name)
-    df['day'] = pd.to_datetime(df['day'])
-    df.set_index('day', inplace=True)  # Set 'day' as the index
+def plot_var(df, var, huc, initial_huc):
     plt.figure(figsize=(12,  6))
     plt.plot(df.index, df[var], c='b', label= f"Actual {var}")  
+    
+    # Set y-axis limits for "mean_swe"
+    if var == "mean_swe":
+        plt.ylim(0, 2)
+    
     plt.legend()
     plt.xlabel('Date')
     plt.ylabel(var)
     ttl = f'Actual {var} for huc{huc}'
     plt.title(ttl)
     # save file
-    output_dir = os.path.join("../../docs", "var_plots_actuals")
+
+    # Define the output directory and ensure it exists
+    output_dir = os.path.join("docs", "var_plots_actuals", str(initial_huc))
+    os.makedirs(output_dir, exist_ok=True)
     file_name = f"{ttl}.png"
     file_path = os.path.join(output_dir, file_name)
     plt.savefig(file_path)
-    plt.close(fig)  # Close the figure to free memory
-    print(f"Map saved to {file_path}")
+    plt.close()  # Close the figure to free memory
+    #print(f"Map saved to {file_path}")
+
+
+def get_model_ready (huc, bucket_dict = None):
+    if bucket_dict is None:
+        bucket_dict = sdc.create_bucket_dict("prod")
+    bucket_name = bucket_dict.get("model-ready")
+    file_name = f"model_ready_huc{huc}.csv"
+    df = du.s3_to_df(file_name, bucket_name)
+    df['day'] = pd.to_datetime(df['day'])
+    df.set_index('day', inplace=True)  # Set 'day' as the index
+    return df 
+
+def plot_actual(huc, var, initial_huc, bucket_dict = None):
+    df = get_model_ready(huc, bucket_dict= bucket_dict)
+    plot_var(df, var, huc, initial_huc)
+
+def summarize_swe(df):
+    """
+    Summarizes the mean_swe variable for each water year.
+    A water year starts on October 1 and ends on September 30.
     
+    Parameters:
+        df (pd.DataFrame): DataFrame with index 'day' and column 'mean_swe'.
+        
+    Returns:
+        pd.DataFrame: DataFrame with water year as index and columns 'annual_max_swe' and 'annual_mean_swe'.
+    """
+    # Ensure the index is a datetime index
+    df = df.copy()
+    df.index = pd.to_datetime(df.index)
+    
+    # Resample by water year (Oct 1 - Sep 30)
+    summary = df.resample('YE-SEP').agg(
+        annual_peak_swe=('mean_swe', 'max'),
+        annual_mean_swe=('mean_swe', 'mean')
+    )
+    
+    # Adjust index to represent the water year
+    summary.index = summary.index.year
+    
+    # Calculate and print median values
+    median_peak_swe = summary['annual_peak_swe'].median()
+    median_ann_mean_swe = summary['annual_mean_swe'].median()
+    #print(f"Median of annual max SWE: {median_peak_swe}")
+    #print(f"Median of annual mean SWE: {median_ann_mean_swe}")
 
+    return median_peak_swe, median_ann_mean_swe, summary
 
+def basin_swe_summary(huc_id, final_huc_lev): 
+    geos = gg.get_geos(huc_id, final_huc_lev)
+    hucs = geos["huc_id"]
+    medians = []
+    for huc in hucs: 
+        df = get_model_ready(huc)
+        median_peak_swe, _, _, = summarize_swe(df)
+        medians.append(median_peak_swe)
+    results = pd.DataFrame({'huc_id': hucs, 'Median Peak Swe': medians})
+    results.set_index('huc_id', inplace=True)
+    f_out = f"docs/tables/Peak_annual_swe_huc{huc}.csv"
+    results.to_csv(f_out)
+    return results
+
+    
 def basic_map(geos, final_huc_lev, initial_huc):
     map_object = geos.explore()
-    output_dir = os.path.join("../../docs", "basic_maps")
+    output_dir = os.path.join("docs", "basic_maps")
     file_name = f"Huc{final_huc_lev}_in_{initial_huc}.html"
     file_path = os.path.join(output_dir, file_name)
     map_object.save(file_path)
@@ -129,7 +192,7 @@ def map_snow_types(ds, geos, huc):
     plt.tight_layout()
 
     # Save the plot
-    output_dir = os.path.join("../../docs", "basic_maps")
+    output_dir = os.path.join("docs", "basic_maps")
     file_name = f"Snow_classes_in_{huc}.png"
     file_path = os.path.join(output_dir, file_name)
     plt.savefig(file_path)
@@ -138,7 +201,43 @@ def map_snow_types(ds, geos, huc):
 
 def create_vis_all(initial_huc, final_huc_lev):
     geos = gg.get_geos(initial_huc, final_huc_lev)
-    basic_map(geos, final_huc_lev, initial_huc)
-    ds = st.get_snow_class_data(geos)
-    map_snow_types(ds, geos, initial_huc)
-    return ds
+    basic_map(geos, final_huc_lev, initial_huc) # create and save basic map
+    ds_snow = st.snow_class_data_from_s3(geos) 
+    map_snow_types(ds_snow, geos, initial_huc) # create and save snow class map 
+    for huc in geos["huc_id"].tolist(): # create and save map of actuals
+        plot_actual(huc, "mean_swe", initial_huc, bucket_dict = None)
+    swe_summary = basin_swe_summary(initial_huc, final_huc_lev) # create and save csv of median peak
+    return ds_snow, swe_summary
+
+
+
+
+
+
+
+# def plot_actual_from_bronze(huc, var, bucket_dict = None):
+#     geos = gg.get_geos(huc, str(len(str(huc))).zfill(2))
+#     print(geos.head(2))
+    
+#     if bucket_dict is None:
+#         bucket_dict = sdc.create_bucket_dict("prod")
+#     b_name = bucket_dict.get("bronze")
+#     zarr_store_url = f's3://{b_name}/{var}_all.zarr'
+
+#     # Open the Zarr file directly with storage options
+#     ds = xr.open_zarr(zarr_store_url, consolidated=True, storage_options={'anon': False})
+#     # Process the dataset as needed
+#     if var != "swe":
+#         transform = du.calc_transform(ds)
+#         ds = ds.rio.write_transform(transform, inplace=True)
+#     else:
+#         ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace=True)
+        
+#     ds.rio.write_crs("EPSG:4326", inplace=True)
+#     ds.close()  # Close the dataset after processing
+    
+#     geo = geos.iloc[[0]].geometry
+#     crs = geos.crs
+#     ds_small = ds.rio.clip(geo, crs, drop = True, invert = False)
+    
+#     # TO DO - TAKE MEAN, CONVERT TO DF, and PLOT 

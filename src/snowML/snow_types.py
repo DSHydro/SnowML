@@ -7,11 +7,8 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 import s3fs
-import warnings
 from snowML import get_geos as gg
 from snowML import set_data_constants as sdc
-
-warnings.filterwarnings('ignore', message="Unclosed connector")
 
 
 def get_snow_class_data(geos = None):
@@ -29,6 +26,7 @@ def get_snow_class_data(geos = None):
     ds = ds.rio.write_crs("EPSG:4326")
     geos = geos.to_crs(ds.rio.crs)
     ds_final = ds.rio.clip(geos.geometry, geos.crs, drop=True)
+    ds.close()
     return ds_final
 
 def save_snow_class_data(ds, bucket_dict = None):
@@ -51,6 +49,7 @@ def snow_class_data_from_s3(geos = None, bucket_dict = None):
     zarr_store_url = f's3://{bucket}/snow_class_data.zarr'
     ds_conus = xr.open_zarr(store=zarr_store_url, consolidated=True)
     ds_conus = ds_conus.rio.write_crs("EPSG:4326")
+    ds_conus.close()
     if geos is None: # return the full data for CONUS
         return ds_conus
     # if not None return all data witin the geo

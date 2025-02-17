@@ -6,19 +6,19 @@
 import time
 import xarray as xr
 import rioxarray
-import logging
-import aiohttp
+import fsspec
+import logging 
 import warnings
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from snowML import data_utils as du
 from snowML import set_data_constants as sdc
-import xarray as xr
 
-# Suppress only the specific warning for unclosed connector
-warnings.filterwarnings('ignore', message="Unclosed connector")
 
-# Suppress unclosed connector warnings from aiohttp
-logging.getLogger('aiohttp').setLevel(logging.WARNING)
+logging.getLogger("aiohttp").setLevel(logging.CRITICAL)
+logging.getLogger("sagemaker").setLevel(logging.CRITICAL)
+warnings.filterwarnings("ignore", category=ResourceWarning)
+
+
 
 # define constants
 VAR_DICT = sdc.create_var_dict()
@@ -26,33 +26,26 @@ VAR_DICT = sdc.create_var_dict()
 def prep_bronze(var, bucket_dict = None):
     if bucket_dict is None:
         bucket_dict = sdc.create_bucket_dict("prod")
-
-    b_bronze = bucket_dict.get("bronze")
+    b_bronze = bucket_dict["bronze"] 
     zarr_store_url = f's3://{b_bronze}/{var}_all.zarr'
-    
-    # with xr.open_zarr(store=zarr_store_url, consolidated=True) as ds:
-    #     if var != "swe":
-    #         transform = du.calc_transform(ds)
-    #         ds = ds.rio.write_transform(transform, inplace=True)
-    #     else:
-    #         ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace=True)
-        
-    #     ds.rio.write_crs("EPSG:4326", inplace=True)
-    
 
-    ds = xr.open_zarr(store=zarr_store_url, consolidated=True)
-    ds.close()  # Close the dataset after processing ## SUGGESTED CHANGE
+    # Open the Zarr file directly with storage options
+    ds = xr.open_zarr(zarr_store_url, consolidated=True, storage_options={'anon': False})
+
+    # Process the dataset as needed
     if var != "swe":
         transform = du.calc_transform(ds)
         ds = ds.rio.write_transform(transform, inplace=True)
     else:
-        ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace = True)
+        ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace=True)
+        
     ds.rio.write_crs("EPSG:4326", inplace=True)
 
-    
+    ds.close()  # Close the dataset after processing
     
 
     return ds
+
 
 
 def create_mask(ds, row, crs):
@@ -133,7 +126,7 @@ def process_geos(geos, var, bucket_dict= None, overwrite=False):
         bucket_dict = sdc.create_bucket_dict("prod")
 
     # Use ProcessPoolExecutor to parallelize the tasks
-    with ProcessPoolExecutor(max_workers=8) as executor: # TO DO- Make Max Workers Dynamic
+    with ProcessPoolExecutor(max_workers=4) as executor: # TO DO- Make Max Workers Dynamic
         futures = [
             executor.submit(process_row, row, var, idx, bucket_dict, crs, var_name, overwrite)
             for idx, row in geos.iterrows()

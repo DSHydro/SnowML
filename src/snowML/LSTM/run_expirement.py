@@ -14,7 +14,7 @@ from snowML.LSTM import set_hyperparams as sh
 
 
 #input_pairs = [[17020009, '12'], [17110005, '12'], [17030002, '12']]
-#input_pairs = [[17110005, '12']]
+
 
 libs_to_reload = [snow, pp, sh]
 for lib in libs_to_reload:
@@ -25,9 +25,9 @@ def set_inputs(mode):
     if mode not in {"train", "eval"}:
         raise ValueError(f"Invalid mode: {mode}. Expected 'train' or 'eval'.")
     if mode == "train":
-        input_pairs = [[17020009, '12']]
+        input_pairs = [[17110005, '12']]
     else: # eval mode
-        input_pairs = [[17020009, '12']]
+        input_pairs = [[17110005, '12']]
     return input_pairs
 
 
@@ -161,7 +161,7 @@ def run_expirement(params = None):
                         epoch,
                     )
 
-                    if ((epoch-pre_train_epochs) % 2 == 0) or (epoch == params["n_epochs"]-1):
+                    if ((epoch-pre_train_epochs) % 1 == 0) or (epoch == params["n_epochs"]-1):
                         snow.evaluate(
                             model_dawgs_ft,
                             df_dict_eval,

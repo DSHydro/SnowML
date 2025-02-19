@@ -37,7 +37,7 @@ def load_ml_metrics(tracking_uri, run_id, save_local=False):
     
     # Save to CSV if needed
     if save_local:
-        f_out = f"metrics_from_{run_id}.csv"
+        f_out = f"run_id_data/metrics_from_{run_id}.csv"
         metrics_df.to_csv(f_out, index=False)
 
     return metrics_df
@@ -165,77 +165,3 @@ def plot_kge_v_peak(tracking_uri, run_id, huc_id, huc_lev, df_peaks):
     df_all = summary9.merge(df_peaks, left_index=True, right_index=True, how="inner")
     return df_all
 
-
-
-
-
-
-
-def plot_kge_w_trend(df_merged, x_var, y_var, ttl="Scatter Plot of test_kge vs Ephemeral"):
-    # Define colors based on huc_id prefixes
-    colors = df_merged.index.astype(str).map(lambda x: 'red' if x.startswith('1702') 
-                                             else 'green' if x.startswith('1703') 
-                                             else 'blue' if x.startswith('1711') 
-                                             else 'gray')  # Default color for other values
-
-    # Extract x and y values for regression
-    x = df_merged[x_var].values.reshape(-1, 1)
-    y = df_merged[y_var].values
-
-    # Fit linear regression model
-    model = LinearRegression()
-    model.fit(x, y)
-    y_pred = model.predict(x)
-    r_squared = r2_score(y, y_pred)
-
-    # Create scatter plot
-    plt.figure(figsize=(8, 6))
-    plt.scatter(df_merged[x_var], df_merged[y_var], c=colors, alpha=0.7, edgecolors='k', label="Data Points")
-    
-    # Plot trendline
-    plt.plot(df_merged[x_var], y_pred, color="black", linewidth=2, label=f"Trendline (R² = {r_squared:.3f})")
-    
-    # Labels and title
-    plt.xlabel("Ephemeral")
-    plt.ylabel("test_kge")
-    plt.title(ttl)
-    plt.legend()
-
-    # Print R-squared value
-    print(f"R-squared: {r_squared:.3f}")
-
-    return plt
- 
-def plot_kge_w_trend2(df_merged, x_var, y_var, ttl="Scatter Plot of test_kge vs Ephemeral"):
-    # Define colors based on huc_id prefixes
-    colors = df_merged.index.astype(str).map(lambda x: 'red' if x.startswith('1702') 
-                                             else 'green' if x.startswith('1703') 
-                                             else 'blue' if x.startswith('1711') 
-                                             else 'gray')  # Default color for other values
-
-    # Separate data where Ephemeral == 0 and Ephemeral > 0
-    df_zero = df_merged[df_merged[x_var] == 0]
-    df_nonzero = df_merged[df_merged[x_var] > 0]
-
-    # Compute mean of test_kge for both categories
-    mean_kge_zero = df_zero[y_var].mean()
-    mean_kge_nonzero = df_nonzero[y_var].mean()
-
-    # Create scatter plot
-    plt.figure(figsize=(8, 6))
-    plt.scatter(df_merged[x_var], df_merged[y_var], c=colors, alpha=0.7, edgecolors='k', label="Data Points")
-    
-    # Add horizontal lines for mean values
-    if not df_zero.empty:
-        plt.axhline(mean_kge_zero, color="black", linestyle="dashed", linewidth=2, label=f"Mean (Ephemeral=0) = {mean_kge_zero:.3f}")
-    
-    if not df_nonzero.empty:
-        plt.axhline(mean_kge_nonzero, color="blue", linestyle="dashed", linewidth=2, label=f"Mean (Ephemeral>0) = {mean_kge_nonzero:.3f}")
-
-    # Labels and title
-    plt.xlabel("Ephemeral")
-    plt.ylabel("test_kge")
-    plt.title(ttl)
-    plt.legend()
-
-    return plt

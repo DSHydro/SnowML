@@ -4,6 +4,7 @@
 # Script to run an expiriment
 import os
 import importlib
+import random
 import torch
 from torch import optim
 from torch import nn
@@ -13,25 +14,12 @@ from snowML.LSTM import snow_LSTM as snow
 from snowML.LSTM import set_hyperparams as sh
 
 
-#input_pairs = [[17020009, '12'], [17110005, '12'], [17030002, '12']]
-
-
 libs_to_reload = [snow, pp, sh]
 for lib in libs_to_reload:
     importlib.reload(lib)
 
 
-def set_inputs(mode):
-    if mode not in {"train", "eval"}:
-        raise ValueError(f"Invalid mode: {mode}. Expected 'train' or 'eval'.")
-    if mode == "train":
-        input_pairs = [[17110005, '12']]
-    else: # eval mode
-        input_pairs = [[17110005, '12']]
-    return input_pairs
-
-
-def prep_input_data(params, mode):
+def prep_input_data(params):
     """
     Prepares input data for the experiment.
 
@@ -43,12 +31,23 @@ def prep_input_data(params, mode):
     Returns:
         df_dict: A dictionary where keys are HUCs and values are preprocessed dataframes.
     """
-    if mode not in {"train", "eval"}:
-        raise ValueError(f"Invalid mode: {mode}. Expected 'train' or 'eval'.")
-    input_pairs = set_inputs(mode)
-    hucs = pp.assemble_huc_list(input_pairs)
+    hucs = pp.assemble_huc_list(params["input_pairs"])
     df_dict = pp.pre_process(hucs, params["var_list"])
     return df_dict
+
+def split_df_dict(df_dict, train_size_fraction_hucs):
+    huc_ids = list(df_dict.keys())
+    random.shuffle(huc_ids)  # Shuffle the HUC IDs randomly
+
+    split_idx = int(len(huc_ids) * train_size_fraction_hucs)
+    train_hucs = set(huc_ids[:split_idx])
+
+    df_dict_train = {huc_id: df for huc_id, df in df_dict.items() if huc_id in train_hucs}
+    df_dict_test = {huc_id: df for huc_id, df in df_dict.items() if huc_id not in train_hucs}
+    print(list(df_dict_train.keys())[:5])
+    print(list(df_dict_test.keys())[:5])
+
+    return df_dict_train, df_dict_test
 
 def set_ML_server(params):
     """
@@ -99,19 +98,25 @@ def initialize_model(params):
 def run_expirement(params = None):
     if params is None:
         params = sh.create_hyper_dict()
-    df_dict_train = prep_input_data(params, "train")
-    df_dict_eval = prep_input_data(params, "eval")
+    df_dict = prep_input_data(params)
+    if params["train_size_dimension"] == "huc":
+        df_dict_train, df_dict_eval = split_df_dict(df_dict, params["train_size_fraction"])
+    else:
+        df_dict_train = df_dict
+        df_dict_eval = df_dict
     set_ML_server(params)
     model_dawgs_pretrain, optimizer_dawgs, loss_fn_dawgs = initialize_model(params)
-
 
     with mlflow.start_run():
         # log all the params
         mlflow.log_params(params)
 
         # pre-train
-
-        pre_train_epochs = int(params['n_epochs'] * params['pre_train_fraction'])
+        if params["train_size_dimension"] == "time":
+            pre_train_epochs = int(params['n_epochs'] * params['pre_train_fraction'])
+        else: 
+            pre_train_epochs = params["n_epochs"]
+        
         for epoch in range(pre_train_epochs):
             print(f"Epoch {epoch}: Pre-training on multiple HUCs")
 
@@ -127,7 +132,7 @@ def run_expirement(params = None):
             # evaluate
             snow.evaluate(
                 model_dawgs_pretrain,
-                df_dict_train,
+                df_dict_eval,
                 params,
                 epoch)
 

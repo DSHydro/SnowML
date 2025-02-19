@@ -13,6 +13,7 @@ from snowML import snow_types as st
 #s3://sues-test/34/b1649da4415449c49ad0841fd230d950/artifacts/SWE_Predictions_for_huc1711000504 using Baseline Model.png
 # b1649da4415449c49ad0841fd230d950 (Skagit 10)
 # 215fe6997cc04f4493cce8d003dea9a5 (Skagit 12)
+# 4519b8c40c034ca8afb22519622af631 (Chelan 12)
 # arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML
 
 def load_ml_metrics(tracking_uri, run_id, save_local=False):
@@ -57,6 +58,34 @@ def summarize_bystep(df, step, agg_lev = 12):
     df_selected = df_pivot_sorted[["Test MSE", "Test KGE"]]
     # print(df_selected)
     return df_selected
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+def plot_test_kge_histogram(df, output_file = "histogram.png"):
+    """
+    Plots a histogram of the test_kge values from a pandas DataFrame and saves it as 'histogram.png'.
+    
+    Parameters:
+    df (pd.DataFrame): DataFrame containing the column 'test_kge'.
+    """
+    if 'Test KGE' not in df.columns:
+        raise ValueError("DataFrame must contain a 'Test KGE' column")
+    
+    test_kge_values = df['Test KGE'].dropna()
+    median_kge = np.median(test_kge_values)
+    
+    plt.figure(figsize=(8, 6))
+    plt.hist(df['Test KGE'].dropna(), bins=20, edgecolor='black', alpha=0.7)
+    plt.axvline(median_kge, color='red', linestyle='dashed', linewidth=2, label=f'Median: {median_kge:.2f}')
+    plt.text(median_kge, plt.ylim()[1] * 0.9, f'Median: {median_kge:.2f}', color='red', ha='right', fontsize=12, fontweight='bold')
+    plt.xlabel('Test KGE')
+    plt.ylabel('Frequency')
+    plt.title('Histogram of Test KGE Values')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.savefig(output_file)
+    plt.show()
+
 
 def plot_metric(df, metric_type, output_file="plot.png"):
     """

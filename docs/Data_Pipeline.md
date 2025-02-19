@@ -10,7 +10,7 @@ Sections include
 # Raw Data <br>
 - Data related to Snow Water Equivilent ("SWE") was obtained from teh University of Arizona https://climate.arizona.edu/data/UA_SWE/
 - Data for meteorological variables was obtaind from the University of Idaho https://www.climatologylab.org/gridmet.html.
-- Data related to HUC geometries, i.e. the geojson files for each of the Huc units we modeled were obtained from [FILL IN]
+- Data related to HUC geometries, i.e. the geojson files for each of the Huc units we modeled were obtained from the [USGS Water Data Boundary Data Set] (https://www.usgs.gov/national-hydrography/watershed-boundary-dataset) 2017, accessed via Google Earth Engine.  
 - Snow type classification data was obtained from Liston, G. E., and M. Sturm, 2021: Global Seasonal-Snow Classification, Version 1. National Snow and Ice Data Center, https://doi.org/10.5067/99FTCYYYLAQ0.
 
 

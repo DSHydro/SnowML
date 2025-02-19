@@ -5,10 +5,9 @@
 **Huc No:**           17110009 <br> 
 **Predominant Snow:** Maritime <br>
 **Huc 12 Sub Units By Predominant Snow Classification:**
-- Maritime: TBD
-- Montane Forest: TBD
-- Ephemeral: TBD
-- Other: TBD 
+- Maritime: 15
+- Ephemeral: 6
+
 
 
 ## Skykomish Map with Snow Classification 

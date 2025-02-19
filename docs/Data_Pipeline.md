@@ -8,9 +8,9 @@ Sections include
   If you are most interested in understanding the final data used in the model, jump straight to [Model Ready Data](#model-ready-data)!
 
 # Raw Data <br>
-- Data related to Snow Water Equivilent ("SWE") was obtained from teh University of Arizona https://climate.arizona.edu/data/UA_SWE/
+- Data related to Snow Water Equivilent ("SWE") was obtained from the University of Arizona https://climate.arizona.edu/data/UA_SWE/
 - Data for meteorological variables was obtaind from the University of Idaho https://www.climatologylab.org/gridmet.html.
-- Data related to HUC geometries, i.e. the geojson files for each of the Huc units we modeled were obtained from the [USGS Water Data Boundary Data Set] (https://www.usgs.gov/national-hydrography/watershed-boundary-dataset) 2017, accessed via Google Earth Engine.  
+- Data related to HUC geometries, i.e. the geojson files for each of the Huc units we modeled were obtained from the [USGS Water Data Boundary Data Set](https://www.usgs.gov/national-hydrography/watershed-boundary-dataset) 2017, accessed via Google Earth Engine.  See [here](https://developers.google.com/earth-engine/datasets/catalog/USGS_WBD_2017_HUC12)
 - Snow type classification data was obtained from Liston, G. E., and M. Sturm, 2021: Global Seasonal-Snow Classification, Version 1. National Snow and Ice Data Center, https://doi.org/10.5067/99FTCYYYLAQ0.
 
 

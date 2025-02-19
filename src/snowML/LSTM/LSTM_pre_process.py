@@ -5,7 +5,9 @@ import pandas as pd
 import numpy as np
 import torch
 from snowML import data_utils as du
+from snowML import get_geos as gg
 from snowML import set_data_constants as sdc
+from snowML import snow_types as st
 
 # Excluded Hucs Due to Missing SWE Data (Canada)
 EXCLUDED_HUCS = ["1711000501", "1711000502", "1711000503", "171100050101", "171100050102", \
@@ -40,11 +42,20 @@ def assemble_huc_list(input_pairs, bucket_dict = None):
         bucket_dict = sdc.create_bucket_dict("prod")
     bucket_name = bucket_dict["shape-bronze"]
     for pair in input_pairs:
-        f_name = f"Huc{pair[1]}_in_{pair[0]}.geojson"
-        geos = du.s3_to_gdf(bucket_name, f_name)
+        #f_name = f"Huc{pair[1]}_in_{pair[0]}.geojson"
+        #geos = du.s3_to_gdf(bucket_name, f_name)
+        geos = gg.get_geos(pair[0], pair[1])
+        #geos_filtered = snow_class_filter(geos)
         hucs.extend(geos["huc_id"].to_list())
     return hucs
 
+# function that filters geos to exlcude hucs where predominant snowtype is ephemeral
+def snowclass_filter(geos): 
+    df_snow_types = st.snow_class(geos)
+    # Filter huc_ids where Ephemeral < 50
+    valid_huc_ids = df_snow_types.loc[df_snow_types["Ephemeral"] < 50, "huc_id"]
+    geos_filtered = geos[geos["huc_id"].isin(valid_huc_ids)]
+    return geos_filtered
 
 def z_score_normalize(df):
     """

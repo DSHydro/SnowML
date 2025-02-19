@@ -13,7 +13,7 @@ from snowML import snow_types as st
 #s3://sues-test/34/b1649da4415449c49ad0841fd230d950/artifacts/SWE_Predictions_for_huc1711000504 using Baseline Model.png
 # b1649da4415449c49ad0841fd230d950 (Skagit 10)
 # 215fe6997cc04f4493cce8d003dea9a5 (Skagit 12)
-# 4519b8c40c034ca8afb22519622af631 (Chelan 12)
+# b8c0693ac05e4d26b1011202ba551cfd (Chelan 12 )
 # b1643a1474a247668feb4065db3975f1 (Skagit 12 w inc. batch size)
 # arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML
 
@@ -195,3 +195,7 @@ def plot_kge_v_peak(tracking_uri, run_id, huc_id, huc_lev, df_peaks):
     df_all = summary9.merge(df_peaks, left_index=True, right_index=True, how="inner")
     return df_all
 
+def hist_from_run(run_id, f_out, tracking_id = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"):
+    metrics = load_ml_metrics(tracking_id, run_id, save_local=True)
+    metrics_last = summarize_bystep(metrics, 9, agg_lev = 12) # TO DO - Make final step dynamic
+    plot_test_kge_histogram(metrics_last, output_file = f_out)

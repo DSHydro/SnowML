@@ -14,6 +14,7 @@ from snowML import snow_types as st
 # b1649da4415449c49ad0841fd230d950 (Skagit 10)
 # 215fe6997cc04f4493cce8d003dea9a5 (Skagit 12)
 # 4519b8c40c034ca8afb22519622af631 (Chelan 12)
+# b1643a1474a247668feb4065db3975f1 (Skagit 12 w inc. batch size)
 # arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML
 
 def load_ml_metrics(tracking_uri, run_id, save_local=False):

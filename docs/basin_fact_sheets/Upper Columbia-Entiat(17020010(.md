@@ -21,3 +21,7 @@ Snow Classification Data Reference:
 
 ## Upper Columbia-Entiat Elevation Map 
 ![Elevation Map](../basic_maps/dem_huc17020010.png)
+
+Elevation Data Reference 
+- Copernicus Global Digital Elevation Models, at 90 m scale (COP90)
+- European Space Agency (2024).  <i>Copernicus Global Digital Elevation Model</i>.  Distributed by OpenTopography.

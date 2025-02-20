@@ -3,7 +3,7 @@
 
 **Name:**             Upper Columbia-Entiat <br>
 **Huc No:**           17020010 <br> 
-**Predominant Snow:** Maritime <br>
+**Predominant Snow:** Ephemeral <br>
 **Huc 12 Sub Units By Predominant Snow Classification:**
 - Maritime: 3
 - Montane Forest: 10

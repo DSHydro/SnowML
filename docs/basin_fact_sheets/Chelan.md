@@ -11,16 +11,6 @@
 - Other: 1 
 
 
-## Chelan Maps  
-
-| Snow Classification Map | Elevation Map |
-|------------------------|--------------|
-| ![Snow Classes Map](../basic_maps/Snow_classes_in_17020009.png) | ![Elevation Map](../basic_maps/dem_huc17020009.png) |
-
-
-
-
-
 ## Chelan Map with Snow Classification 
 
 ![Snow Classes Map](../basic_maps/Snow_classes_in_17020009.png)

@@ -14,13 +14,12 @@ from snowML import get_geos as gg
 
 importlib.reload(btg)
 
-logging.getLogger("aiohttp").setLevel(logging.CRITICAL)
-logging.getLogger("sagemaker").setLevel(logging.CRITICAL)
-warnings.filterwarnings("ignore", category=ResourceWarning)
-
-
-
-def process_multi_huc (huc_id_start, final_huc_lev, bucket_dict = None, var_list = None, overwrite_gold = False):
+def process_multi_huc (huc_id_start, 
+                       final_huc_lev, 
+                       bucket_dict = None, 
+                       var_list = None, 
+                       overwrite_gold = False,
+                       overwrite_mod = False):
     # verify inputs
     huc_lev_permitted = ['10', '12']  
     assert final_huc_lev in huc_lev_permitted, f"Type must be one of {huc_lev_permitted}"
@@ -54,7 +53,7 @@ def process_multi_huc (huc_id_start, final_huc_lev, bucket_dict = None, var_list
 
         #create model ready data
         try: 
-            model_df = gtm.huc_gold(huc_id) 
+            model_df = gtm.huc_gold(huc_id, overwrite_mod= overwrite_mod) 
         except Exception as e:
             print(f"Error processing huc{huc_id}: {e}, omitting from dataset")
     

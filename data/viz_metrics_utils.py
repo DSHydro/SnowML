@@ -1,7 +1,9 @@
 # Helper functions to download and manipulate metrics/artifacts stored on mlflow 
 
+import os
 import boto3
 import mlflow
+from PIL import Image
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,12 +11,12 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 from snowML import snow_types as st
 
-
 #s3://sues-test/34/b1649da4415449c49ad0841fd230d950/artifacts/SWE_Predictions_for_huc1711000504 using Baseline Model.png
 # b1649da4415449c49ad0841fd230d950 (Skagit 10)
 # 215fe6997cc04f4493cce8d003dea9a5 (Skagit 12)
-# b8c0693ac05e4d26b1011202ba551cfd (Chelan 12 )
-# b1643a1474a247668feb4065db3975f1 (Skagit 12 w inc. batch size)
+# b8c0693ac05e4d26b1011202ba551cfd (Chelan 12 - 64 )
+# b1643a1474a247668feb4065db3975f1 (Skagit 10 - 64) *Best?
+# c56b34c34f3d4988a9d5781fc7a78790 (Skagit 10 - 128)
 # arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML
 
 def load_ml_metrics(tracking_uri, run_id, save_local=False):
@@ -44,7 +46,7 @@ def load_ml_metrics(tracking_uri, run_id, save_local=False):
 
     return metrics_df
 
-def summarize_bystep(df, step, agg_lev = 12):
+def summarize_by_step(df, step, agg_lev = 12):
     df_filtered = df[df["Step"] == step].copy()
     df_filtered["Metric_Type"] = df_filtered["Metric"].str.extract(r"(test_mse|test_kge|train_mse|train_kge)")
     df_filtered["HUC_ID"] = df_filtered["Metric"].str.extract(fr"(\d{{{agg_lev}}})")  
@@ -85,7 +87,7 @@ def plot_test_kge_histogram(df, output_file = "histogram.png"):
     plt.title('Histogram of Test KGE Values')
     plt.grid(axis='y', linestyle='--', alpha=0.7)
     plt.savefig(output_file)
-    plt.show()
+    return plt
 
 
 def plot_metric(df, metric_type, output_file="plot.png"):
@@ -195,7 +197,49 @@ def plot_kge_v_peak(tracking_uri, run_id, huc_id, huc_lev, df_peaks):
     df_all = summary9.merge(df_peaks, left_index=True, right_index=True, how="inner")
     return df_all
 
-def hist_from_run(run_id, f_out, tracking_id = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"):
+def hist_from_run(run_id, last_step, tracking_id = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"):
     metrics = load_ml_metrics(tracking_id, run_id, save_local=True)
-    metrics_last = summarize_bystep(metrics, 9, agg_lev = 12) # TO DO - Make final step dynamic
+    metrics_last = summarize_by_step(metrics, last_step, agg_lev = 10) # TO DO REVERT 12
+    f_out = f"kge_hist{run_id}_last_hist.png"
     plot_test_kge_histogram(metrics_last, output_file = f_out)
+
+
+def stepwise_hists(run_id, epochs, tracking_id="arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"):
+    metrics = load_ml_metrics(tracking_id, run_id, save_local=True)
+    temp_files = []
+    
+    for epoch in range(epochs): 
+        metrics_epoch = summarize_by_step(metrics, epoch, agg_lev=10)  # TO DO REVERT 12
+        temp_file = f"hist_epoch_{epoch}.png"
+        plot_test_kge_histogram(metrics_epoch, output_file=temp_file)
+        temp_files.append((epoch, temp_file))
+    
+    # Determine grid size
+    num_histograms = len(temp_files)
+    cols = 3  # Three per row
+    rows = (num_histograms + cols - 1) // cols  # Calculate needed rows
+
+    fig, axes = plt.subplots(rows, cols, figsize=(cols * 6, rows * 5))  # Adjust figure size
+    axes = np.array(axes).reshape(rows, cols)  # Ensure axes is always 2D
+
+    for ax in axes.flat:
+        ax.axis("off")  # Hide all axes initially
+
+    for (epoch, temp_file), ax in zip(temp_files, axes.flat):
+        img = plt.imread(temp_file)  # Load the image
+        ax.imshow(img)
+        ax.set_title(f"Epoch Number {epoch}", fontsize=14, fontweight="bold")
+        ax.axis("off")  # Hide axis labels
+
+    plt.tight_layout()
+    f_out = f"kge_hist/{run_id}_all_hists.png"
+    plt.savefig(f_out, dpi=300)
+    plt.close()
+
+    # Cleanup temporary files
+    for _, f in temp_files:
+        os.remove(f)
+
+    print(f"Saved combined histogram image as {f_out}")
+
+        

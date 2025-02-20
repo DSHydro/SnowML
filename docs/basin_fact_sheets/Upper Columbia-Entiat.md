@@ -5,10 +5,10 @@
 **Huc No:**           17020010 <br> 
 **Predominant Snow:** Maritime <br>
 **Huc 12 Sub Units By Predominant Snow Classification:**
-- Maritime: [TBD]
-- Montane Forest: [TBD]
-- Ephemeral: [TBD]
-- Other: [TBD] 
+- Maritime: 3
+- Montane Forest: 10
+- Ephemeral: 24
+- Other: 4 (Prairie) 
 
 
 ## Upper Columbia-Entiat with Snow Classification 

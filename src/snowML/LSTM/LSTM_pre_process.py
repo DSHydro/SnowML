@@ -72,12 +72,11 @@ def z_score_normalize(df):
     - "mean_tair"
     - "mean_vs"
     - "mean_srad"
-    - "mean_rmax"
-    - "mean_rmin"
+    - "mean_hum
     """
     normalized_df = df.copy()
 
-    for column in ["mean_pr", "mean_tair", "mean_vs", "mean_srad", "mean_rmax", "mean_rmin"]:
+    for column in ["mean_pr", "mean_tair", "mean_vs", "mean_srad", "mean_hum"]:
         column_mean = df[column].mean()
         column_std = df[column].std()
         normalized_df[column] = (df[column] - column_mean) / column_std

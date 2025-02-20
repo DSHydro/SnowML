@@ -122,22 +122,28 @@ def store_metrics(metric_names, metrics_list_dict, available_keys, epoch):
         metric_names[3]: metrics_list_dict[metric_names[3]]
         }, index=available_keys)
 
-    # Compute the mean for each metric
+    # Compute the mean and median for each metric
     if df.shape[0] > 1:
         mean_values = df.mean()
+        median_values = df.median()
+
         print("Mean Metrics:")
         print(mean_values)
         print("")
-        # Log each mean metric in mlflow
+
+        print("Median Metrics:")
+        print(median_values)
+        print("")
+
+        # Log each mean and median metric in mlflow
         for metric_name, mean_value in mean_values.items():
-            mlflow.log_metric(f"mean_{metric_name}", mean_value, step = epoch)
+            mlflow.log_metric(f"mean_{metric_name}", mean_value, step=epoch)
+
+        for metric_name, median_value in median_values.items():
+            mlflow.log_metric(f"median_{metric_name}", median_value, step=epoch)
+
         df.loc['Total'] = mean_values
 
-    # Log the dataframe in mlflow
-    csv_path = f"results_epoch{epoch}.csv"
-    df.to_csv(csv_path, index=True)
-    mlflow.log_artifact(csv_path)
-    os.remove(csv_path)
 
 
 def predict (model_dawgs, df_dict, selected_key, params):

@@ -204,10 +204,10 @@ def create_vis_all(initial_huc, final_huc_lev):
     basic_map(geos, final_huc_lev, initial_huc) # create and save basic map
     ds_snow = st.snow_class_data_from_s3(geos) 
     map_snow_types(ds_snow, geos, initial_huc) # create and save snow class map 
-    for huc in geos["huc_id"].tolist(): # create and save map of actuals
-        plot_actual(huc, "mean_swe", initial_huc, bucket_dict = None)
-    swe_summary = basin_swe_summary(initial_huc, final_huc_lev) # create and save csv of median peak
-    return ds_snow, swe_summary
+    # for huc in geos["huc_id"].tolist(): # create and save map of actuals
+        # plot_actual(huc, "mean_swe", initial_huc, bucket_dict = None)
+    # swe_summary = basin_swe_summary(initial_huc, final_huc_lev) # create and save csv of median peak
+    return ds_snow
 
 
 

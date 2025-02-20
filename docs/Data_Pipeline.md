@@ -12,6 +12,8 @@ Sections include
 - Data for meteorological variables was obtaind from the University of Idaho https://www.climatologylab.org/gridmet.html.
 - Data related to HUC geometries, i.e. the geojson files for each of the Huc units we modeled were obtained from the [USGS Water Data Boundary Data Set](https://www.usgs.gov/national-hydrography/watershed-boundary-dataset) 2017, accessed via Google Earth Engine.  See [here](https://developers.google.com/earth-engine/datasets/catalog/USGS_WBD_2017_HUC12)
 - Snow type classification data was obtained from Liston, G. E., and M. Sturm, 2021: Global Seasonal-Snow Classification, Version 1. National Snow and Ice Data Center, https://doi.org/10.5067/99FTCYYYLAQ0.
+- Elevation data was obtained from the Copernicus DEM, a Digital Surface Model (DSM) derived from the WorldDEM, with additional
+    editing applied to water bodies, coastlines, and other special features. European Space Agency (2024).  <i>Copernicus Global Digital Elevation Model</i>.  Distributed by OpenTopography.  The data was accessed using the easysnowdata open source python module.  
 
 
 # Data Pipeline - Repo Steps <br>

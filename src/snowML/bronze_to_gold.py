@@ -4,21 +4,10 @@
 # pylint: disable=C0103
 
 import time
-import xarray as xr
-import rioxarray
-import fsspec
-import logging 
-import warnings
 from concurrent.futures import ProcessPoolExecutor, as_completed
+import xarray as xr
 from snowML import data_utils as du
 from snowML import set_data_constants as sdc
-
-
-logging.getLogger("aiohttp").setLevel(logging.CRITICAL)
-logging.getLogger("sagemaker").setLevel(logging.CRITICAL)
-warnings.filterwarnings("ignore", category=ResourceWarning)
-
-
 
 # define constants
 VAR_DICT = sdc.create_var_dict()
@@ -26,7 +15,7 @@ VAR_DICT = sdc.create_var_dict()
 def prep_bronze(var, bucket_dict = None):
     if bucket_dict is None:
         bucket_dict = sdc.create_bucket_dict("prod")
-    b_bronze = bucket_dict["bronze"] 
+    b_bronze = bucket_dict["bronze"]
     zarr_store_url = f's3://{b_bronze}/{var}_all.zarr'
 
     # Open the Zarr file directly with storage options
@@ -38,11 +27,9 @@ def prep_bronze(var, bucket_dict = None):
         ds = ds.rio.write_transform(transform, inplace=True)
     else:
         ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace=True)
-        
-    ds.rio.write_crs("EPSG:4326", inplace=True)
 
+    ds.rio.write_crs("EPSG:4326", inplace=True)
     ds.close()  # Close the dataset after processing
-    
 
     return ds
 
@@ -94,7 +81,7 @@ def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite):
     # process to silver
     small_ds = prep_bronze(var, bucket_dict=bucket_dict)
     df_silver = create_mask(small_ds, row, crs)
-    #print(f"Processing huc {idx+1}, huc_id: {huc_id} to silver completed")
+    print(f"Processing huc {idx+1}, huc_id: {huc_id} to silver completed")
 
     # process to gold
     f_gold = f"mean_{var}_in_{huc_id}"
@@ -134,5 +121,3 @@ def process_geos(geos, var, bucket_dict= None, overwrite=False):
 
         for future in as_completed(futures):
             future.result()  # Wait for the task to complete
-
-    

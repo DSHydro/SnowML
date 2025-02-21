@@ -62,12 +62,13 @@ def z_score_normalize(df, global_means, global_stds):
     pandas.DataFrame: A new DataFrame with the specified columns normalized using global z-score normalization.
     """
     normalized_df = df.copy()
+    df_cols = df.columns
 
     columns_to_normalize = ["mean_pr", "mean_tair", "mean_vs", "mean_srad", "mean_hum", "Mean Elevation"]
 
     for column in columns_to_normalize:
-        # Use global mean and std for normalization
-        normalized_df[column] = (df[column] - global_means[column]) / global_stds[column]
+        if column in df_cols: 
+            normalized_df[column] = (df[column] - global_means[column]) / global_stds[column]
 
     return normalized_df
 
@@ -89,14 +90,19 @@ def pre_process(huc_list, var_list, bucket_dict=None):
             df.set_index('day', inplace=True)  # Set 'day' as the index
             # Collect only the columns of interest
             col_to_keep = var_list + ["mean_swe"]
+            
+            for col in col_to_keep:
+                if col not in df.columns:
+                    print(f"huf{huc} is missing col {col}")
+
             df = df[col_to_keep]
             all_dfs.append(df)  # Collect DataFrames for global normalization
             df_dict[huc] = df  # Store DataFrame in dictionary
 
     # Step 2: Calculate global mean and std for each column of interest across all HUCs
     combined_df = pd.concat(all_dfs)
-    global_means = combined_df[["mean_pr", "mean_tair", "mean_vs", "mean_srad", "mean_hum", "Mean Elevation"]].mean()
-    global_stds = combined_df[["mean_pr", "mean_tair", "mean_vs", "mean_srad", "mean_hum", "Mean Elevation"]].std()
+    global_means = combined_df.mean()
+    global_stds = combined_df.std()
 
     # Step 3: Normalize each DataFrame using the global mean and std
     for huc, df in df_dict.items():

@@ -21,3 +21,7 @@ Snow Classification Data Reference:
 
 ## Chelan Elevation Map 
 ![Elevation Map](../basic_maps/dem_huc17020009.png)
+
+Elevation Data Reference 
+- Copernicus Global Digital Elevation Models, at 90 m scale (COP90)
+- European Space Agency (2024).  <i>Copernicus Global Digital Elevation Model</i>.  Distributed by OpenTopography. 

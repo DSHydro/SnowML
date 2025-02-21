@@ -18,88 +18,92 @@ EXCLUDED_HUCS = ["1711000501", "1711000502", "1711000503", "171100050101", "1711
 
 
 
-def assemble_huc_list(input_pairs, bucket_dict = None):
+def assemble_huc_list(input_pairs):
     """
     Assembles a list of HUC (Hydrologic Unit Code) IDs from a list of input pairs.
 
     Args:
         input_pairs (list of tuples): A list of tuples where each tuple contains two elements:
             - The first element is a string representing the huc code for the region of interest.
-            - The second element is a string or integer representing the lowest huc subunit to study.
+            - The second element is a string or intrepresenting the lowest huc subunit to study.
 
     Returns:
-        list: A list of HUC IDs extracted from the geojson files corresponding to the input pairs.
-
-    Note:
-        The function assumes that the geojson files are stored in an S3 bucket named "shape-bronze".
+        list: HUC IDs extracted from the geojson files corresponding to the input pairs.
 
     Example:
         input_pairs = [("RegionA", "10"), ("RegionB", "12")]
         huc_list = assemble_huc_list(input_pairs)
     """
     hucs = []
-    if bucket_dict is None:
-        bucket_dict = sdc.create_bucket_dict("prod")
-    bucket_name = bucket_dict["shape-bronze"]
     for pair in input_pairs:
-        #f_name = f"Huc{pair[1]}_in_{pair[0]}.geojson"
-        #geos = du.s3_to_gdf(bucket_name, f_name)
         geos = gg.get_geos(pair[0], pair[1])
         #geos_filtered = snow_class_filter(geos)
         hucs.extend(geos["huc_id"].to_list())
     return hucs
 
 # function that filters geos to exlcude hucs where predominant snowtype is ephemeral
-def snowclass_filter(geos): 
+def snowclass_filter(geos):
     df_snow_types = st.snow_class(geos)
     # Filter huc_ids where Ephemeral < 50
     valid_huc_ids = df_snow_types.loc[df_snow_types["Ephemeral"] < 50, "huc_id"]
     geos_filtered = geos[geos["huc_id"].isin(valid_huc_ids)]
     return geos_filtered
 
-def z_score_normalize(df):
+def z_score_normalize(df, global_means, global_stds):
     """
-    Normalize the specified columns of a DataFrame using z-score normalization.
+    Normalize the specified columns of a DataFrame using global z-score normalization.
 
     Parameters:
     df (pandas.DataFrame): The input DataFrame containing the data to be normalized.
+    global_means (pandas.Series): The global means for each column to be normalized.
+    global_stds (pandas.Series): The global standard deviations for each column to be normalized.
 
     Returns:
-    pandas.DataFrame: A new DataFrame with the specified columns normalized using z-score normalization.
-
-    The columns that will be normalized are:
-    - "mean_pr"
-    - "mean_tair"
-    - "mean_vs"
-    - "mean_srad"
-    - "mean_hum
+    pandas.DataFrame: A new DataFrame with the specified columns normalized using global z-score normalization.
     """
     normalized_df = df.copy()
 
-    for column in ["mean_pr", "mean_tair", "mean_vs", "mean_srad", "mean_hum"]:
-        column_mean = df[column].mean()
-        column_std = df[column].std()
-        normalized_df[column] = (df[column] - column_mean) / column_std
+    columns_to_normalize = ["mean_pr", "mean_tair", "mean_vs", "mean_srad", "mean_hum", "Mean Elevation"]
+
+    for column in columns_to_normalize:
+        # Use global mean and std for normalization
+        normalized_df[column] = (df[column] - global_means[column]) / global_stds[column]
 
     return normalized_df
 
-def pre_process (huc_list, var_list, bucket_dict = None):
+def pre_process(huc_list, var_list, bucket_dict=None):
     df_dict = {}  # Initialize dictionary
-    if bucket_dict is None: 
+    if bucket_dict is None:
         bucket_dict = sdc.create_bucket_dict("prod")
     bucket_name = bucket_dict["model-ready"]
+
+    # Initialize an empty list to collect all DataFrames for global statistics calculation
+    all_dfs = []
+
+    # Step 1: Load all dataframes and collect them for global mean and std computation
     for huc in huc_list:
         if huc not in EXCLUDED_HUCS:
             file_name = f"model_ready_huc{huc}.csv"
             df = du.s3_to_df(file_name, bucket_name)
             df['day'] = pd.to_datetime(df['day'])
             df.set_index('day', inplace=True)  # Set 'day' as the index
-            #print(df.columns)
+            # Collect only the columns of interest
             col_to_keep = var_list + ["mean_swe"]
-            df = z_score_normalize(df)
             df = df[col_to_keep]
+            all_dfs.append(df)  # Collect DataFrames for global normalization
             df_dict[huc] = df  # Store DataFrame in dictionary
-    print(f"number of sub units for pre training is {len(df_dict)}")
+
+    # Step 2: Calculate global mean and std for each column of interest across all HUCs
+    combined_df = pd.concat(all_dfs)
+    global_means = combined_df[["mean_pr", "mean_tair", "mean_vs", "mean_srad", "mean_hum", "Mean Elevation"]].mean()
+    global_stds = combined_df[["mean_pr", "mean_tair", "mean_vs", "mean_srad", "mean_hum", "Mean Elevation"]].std()
+
+    # Step 3: Normalize each DataFrame using the global mean and std
+    for huc, df in df_dict.items():
+        df = z_score_normalize(df, global_means, global_stds)  # Pass global mean and std for normalization
+        df_dict[huc] = df  # Store normalized DataFrame
+
+    print(f"number of sub units for pre-training is {len(df_dict)}")
     return df_dict
 
 def train_test_split(data, train_size_fraction):

@@ -107,12 +107,34 @@ def fine_tune(model, optimizer, loss_fn, df_dict, target_key, params, epoch):
 
 
 def kling_gupta_efficiency(y_true, y_pred):
-    r = np.corrcoef(y_true.ravel(), y_pred.ravel())[0, 1] # Correlation coefficient
-    alpha = np.std(y_pred) / np.std(y_true)  # Variability ratio
-    beta = np.mean(y_pred) / np.mean(y_true)  # Bias ratio
+    # Check for NaNs
+    if np.isnan(y_true).any() or np.isnan(y_pred).any():
+        print("Error: NaN values detected in y_true or y_pred")
+        return np.nan, np.nan, np.nan, np.nan
+
+    # Check for zero variance
+    if np.std(y_true) == 0 or np.std(y_pred) == 0:
+        print("Error: Zero variance detected in y_true or y_pred")
+        return np.nan, np.nan, np.nan, np.nan
+
+    # Compute correlation
+    r = np.corrcoef(y_true.ravel(), y_pred.ravel())[0, 1]
+
+    # Compute KGE components
+    alpha = np.std(y_pred) / np.std(y_true)  
+    beta = np.mean(y_pred) / np.mean(y_true)  
     kg = 1 - np.sqrt((r - 1)**2 + (alpha - 1)**2 + (beta - 1)**2)
-    #print(f"r: {r}, alpha: {alpha}, beta: {beta}")
+
+    print(f"r: {r}, alpha: {alpha}, beta: {beta}")
     return kg, r, alpha, beta
+
+# def kling_gupta_efficiency(y_true, y_pred):
+#     r = np.corrcoef(y_true.ravel(), y_pred.ravel())[0, 1] # Correlation coefficient
+#     alpha = np.std(y_pred) / np.std(y_true)  # Variability ratio
+#     beta = np.mean(y_pred) / np.mean(y_true)  # Bias ratio
+#     kg = 1 - np.sqrt((r - 1)**2 + (alpha - 1)**2 + (beta - 1)**2)
+#     print(f"r: {r}, alpha: {alpha}, beta: {beta}")
+#     return kg, r, alpha, beta
 
 def store_metrics(metric_names, metrics_list_dict, available_keys, epoch):
     df = pd.DataFrame({
@@ -179,6 +201,8 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
     if selected_keys is None:
         available_keys = list(df_dict.keys())
         random.shuffle(available_keys)
+        
+
     else:
         available_keys = selected_keys
     metric_names = ["train_mse", "test_mse", "train_kge", "test_kge"]
@@ -186,9 +210,7 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
 
     # Loop through each HUC
     for selected_key in available_keys:
-
         data, y_train_pred, y_test_pred, y_train_true, y_test_true, train_size_main = predict(model_dawgs, df_dict, selected_key, params)
-
         # Compute MSE
         if params["train_size_dimension"] == "time":
             train_mse = mean_squared_error(y_train_true, y_train_pred)

@@ -162,4 +162,4 @@ def process_all(huc_id, huc_lev, save = False):
     df_predominant, snow_class_counts = classify_hucs(df_snow_types)
     if save:
         save_snow_types(df_predominant, huc_id)
-    return df_snow_types, snow_class_counts
+    return df_snow_types, snow_class_counts, df_predominant

@@ -91,7 +91,7 @@ def huc_gold(huc_id, var_list = None, bucket_dict = None, overwrite_mod = False)
     model_df['Mean Elevation'] = mean_elevation
 
     # add snow_types for huc
-    snow_types, _ = st.process_all(huc_id, huc_lev)
+    snow_types, _, _ = st.process_all(huc_id, huc_lev)
     snow_types = snow_types.loc[[0]].copy()
     # Broadcasting the values from snow_types to model_df
     snow_types_broadcasted = pd.DataFrame([snow_types.iloc[0]] * len(snow_types), columns=snow_types.columns, index=model_df.index)

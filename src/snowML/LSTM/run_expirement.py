@@ -31,7 +31,7 @@ def prep_input_data(params):
     Returns:
         df_dict: A dictionary where keys are HUCs and values are preprocessed dataframes.
     """
-    hucs = pp.assemble_huc_list(params["input_pairs"])
+    hucs = pp.assemble_huc_list(params)
     df_dict = pp.pre_process(hucs, params["var_list"])
     return df_dict
 
@@ -114,9 +114,9 @@ def run_expirement(params = None):
         # pre-train
         if params["train_size_dimension"] == "time":
             pre_train_epochs = int(params['n_epochs'] * params['pre_train_fraction'])
-        else: 
+        else:
             pre_train_epochs = params["n_epochs"]
-        
+
         for epoch in range(pre_train_epochs):
             print(f"Epoch {epoch}: Pre-training on multiple HUCs")
 

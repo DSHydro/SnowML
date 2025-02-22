@@ -17,6 +17,8 @@ from snowML import snow_types as st
 # b8c0693ac05e4d26b1011202ba551cfd (Chelan 12 - 64 )
 # b1643a1474a247668feb4065db3975f1 (Skagit 10 - 64) *Best?
 # c56b34c34f3d4988a9d5781fc7a78790 (Skagit 10 - 128)
+# 7848ddbeadb84d358dfc7450df3ae9ab (Skagit 12 - 128, 5 epochs)
+# d2f3f6f705014660917cfae0c0716236" (Skagit 12 - 64.  Use this one!)
 # arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML
 
 def load_ml_metrics(tracking_uri, run_id, save_local=False):
@@ -199,7 +201,7 @@ def plot_kge_v_peak(tracking_uri, run_id, huc_id, huc_lev, df_peaks):
 
 def hist_from_run(run_id, last_step, tracking_id = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"):
     metrics = load_ml_metrics(tracking_id, run_id, save_local=True)
-    metrics_last = summarize_by_step(metrics, last_step, agg_lev = 10) # TO DO REVERT 12
+    metrics_last = summarize_by_step(metrics, last_step, agg_lev = 12) # TO DO REVERT 12
     f_out = f"kge_hist{run_id}_last_hist.png"
     plot_test_kge_histogram(metrics_last, output_file = f_out)
 
@@ -209,7 +211,7 @@ def stepwise_hists(run_id, epochs, tracking_id="arn:aws:sagemaker:us-west-2:6772
     temp_files = []
     
     for epoch in range(epochs): 
-        metrics_epoch = summarize_by_step(metrics, epoch, agg_lev=10)  # TO DO REVERT 12
+        metrics_epoch = summarize_by_step(metrics, epoch, agg_lev=12)  # TO DO REVERT 12
         temp_file = f"hist_epoch_{epoch}.png"
         plot_test_kge_histogram(metrics_epoch, output_file=temp_file)
         temp_files.append((epoch, temp_file))

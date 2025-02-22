@@ -40,6 +40,7 @@ def assemble_huc_list(params):
         geos = gg.get_geos(pair[0], pair[1])
         if params["exclude_ephem"] is True:
             geos = snowclass_filter(geos)
+            print(f"filtered shape for {pair[0]} is {geos.shape}")
         hucs.extend(geos["huc_id"].to_list())
     return hucs
 

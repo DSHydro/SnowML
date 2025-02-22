@@ -18,7 +18,7 @@ EXCLUDED_HUCS = ["1711000501", "1711000502", "1711000503", "171100050101", "1711
 
 
 
-def assemble_huc_list(input_pairs):
+def assemble_huc_list(params):
     """
     Assembles a list of HUC (Hydrologic Unit Code) IDs from a list of input pairs.
 
@@ -35,9 +35,12 @@ def assemble_huc_list(input_pairs):
         huc_list = assemble_huc_list(input_pairs)
     """
     hucs = []
+    input_pairs = params["input_pairs"]
     for pair in input_pairs:
         geos = gg.get_geos(pair[0], pair[1])
-        #geos_filtered = snow_class_filter(geos)
+        if params["exclude_ephem"] is True:
+            geos = snowclass_filter(geos)
+            print(f"filtered shape for {pair[0]} is {geos.shape}")
         hucs.extend(geos["huc_id"].to_list())
     return hucs
 
@@ -59,7 +62,8 @@ def z_score_normalize(df, global_means, global_stds):
     global_stds (pandas.Series): The global standard deviations for each column to be normalized.
 
     Returns:
-    pandas.DataFrame: A new DataFrame with the specified columns normalized using global z-score normalization.
+    pandas.DataFrame: A new DataFrame with the specified columns normalized using global 
+                    z-score normalization.
     """
     normalized_df = df.copy()
     df_cols = df.columns
@@ -67,7 +71,7 @@ def z_score_normalize(df, global_means, global_stds):
     columns_to_normalize = ["mean_pr", "mean_tair", "mean_vs", "mean_srad", "mean_hum", "Mean Elevation"]
 
     for column in columns_to_normalize:
-        if column in df_cols: 
+        if column in df_cols:
             normalized_df[column] = (df[column] - global_means[column]) / global_stds[column]
 
     return normalized_df
@@ -90,7 +94,7 @@ def pre_process(huc_list, var_list, bucket_dict=None):
             df.set_index('day', inplace=True)  # Set 'day' as the index
             # Collect only the columns of interest
             col_to_keep = var_list + ["mean_swe"]
-            
+
             for col in col_to_keep:
                 if col not in df.columns:
                     print(f"huf{huc} is missing col {col}")

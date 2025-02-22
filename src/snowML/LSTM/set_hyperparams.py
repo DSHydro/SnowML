@@ -9,18 +9,19 @@ def create_hyper_dict():
         "num_class": 1,
         "num_layers": 1,
         "dropout": 0.5,
-        "learning_rate": 5e-4,  # 3e-3
+        "learning_rate": 1e-3,  # 3e-3
         "n_epochs": 10,
         "pre_train_fraction" : 1,
         "train_size_fraction": .8,
         "train_size_dimension": "huc",
         "lookback": 180,
-        "batch_size": 32,
+        "batch_size": 64,
         "n_steps": 1,
         "num_workers": 8,
         "var_list": ["mean_pr", "mean_tair"],
-        #"var_list": ["mean_pr", "mean_tair", "Maritime", "Ephemeral", "Montane Forest", "Ice"], 
-        "expirement_name": "Maritime_Multi", 
-        "input_pairs": [[17110006, '12'], [17110005, '12'], [17110009, '12']]
+        #"var_list": ["mean_pr", "mean_tair", "Maritime", "Ephemeral", "Montane Forest", "Ice"],
+        "expirement_name": "Maritime_Multi_2", 
+        "input_pairs": [[17110005, '12'], [17110006, '12'], [17110009, '12'], [17020009, '12']],
+        "exclude_ephem": True, 
     }
     return param_dict

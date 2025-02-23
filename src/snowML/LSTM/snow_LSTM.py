@@ -12,29 +12,6 @@ from sklearn.metrics import mean_squared_error
 from snowML.LSTM import LSTM_pre_process as pp
 
 
-class SnowModel(nn.Module):
-    def __init__(self, input_size, hidden_size, num_class, num_layers, dropout):
-        super(SnowModel, self).__init__()
-        self.hidden_size = hidden_size
-        self.num_layers = num_layers
-        self.dropout = dropout
-        self.lstm1 = nn.LSTM(
-            input_size,
-            hidden_size,
-            num_layers,
-            dropout=self.dropout,
-            batch_first=True)
-        self.linear = nn.Linear(hidden_size, num_class)
-        self.leaky_relu = nn.LeakyReLU()
-
-    def forward(self, x):
-        device = x.device
-        hidden_states = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
-        cell_states = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
-        out, _ = self.lstm1(x, (hidden_states, cell_states))
-        out = self.linear(out[:, -1, :])
-        out = self.leaky_relu(out)
-        return out
 
 # Helper Function: Load data into DataLoader
 def create_dataloader(df, params):

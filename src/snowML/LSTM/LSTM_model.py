@@ -1,0 +1,89 @@
+# The LSTM Model
+
+import random
+import os
+import torch
+from torch import nn
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import mlflow
+from sklearn.metrics import mean_squared_error
+from snowML.LSTM import LSTM_pre_process as pp
+
+class SnowModel(nn.Module):
+    def __init__(self, input_size, hidden_size, num_class, num_layers, dropout):
+        super(SnowModel, self).__init__()
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+        self.dropout = dropout
+        self.lstm1 = nn.LSTM(
+            input_size,
+            hidden_size,
+            num_layers,
+            dropout=self.dropout,
+            batch_first=True)
+        self.linear = nn.Linear(hidden_size, num_class)
+        self.leaky_relu = nn.LeakyReLU()
+
+    def forward(self, x):
+        device = x.device
+        hidden_states = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+        cell_states = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+        out, _ = self.lstm1(x, (hidden_states, cell_states))
+        out = self.linear(out[:, -1, :])
+        out = self.leaky_relu(out)
+        return out
+
+class Hybrid_KGE_MSE_Loss(nn.Module):
+    def __init__(self, initial_lambda=1.0, final_lambda=1.0, total_epochs=30, eps=1e-6):
+        """
+        Hybrid loss combining -KGE and MSE.
+        :param initial_lambda: Initial weight for MSE loss (higher at the start).
+        :param final_lambda: Final weight for MSE loss (lower in later epochs).
+        :param total_epochs: Total training epochs for lambda scheduling.
+        :param eps: Small constant for numerical stability.
+        """
+        super(Hybrid_KGE_MSE_Loss, self).__init__()
+        self.initial_lambda = initial_lambda
+        self.final_lambda = final_lambda
+        self.total_epochs = total_epochs
+        self.current_epoch = 0
+        self.eps = eps
+        self.mse_loss = nn.MSELoss()
+
+    def set_epoch(self, epoch):
+        """Update lambda dynamically per epoch."""
+        self.current_epoch = epoch
+        progress = epoch / self.total_epochs
+        self.lambda_mse = self.initial_lambda * (1 - progress) + self.final_lambda * progress
+
+    def forward(self, pred, obs):
+        # Ensure tensors are at least 1D
+        if pred.ndim == 0 or obs.ndim == 0:
+            return torch.tensor(float("nan"), device=pred.device)
+
+        obs_mean = torch.mean(obs)
+        pred_mean = torch.mean(pred)
+
+        obs_std = torch.std(obs) + self.eps  # Avoid division by zero
+        pred_std = torch.std(pred) + self.eps
+
+        # Compute Pearson correlation manually
+        covariance = torch.mean((pred - pred_mean) * (obs - obs_mean))
+        r = covariance / (obs_std * pred_std + self.eps)  # Avoid zero denominator
+
+        # Clamp r within [-1, 1] to prevent invalid values
+        r = torch.clamp(r, -1 + self.eps, 1 - self.eps)
+
+        alpha = pred_std / obs_std
+        beta = pred_mean / (obs_mean + self.eps)
+
+        # Compute KGE
+        kge = 1 - torch.sqrt((r - 1) ** 2 + (alpha - 1) ** 2 + (beta - 1) ** 2)
+
+        # Hybrid loss: -KGE + lambda * MSE
+        mse = self.mse_loss(pred, obs)
+        hybrid_loss = -kge + self.lambda_mse * mse
+
+        return hybrid_loss

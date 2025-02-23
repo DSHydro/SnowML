@@ -1,9 +1,7 @@
 # pylint: disable=C0103
 
 import random
-import os
 import torch
-from torch import nn
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -32,14 +30,16 @@ def create_dataloader(df, params):
     return loader
 
 # Pre-training Phase: Train on multiple HUCs
-def pre_train(model, optimizer, loss_fn, df_dict, params):
+def pre_train(model, optimizer, loss_fn, df_dict, params, epoch):
     """ Pre-train the model on multiple HUCs """
     # Initialize available keys for sampling without replacement
 
     available_keys = list(df_dict.keys())
     random.shuffle(available_keys)
 
+    loss_fn.set_epoch(epoch)
     model.train()  # Set model to training mode
+    
 
 
     for i, selected_key in enumerate(available_keys, start=1):
@@ -71,6 +71,7 @@ def fine_tune(model, optimizer, loss_fn, df_dict, target_key, params, epoch):
         params
         )
 
+    loss_fn.set_epoch(epoch)
     model.train()  # Set model to training mode
     #print(f"Epoch {epoch}: Fine-tuning on target HUC {target_key}")
 
@@ -98,20 +99,12 @@ def kling_gupta_efficiency(y_true, y_pred):
     r = np.corrcoef(y_true.ravel(), y_pred.ravel())[0, 1]
 
     # Compute KGE components
-    alpha = np.std(y_pred) / np.std(y_true)  
-    beta = np.mean(y_pred) / np.mean(y_true)  
+    alpha = np.std(y_pred) / np.std(y_true)
+    beta = np.mean(y_pred) / np.mean(y_true)
     kg = 1 - np.sqrt((r - 1)**2 + (alpha - 1)**2 + (beta - 1)**2)
 
     print(f"r: {r}, alpha: {alpha}, beta: {beta}")
     return kg, r, alpha, beta
-
-# def kling_gupta_efficiency(y_true, y_pred):
-#     r = np.corrcoef(y_true.ravel(), y_pred.ravel())[0, 1] # Correlation coefficient
-#     alpha = np.std(y_pred) / np.std(y_true)  # Variability ratio
-#     beta = np.mean(y_pred) / np.mean(y_true)  # Bias ratio
-#     kg = 1 - np.sqrt((r - 1)**2 + (alpha - 1)**2 + (beta - 1)**2)
-#     print(f"r: {r}, alpha: {alpha}, beta: {beta}")
-#     return kg, r, alpha, beta
 
 def store_metrics(metric_names, metrics_list_dict, available_keys, epoch):
     df = pd.DataFrame({
@@ -178,7 +171,6 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
     if selected_keys is None:
         available_keys = list(df_dict.keys())
         random.shuffle(available_keys)
-        
 
     else:
         available_keys = selected_keys

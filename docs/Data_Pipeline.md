@@ -60,8 +60,8 @@ The following regions have been processed at the Huc12 graunularity level and ar
   - [Sauk](basin_fact_sheets/Sauk(17110006).md) (17110006)
   - [Skagit Basin](basin_fact_sheets/Skagit.md) (17110005) (*Data for Huc10 granularity also available)
   - [Skykomish](basin_fact_sheets/Skykomish(1711009).md) (17110009)
-  - [South Fork Coeur d'ALene](basin_fact_sheets/South Fork Coeur d'Alene(17010302).md) (17010302)
-  - [St.Joe](basin_fact_sheets/St. Joe(17010304).md)(17010304)
+  - [South Fork Coeur d'ALene](basin_fact_sheets/South_Fork_Coeur_d'Alene(17010302).md) (17010302)
+  - [St.Joe](basin_fact_sheets/St._Joe(17010304).md)(17010304)
   - [Upper Yakima](basin_fact_sheets/UpperYakima(17030001).md) (17030001)
 
   

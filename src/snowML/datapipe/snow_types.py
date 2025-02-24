@@ -7,8 +7,8 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 import s3fs
-from snowML import get_geos as gg
-from snowML import set_data_constants as sdc
+from snowML.datapipe import get_geos as gg
+from snowML.datapipe import set_data_constants as sdc
 
 
 def get_snow_class_data(geos = None):

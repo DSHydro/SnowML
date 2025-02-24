@@ -5,12 +5,12 @@ import importlib
 import s3fs
 import logging
 import warnings
-from snowML import data_utils as du
-from snowML import set_data_constants as sdc
-from snowML import get_bronze as gb
-from snowML import bronze_to_gold as btg
-from snowML import gold_to_model as gtm
-from snowML import get_geos as gg
+from snowML.datapipe import data_utils as du
+from snowML.datapipe import set_data_constants as sdc
+from snowML.datapipe import get_bronze as gb
+from snowML.datapipe import bronze_to_gold as btg
+from snowML.datapipe import gold_to_model as gtm
+from snowML.datapipe import get_geos as gg
 
 importlib.reload(btg)
 

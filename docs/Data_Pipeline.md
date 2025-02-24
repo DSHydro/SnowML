@@ -66,7 +66,7 @@ The following regions have been processed at the Huc12 graunularity level and ar
 
   - [South Fork Coeur d'ALene](basin_fact_sheets/South_Fork_Coeur_d'Alene(17010302).md) (17010302)
   - [St.Joe](basin_fact_sheets/St._Joe(17010304).md)(17010304)
-  - [Upper Coer d'Alene](basin_fact_sheets/Upper_Coeur_d'Alene(17010301).md) (17010301)
+  - [Upper Couer d'Alene](basin_fact_sheets/Upper_Coeur_d'Alene(17010301).md) (17010301)
   
 **Mixed Regions** 
   - [Naches](basin_fact_sheets/Naches(17030002).md) (17030002) (mix with Maritime/Montane Forest)

@@ -54,7 +54,7 @@ Each variable is measured daily for the period "1983-10-01" through "2022-09-30"
 
 
 # Regions Available for Analysis <br>
-The following regions have been processed at the Huc12 graunularity level and are currently available in the "snowMLs-model-ready" [bucket](arn:aws:s3:::snowml-model-ready): <br>
+The following regions have been processed at the Huc12 graunularity level and are currently available in the "snowML-model-ready" [bucket](arn:aws:s3:::snowml-model-ready): <br>
   - [Chelan Basin](basin_fact_sheets/Chelan(17020009).md) (17020009)
   - [Naches](basin_fact_sheets/Naches(17030002).md) (17030002)
   - [Sauk](basin_fact_sheets/Sauk(17110006).md) (17110006)

@@ -55,7 +55,7 @@ Each variable is measured daily for the period "1983-10-01" through "2022-09-30"
 
 # Regions Available for Analysis <br>
 The following regions have been processed at the Huc12 graunularity level and are currently available in the "snowMLs-model-ready" [bucket](arn:aws:s3:::snowml-model-ready): <br>
-  - [Chelan Basin](docs/basin_fact_sheets/Chelan(17020009).md) (17020009)
+  - [Chelan Basin](basin_fact_sheets/Chelan(17020009).md) (17020009)
   - [Naches](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/UpperYakima.md) (17030002)
   - [Skagit Basin](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/Skagit.md) (17110005) (*Data for Huc10 granularity also available)
   - [Sauk](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/Sauk(17110006).md) (17110006)

@@ -1,6 +1,10 @@
 # SnowML
 UW MSDS SnowML capstone project
 
+
+## Data 
+Read about our [data pipleine](docs/Data_Pipeline.md)
+
 ## Development
 
 ### Installation Instructions

@@ -1,9 +1,7 @@
 # pylint: disable=C0103
 
 import random
-import os
 import torch
-from torch import nn
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -12,29 +10,6 @@ from sklearn.metrics import mean_squared_error
 from snowML.LSTM import LSTM_pre_process as pp
 
 
-class SnowModel(nn.Module):
-    def __init__(self, input_size, hidden_size, num_class, num_layers, dropout):
-        super(SnowModel, self).__init__()
-        self.hidden_size = hidden_size
-        self.num_layers = num_layers
-        self.dropout = dropout
-        self.lstm1 = nn.LSTM(
-            input_size,
-            hidden_size,
-            num_layers,
-            dropout=self.dropout,
-            batch_first=True)
-        self.linear = nn.Linear(hidden_size, num_class)
-        self.leaky_relu = nn.LeakyReLU()
-
-    def forward(self, x):
-        device = x.device
-        hidden_states = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
-        cell_states = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
-        out, _ = self.lstm1(x, (hidden_states, cell_states))
-        out = self.linear(out[:, -1, :])
-        out = self.leaky_relu(out)
-        return out
 
 # Helper Function: Load data into DataLoader
 def create_dataloader(df, params):
@@ -55,14 +30,16 @@ def create_dataloader(df, params):
     return loader
 
 # Pre-training Phase: Train on multiple HUCs
-def pre_train(model, optimizer, loss_fn, df_dict, params):
+def pre_train(model, optimizer, loss_fn, df_dict, params, epoch):
     """ Pre-train the model on multiple HUCs """
     # Initialize available keys for sampling without replacement
 
     available_keys = list(df_dict.keys())
     random.shuffle(available_keys)
 
+    loss_fn.set_epoch(epoch)
     model.train()  # Set model to training mode
+    
 
 
     for i, selected_key in enumerate(available_keys, start=1):
@@ -94,6 +71,7 @@ def fine_tune(model, optimizer, loss_fn, df_dict, target_key, params, epoch):
         params
         )
 
+    loss_fn.set_epoch(epoch)
     model.train()  # Set model to training mode
     #print(f"Epoch {epoch}: Fine-tuning on target HUC {target_key}")
 
@@ -121,20 +99,12 @@ def kling_gupta_efficiency(y_true, y_pred):
     r = np.corrcoef(y_true.ravel(), y_pred.ravel())[0, 1]
 
     # Compute KGE components
-    alpha = np.std(y_pred) / np.std(y_true)  
-    beta = np.mean(y_pred) / np.mean(y_true)  
+    alpha = np.std(y_pred) / np.std(y_true)
+    beta = np.mean(y_pred) / np.mean(y_true)
     kg = 1 - np.sqrt((r - 1)**2 + (alpha - 1)**2 + (beta - 1)**2)
 
     print(f"r: {r}, alpha: {alpha}, beta: {beta}")
     return kg, r, alpha, beta
-
-# def kling_gupta_efficiency(y_true, y_pred):
-#     r = np.corrcoef(y_true.ravel(), y_pred.ravel())[0, 1] # Correlation coefficient
-#     alpha = np.std(y_pred) / np.std(y_true)  # Variability ratio
-#     beta = np.mean(y_pred) / np.mean(y_true)  # Bias ratio
-#     kg = 1 - np.sqrt((r - 1)**2 + (alpha - 1)**2 + (beta - 1)**2)
-#     print(f"r: {r}, alpha: {alpha}, beta: {beta}")
-#     return kg, r, alpha, beta
 
 def store_metrics(metric_names, metrics_list_dict, available_keys, epoch):
     df = pd.DataFrame({
@@ -201,7 +171,6 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
     if selected_keys is None:
         available_keys = list(df_dict.keys())
         random.shuffle(available_keys)
-        
 
     else:
         available_keys = selected_keys

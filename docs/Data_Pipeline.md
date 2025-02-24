@@ -2,10 +2,10 @@ This Document Describes the Data used in Training the Frosty Dawgs SnowML Model.
 Sections include  
 -   [Raw Data](#raw-data)
 -   [Data Pipeline Repo Steps](#data-pipeline---repo-steps)
--   [Model Ready Data](#model-ready-data)
+-   [Model Ready Data](#Model-Ready-Data)
 -   [Regions Available for Analysis](#Regions-Available-for-Analysis)
 
-  If you are most interested in understanding the final data used in the model, jump straight to [Model Ready Data](#model-ready-data)!
+  If you are most interested in understanding the final data used in the model, jump straight to [Model Ready Data](#Model-Ready-Data)!
 
 # Raw Data <br>
 - Data related to Snow Water Equivilent ("SWE") was obtained from the University of Arizona https://climate.arizona.edu/data/UA_SWE/
@@ -19,7 +19,7 @@ Sections include
 # Data Pipeline - Repo Steps <br>
 
 # Model Ready Data <br>
-Data ready to be deployed into the Frosty Dawgs SnowML model can be downloaded from the S3 bucket named "dawgs-model-ready". <br>
+Data ready to be deployed into the Frosty Dawgs SnowML model can be downloaded from the S3 bucket named "snowML-model-ready". <br>
 Each file contains data for one discrete HUC unit (watershed/subwatershed).
 
 **Naming convention**

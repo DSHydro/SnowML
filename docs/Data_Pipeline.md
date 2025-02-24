@@ -70,7 +70,7 @@ The following regions have been processed at the Huc12 graunularity level and ar
   
 **Mixed Regions** 
   - [Naches](basin_fact_sheets/Naches(17030002).md) (17030002) (mix with Maritime/Montane Forest)
-  - [Stillaguamish](basin_fact_sheets/Stillaguamish(17110008).md( (17110008) (Maritime/Montane Forest )
+  - [Stillaguamish](basin_fact_sheets/Stillaguamish(17110008).md) (17110008) (Maritime/Montane Forest )
   - [Upper Yakima](basin_fact_sheets/UpperYakima(17030001).md) (17030001) (Ephemeral/Maritime/Montane Forest mix)
 
 **Regions where Ephemeral Snow Predominates:** 

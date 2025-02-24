@@ -49,13 +49,14 @@ Each variable is measured daily for the period "1983-10-01" through "2022-09-30"
 | Montane Forest    | Percent of the region with snow type Montane Forest.            | %     |
 | Ice              | Percent of the region with snow type Ice.                        | %     |
 | Ocean            | Percent of the region with snow type Ocean.                      | %     |
+| Mean Elevation   | Mean Elevation for the region                                    | kilometers |
 
 
 
 # Regions Available for Analysis <br>
-The following regions have been process and are currently available in the "dawgs-model-ready" bucket: <br>
-  - All the HUC10 or Huc 12 subunits within the [Skagit Basin](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/Skagit.md) (17110005) 
-  - All the HUC12 subunits within the [Chelan Basin](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/Chelan.md) (17020009)
-  - All the HUC12 subunits within the [Upper Yakima Basin](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/UpperYakima.md) (17030002)
-  - All the HUC12 subunits within the [Tuolumne Basin](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/Tuolumne.md) (18040009)
+The following regions have been processed at the Huc12 level and are currently available in the "dawgs-model-ready" bucket: <br>
+  - [Chelan Basin](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/Chelan.md) (17020009)
+  - [Upper Yakima Basin](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/UpperYakima.md) (17030002)
+  - [Naches](docs/basin_fact_sheets/Naches(17030002).md)
+  - [Skagit Basin](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/Skagit.md) (17110005)* (Data for Huc10 granularity also available) 
 

@@ -15,6 +15,7 @@ from snowML import snow_types as st
 from snowML import get_geos as gg
 from snowML import data_utils as du
 from snowML import set_data_constants as sdc
+from snowML import get_dem as gd
 
 def plot_var(df, var, huc, initial_huc):
     plt.figure(figsize=(12,  6))
@@ -199,15 +200,28 @@ def map_snow_types(ds, geos, huc):
     plt.close(fig)  # Close the figure to free memory
     print(f"Map saved to {file_path}")
 
+def plot_dem(dem_ds, geos, huc_id):
+    f, ax = plt.subplots(figsize=(10, 6))
+    dem_ds.plot(ax=ax, cmap='terrain')
+    # Plot geometries in black outline
+    geos.plot(ax=ax, edgecolor='black', facecolor='none', linewidth=2, zorder=5)  # Higher zorder to ensure geos are above DEM
+    ax.set_title(f"Digital Elevation Model (DEM) for huc {huc_id}")
+    f_out = f"docs/basic_maps/dem_huc{huc_id}" # TO DO: Fix path to be dynamic
+    plt.savefig(f_out, dpi=300, bbox_inches="tight")
+    print(f"Map saved to {f_out}")
+    plt.close()
+
 def create_vis_all(initial_huc, final_huc_lev):
     geos = gg.get_geos(initial_huc, final_huc_lev)
     basic_map(geos, final_huc_lev, initial_huc) # create and save basic map
     ds_snow = st.snow_class_data_from_s3(geos) 
-    map_snow_types(ds_snow, geos, initial_huc) # create and save snow class map 
+    map_snow_types(ds_snow, geos, initial_huc) # create and save snow class map
+    dem_ds = gd.get_dem(geos)
+    plot_dem(dem_ds, geos, initial_huc) # create and save map of elevation
     # for huc in geos["huc_id"].tolist(): # create and save map of actuals
         # plot_actual(huc, "mean_swe", initial_huc, bucket_dict = None)
     # swe_summary = basin_swe_summary(initial_huc, final_huc_lev) # create and save csv of median peak
-    return ds_snow
+    
 
 
 

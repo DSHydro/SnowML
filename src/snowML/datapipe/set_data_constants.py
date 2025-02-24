@@ -1,5 +1,5 @@
-from snowML import get_geos as gg
-from snowML import snow_types as st
+from snowML.datapipe import get_geos as gg
+from snowML.datapipe import snow_types as st
 
 def create_bucket_dict(b_type):
     permitted_types = ["prod", "test"]
@@ -24,7 +24,7 @@ import pandas as pd
 
 def count_huc_types():
     hucs = [17010301, 17010302, 17010303, 17010304,
-            17020009, 17020010,
+            17020009, 17020010, 17020011,
             17030001, 17030002, 17030003,
             17110005, 17110006, 17110007, 17110008]
     

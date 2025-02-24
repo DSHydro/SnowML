@@ -55,13 +55,29 @@ Each variable is measured daily for the period "1983-10-01" through "2022-09-30"
 
 # Regions Available for Analysis <br>
 The following regions have been processed at the Huc12 graunularity level and are currently available in the "snowML-model-ready" [bucket](arn:aws:s3:::snowml-model-ready): <br>
+
+Regions where Maritime Snow Predominates 
   - [Chelan Basin](basin_fact_sheets/Chelan(17020009).md) (17020009)
-  - [Naches](basin_fact_sheets/Naches(17030002).md) (17030002)
   - [Sauk](basin_fact_sheets/Sauk(17110006).md) (17110006)
   - [Skagit Basin](basin_fact_sheets/Skagit(17110005).md) (17110005) (*Data for Huc10 granularity also available)
   - [Skykomish](basin_fact_sheets/Skykomish(1711009).md) (17110009)
+
+Regions where Montane Forest Snow Predominates 
+
   - [South Fork Coeur d'ALene](basin_fact_sheets/South_Fork_Coeur_d'Alene(17010302).md) (17010302)
   - [St.Joe](basin_fact_sheets/St._Joe(17010304).md)(17010304)
-  - [Upper Yakima](basin_fact_sheets/UpperYakima(17030001).md) (17030001)
+  - [Upper Coer d'Alene](basin_fact_sheets/Upper Coeur d'Alene(17010301).md) (17010301)
+  
+Mixed Regions 
+  - [Naches](basin_fact_sheets/Naches(17030002).md) (17030002) (mix with Maritime/Montane Forest)
+  - [Stillaguamish](docs/basin_fact_sheets/Stillaguamish(17110008).md) (17110008) (Maritime/Montane Forest )
+  - [Upper Yakima](basin_fact_sheets/UpperYakima(17030001).md) (17030001) (Ephemeral/Maritime/Montane Forest mix)
 
+
+Regions where Ephemeral Snow Predominates: 
+- [Lower Yakima](basin_fact_sheets/Lower Yakima(17030003).md) (17030003)
+- [Lower Skagit](basin_fact_sheets/LowerSkagit(17110007).md) (17110007)
+- [Upper_Columbia-Entiat](basin_fact_sheets/Upper_Columbia-Entiat(17020010).md) (17020010)
+
+- 
   

@@ -4,10 +4,10 @@
 import pandas as pd
 import numpy as np
 import torch
-from snowML import data_utils as du
-from snowML import get_geos as gg
-from snowML import set_data_constants as sdc
-from snowML import snow_types as st
+from snowML.datapipe import data_utils as du
+from snowML.datapipe import get_geos as gg
+from snowML.datapipe import set_data_constants as sdc
+from snowML.datapipe import snow_types as st
 
 # Excluded Hucs Due to Missing SWE Data (Canada)
 EXCLUDED_HUCS = ["1711000501", "1711000502", "1711000503", "171100050101", "171100050102", \

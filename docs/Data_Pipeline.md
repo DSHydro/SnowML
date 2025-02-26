@@ -65,13 +65,15 @@ The following regions have been processed at the Huc12 graunularity level and ar
 
 **Regions where Montane Forest Snow Predominates** 
 
+  - [Middle Salmon Chamberlain](basin_fact_sheets/Middle_Salmon-Chamberlain(17060207).md)(17060207)
+  - [St.Joe](basin_fact_sheets/St._Joe(17010304).md) (17010304)
   - [South Fork Coeur d'ALene](basin_fact_sheets/South_Fork_Coeur_d'Alene(17010302).md) (17010302)
-  - [St.Joe](basin_fact_sheets/St._Joe(17010304).md)(17010304)
+  - [South Fork Salmon River](basin_fact_sheets/South_Fork_Salmon_River(17060208).md)(17060208)
   - [Upper Couer d'Alene](basin_fact_sheets/Upper_Coeur_d'Alene(17010301).md) (17010301)
   
 **Mixed Regions** 
   - [Naches](basin_fact_sheets/Naches(17030002).md) (17030002) (mix with Maritime/Montane Forest)
-  - [Stillaguamish](basin_fact_sheets/Stillaguamish(17110008).md) (17110008) (Maritime/Montane Forest )
+  - [Stillaguamish](basin_fact_sheets/Stillaguamish(17110008).md) (17110008) (Maritime/Ephemeral)
   - [Upper Yakima](basin_fact_sheets/UpperYakima(17030001).md) (17030001) (Ephemeral/Maritime/Montane Forest mix)
 
 **Regions where Ephemeral Snow Predominates:** 

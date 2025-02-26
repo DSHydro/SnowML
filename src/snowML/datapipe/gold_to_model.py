@@ -3,7 +3,7 @@
 
 import s3fs
 import pandas as pd
-from snowML import data_utils as du
+from snowML.datapipe import data_utils as du
 from snowML.datapipe import set_data_constants as sdc
 from snowML.datapipe import snow_types as st
 from snowML.datapipe import get_dem as gd
@@ -32,8 +32,7 @@ def clean_and_filter(df, start_date = "1983-10-01", end_date = "2022-09-30"):
     return df
 
 
-
-def huc_gold_wrf(huc_id, bucket_dict, var_list = None):
+def huc_model_wrf(huc_id, bucket_dict, var_list = None):
 
     # some set up
     if var_list is None:
@@ -42,12 +41,14 @@ def huc_gold_wrf(huc_id, bucket_dict, var_list = None):
 
 
     files = gather_gold_files(huc_id, var_list = var_list, bucket_dict = bucket_dict)
+    #print(files)
 
 
     # open all vars and merge into one df
     fs = s3fs.S3FileSystem()
     dfs = [pd.read_csv(fs.open(file_path)) for file_path in files]
     dfs_clean = [clean_and_filter(df) for df in dfs]
+    mismatch = check_for_mismatch(dfs_clean)
 
     model_df = dfs_clean[0]
     for df in dfs_clean[1:]:
@@ -73,7 +74,7 @@ def huc_gold_wrf(huc_id, bucket_dict, var_list = None):
 
     return model_df
 
-def huc_gold(huc_id, var_list = None, bucket_dict = None, overwrite_mod = False):
+def huc_model(huc_id, var_list = None, bucket_dict = None, overwrite_mod = False):
     # some set up
     if bucket_dict  is None:
         bucket_dict = sdc.create_bucket_dict("prod")
@@ -83,7 +84,7 @@ def huc_gold(huc_id, var_list = None, bucket_dict = None, overwrite_mod = False)
         print(f"{f_out} already exists, skipping processing")
         return None
 
-    model_df = huc_gold_wrf(huc_id, bucket_dict, var_list = var_list)
+    model_df = huc_model_wrf(huc_id, bucket_dict, var_list = var_list)
     huc_lev = str(len(str(huc_id))).zfill(2)
 
     # add mean elevation for huc to model_df

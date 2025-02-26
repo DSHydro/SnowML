@@ -147,7 +147,7 @@ def s3_to_gdf(bucket_name, file_name, region_name="us-west-2"):
     Args:
         bucket_name (str): Name of the S3 bucket.
         s3_key (str): The S3 key (path) to the file.
-        region_name (str): AWS region of the S3 bucket. Default is 'us-east-1'.
+        region_name (str): AWS region of the S3 bucket. Default is 'us-west-2'.
     
     Returns:
         geos: A GeoDataFrame containing the data from the file.

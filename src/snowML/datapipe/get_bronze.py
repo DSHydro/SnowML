@@ -10,7 +10,7 @@ import json
 import s3fs
 import requests
 import xarray as xr
-from snowML import data_utils as du
+from snowML.datapipe import data_utils as du
 
 def url_to_ds(url, requires_auth=False, username=None, password=None, timeout=60):
     """
@@ -96,7 +96,7 @@ def download_multiple_years(start_year, end_year, var, s3_bucket, append_to=Fals
     dim_to_concat = "day"
 
     # Load progress from a local file to keep track of completed years
-    progress_file = f"{var}_progress.json"  # TO DO - make this an S3 file?
+    progress_file = f"{var}_progress.json"  
     completed_years = set()
     if os.path.exists(progress_file):
         with open(progress_file, "r") as f:
@@ -132,7 +132,7 @@ def download_multiple_years(start_year, end_year, var, s3_bucket, append_to=Fals
                     json.dump(sorted(completed_years), f)
                 du.elapsed(time_start)
 
-    du.elapsed(time_start)
+    #du.elapsed(time_start)
     print(f"Final dataset saved to s3://{s3_bucket}/{s3_path}")
     return s3_path
 

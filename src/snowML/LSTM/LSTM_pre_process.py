@@ -13,8 +13,7 @@ from snowML.datapipe import snow_types as st
 EXCLUDED_HUCS = ["1711000501", "1711000502", "1711000503", "171100050101", "171100050102", \
                 "171100050201", "171100050202", "171100050203", "171100050301", \
                 "171100050302", "171100050303", "171100050304", "171100050305", \
-                "171100050306"]  # TO DO - ARE ALL THE '12' in Canada?
-# Excluded Hucs Due to > 50% Ephemeral -- TO DO
+                "171100050306", "171100050401"] 
 
 
 
@@ -51,6 +50,7 @@ def snowclass_filter(geos):
     valid_huc_ids = df_snow_types.loc[df_snow_types["Ephemeral"] < 50, "huc_id"]
     geos_filtered = geos[geos["huc_id"].isin(valid_huc_ids)]
     return geos_filtered
+
 
 def z_score_normalize(df, global_means, global_stds):
     """

@@ -19,7 +19,7 @@ def get_dem(geos):
     return dem_ds
 
 def plot_dem(dem_ds, geos, huc_id):
-    f, ax = plt.subplots(figsize=(10, 6))
+    _, ax = plt.subplots(figsize=(10, 6))
     dem_ds.plot(ax=ax, cmap='terrain')
     # Plot geometries in black outline
     geos.plot(ax=ax, edgecolor='black', facecolor='none', linewidth=2, zorder=5)  # Higher zorder to ensure geos are above DEM

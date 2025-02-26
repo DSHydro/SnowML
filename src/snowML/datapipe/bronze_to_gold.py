@@ -74,14 +74,13 @@ def ds_to_gold(ds, var):
 
 
 def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite):
-    time_start = time.time()
     huc_id = row['huc_id']
     print(f"Processing huc {idx+1}, huc_id: {huc_id}")
 
     # process to silver
     small_ds = prep_bronze(var, bucket_dict=bucket_dict)
     df_silver = create_mask(small_ds, row, crs)
-    print(f"Processing huc {idx+1}, huc_id: {huc_id} to silver completed")
+    #print(f"Processing huc {idx+1}, huc_id: {huc_id} to silver completed")
 
     # process to gold
     f_gold = f"mean_{var}_in_{huc_id}"
@@ -106,14 +105,14 @@ def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite):
         du.dat_to_s3(gold_df, b_gold, f_gold, file_type="csv")
         #du.elapsed(time_start)
 
-def process_geos(geos, var, bucket_dict= None, overwrite=False):
+def process_geos(geos, var, bucket_dict= None, overwrite=False, max_wk = 8):
     crs = geos.crs
     var_name = VAR_DICT.get(var)
     if bucket_dict is None:
         bucket_dict = sdc.create_bucket_dict("prod")
 
     # Use ProcessPoolExecutor to parallelize the tasks
-    with ProcessPoolExecutor(max_workers=8) as executor: # TO DO- Make Max Workers Dynamic
+    with ProcessPoolExecutor(max_workers=max_wk) as executor:
         futures = [
             executor.submit(process_row, row, var, idx, bucket_dict, crs, var_name, overwrite)
             for idx, row in geos.iterrows()

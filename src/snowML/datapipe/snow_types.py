@@ -6,6 +6,7 @@ import requests
 import xarray as xr
 import pandas as pd
 import numpy as np
+import warnings
 import s3fs
 from snowML.datapipe import get_geos as gg
 from snowML.datapipe import set_data_constants as sdc

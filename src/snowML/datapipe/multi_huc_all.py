@@ -3,8 +3,6 @@
 
 import importlib
 import s3fs
-import logging
-import warnings
 from snowML.datapipe import data_utils as du
 from snowML.datapipe import set_data_constants as sdc
 from snowML.datapipe import get_bronze as gb
@@ -12,7 +10,6 @@ from snowML.datapipe import bronze_to_gold as btg
 from snowML.datapipe import gold_to_model as gtm
 from snowML.datapipe import get_geos as gg
 
-importlib.reload(btg)
 
 def process_multi_huc (huc_id_start, 
                        final_huc_lev, 
@@ -53,7 +50,7 @@ def process_multi_huc (huc_id_start,
 
         #create model ready data
         try: 
-            model_df = gtm.huc_gold(huc_id, overwrite_mod= overwrite_mod) 
+            model_df = gtm.huc_model(huc_id, overwrite_mod= overwrite_mod) 
         except Exception as e:
             print(f"Error processing huc{huc_id}: {e}, omitting from dataset")
     

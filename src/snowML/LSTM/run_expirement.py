@@ -36,7 +36,7 @@ def prep_input_data(params):
     df_dict = pp.pre_process(hucs, params["var_list"])
     return df_dict
 
-def split_df_dict(df_dict, train_size_fraction_hucs):
+def split_df_dicgt(df_dict, train_size_fraction_hucs):
     huc_ids = list(df_dict.keys())
     random.shuffle(huc_ids)  # Shuffle the HUC IDs randomly
 
@@ -47,7 +47,6 @@ def split_df_dict(df_dict, train_size_fraction_hucs):
     df_dict_test = {huc_id: df for huc_id, df in df_dict.items() if huc_id not in train_hucs}
     print(list(df_dict_train.keys())[:5])
     print(list(df_dict_test.keys())[:5])
-
     return df_dict_train, df_dict_test
 
 def set_ML_server(params):
@@ -92,10 +91,15 @@ def initialize_model(params):
         params['dropout']
     )
     optimizer_dawgs = optim.Adam(model_dawgs.parameters())
-    #loss_fn_dawgs = nn.MSELoss()
-    loss_fn_dawgs = LSTM_mod.HybridLoss(initial_lambda=params["mse_lambda"],
-                                        final_lambda=params["mse_lambda"],
-                                        total_epochs=params["n_epochs"])
+
+    # Set the loss function based on the loss_type parameter
+    if params["loss_type"] == "mse":
+        loss_fn_dawgs = torch.nn.MSELoss()
+    elif params["loss_type"] == "hybrid":
+        loss_fn_dawgs = LSTM_mod.HybridLoss(initial_lambda=params["mse_lambda"],
+                                            final_lambda=params["mse_lambda"],
+                                            total_epochs=params["n_epochs"])
+
     return model_dawgs, optimizer_dawgs, loss_fn_dawgs
 
 

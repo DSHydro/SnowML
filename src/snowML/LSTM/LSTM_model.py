@@ -1,4 +1,5 @@
 # The LSTM Model
+# pylint: disable=C0103
 
 import torch
 from torch import nn

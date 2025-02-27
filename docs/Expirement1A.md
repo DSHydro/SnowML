@@ -10,6 +10,8 @@ Improvements were also seen in each of the eight watersheds tested.  Interesting
 
 In this expirement 1A, all watersheds were trained *only* using the data from that sub-watershed,as noted below by the paramenter (pre_train_fraction = 0).  Train/test split was accomplished by reserving the final two thirds of the time period as test data. 
 
+** TO DO ** Also note differences in "truth" SWE - a reminder that our predictions are limited by the accuracy of our "ground truth" data/  
+
 ## ProtoTyped Model - UA Data 
 
 ![foo](../notebooks/Prototype_Model_Results/charts/UAData_SWE_Post_Predictions_for_huc_1711000504.png)

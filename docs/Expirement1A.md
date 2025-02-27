@@ -1,12 +1,8 @@
 # ** Expirement 1A: Add more time series data****
 
-The first adjustment we made to the proptoyped LSTM Model was to use the University of Arizona [add link] estimates of Snow Water Equivilent (SWE) as our
-target dataset for training and evaluating the model.  This dataset contains a longer time series of available SWE data, thus augmenting the dataset.  This
-change resulted in immediate improvement to the model.<br>
+The first adjustment we made to the proptoyped LSTM Model was to use the University of Arizona estimates of Snow Water Equivilent (SWE) [data]( https://climate.arizona.edu/data/UA_SWE/) as our target dataset for training and evaluating the model.  This dataset contains a longer time series of available SWE data than used in the protoyped model. 
 
-We reran the protoype LSTM model with the new data, leaving all other hyperparmeters unchanged except as follows: 
-- Batch size increased from 8 to 16 to take advantage of increaased computing resources made available (thank you AWS!)
-- We reduced the number of epochs to 10 after observing early convergence of the model likely due to the increased training data available.
+We reran the protoype LSTM model with the new data, leaving all other hyperparmeters unchanged except that reduced the number of epochs to 10 after observing early convergence of the model likely due to the increased training data available. The results below compare the prior data run at 200 epochs with the new data run at 10 epochs, but the observations are robust to the number of epochs used (10 vs. 200) in both models.  Please refer to the [Viz10COmpare notebook](notebooks/Prototype_Model_Results/VizHuc10Compare.ipynb) for sensitivy analysis related to number of epochs used.  
 
 The below charts show model results for HUC 1711000504, a watershed in the Skagitt basin, under the two approaches. The Prototyped Model with UA Data has a test_mean_squared_error of .007 which is a significnat improvement over [].  These differences appeared stable over multiple runs of the respective models.  
 
@@ -14,12 +10,12 @@ Improvements were also seen in each of the eight watersheds tested.  Interesting
 
 In this expirement 1A, all watersheds were trained *only* using the data from that sub-watershed,as noted below by the paramenter (pre_train_fraction = 0).  Train/test split was accomplished by reserving the final two thirds of the time period as test data. 
 
-## ProtoTyped Model - Original Data 
-
-
 ## ProtoTyped Model - UA Data 
 
-![SWE Predictions](model_results/SWE_Predictions_for_huc1711000504.png)
+![notebooks/charts/UAData_SWE_Post_Predictions_for_huc_1711000504.png]
+
+## ProtoTyped Model - Original Data 
+![notebooks/Prototype_Model_Results/charts/SWE_Post_Predictions_for_huc_1711000504.png]
 
 ## Test_MSE and KGE By Basin - UA Data
 | HUC_ID      | Test MSE  | Test KGE  |

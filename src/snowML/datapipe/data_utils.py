@@ -11,32 +11,44 @@ import io
 import os
 import time
 from io import StringIO
+import warnings
 import s3fs
 import boto3
 import xarray as xr
 import pandas as pd
 import geopandas as gpd
 import requests
-import warnings
-import logging
-from botocore.exceptions import NoCredentialsError, ClientError
 from rasterio.transform import from_bounds
 from affine import Affine
 
-logging.getLogger("aiohttp").setLevel(logging.CRITICAL)
 
-# use calc_transform instead of Affine if the data is normally sorted
+
 # TO DO - fix the future warning issue
 def calc_transform(ds):
+    """
+    Calculates the affine transformation matrix for datasets with latitude
+    values listed from smallest to largest.
+
+    Args:
+        ds (xarray.Dataset): Input dataset containing 'lon' and 'lat' dims.
+
+    Returns:
+        affine.Affine: The affine transformation matrix.
+    
+    Note:   Thus function assumes that the latitude values are listed from 
+            smallest to largest. If the latitude values are listed from largest 
+            to smallest, use the calc_Affine function instead.
+    """
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=FutureWarning)
-        transform = from_bounds(west=ds.lon.min().item(),
+        transform = from_bounds(
+            west=ds.lon.min().item(),
             south=ds.lat.min().item(),
             east=ds.lon.max().item(),
             north=ds.lat.max().item(),
             width=ds.dims["lon"],
             height=ds.dims["lat"],
-            )
+        )
     return transform
 
 def calc_Affine(ds):
@@ -52,21 +64,6 @@ def calc_Affine(ds):
     # Construct and return the affine matrix
     return Affine(lon_res, 0, lon_min, 0, lat_res, lat_max)
 
-# def crude_filter(ds, min_lon, min_lat, max_lon, max_lat):
-#     # Check if latitude is ascending or descending
-#     if ds.lat[0] < ds.lat[-1]:
-#         lat_slice = slice(min_lat, max_lat)
-#     else:
-#         lat_slice = slice(max_lat, min_lat)
-    
-#     # Check if longitude is ascending or descending
-#     if ds.lon[0] < ds.lon[-1]:
-#         lon_slice = slice(min_lon, max_lon)
-#     else:
-#         lon_slice = slice(max_lon, min_lon)
-
-#     filtered_ds = ds.sel(lat=lat_slice, lon=lon_slice)
-#     return filtered_ds
 
 def filter_by_geo (ds, geo):
     """
@@ -84,12 +81,18 @@ def filter_by_geo (ds, geo):
     ds_final = ds.rio.clip(geo.geometry, geo.crs, drop=True)
     return ds_final
 
-# def ds_mean(ds):
-#     ds_m = ds.mean(dim=['lat','lon'])
-#     ds_m = ds_m.rename({var: f"mean_{var}" for var in ds_m.data_vars})
-#     return ds_m
 
 def get_url_pattern(var):
+    """
+    Generates a URL pattern based on the variable type.
+
+    Parameters:
+    var (str): The variable type. Accepted values are:
+               ["swe", "pr", "tmmn", "sph", "vs", "srad", "tmmx", "rmin","rmax"]
+    Returns:
+    str: The URL pattern for the specified variable type. If the variable type 
+            is not recognized, returns an empty string.
+    """
     if var == "swe":
         root = "https://daacdata.apps.nsidc.org/pub/DATASETS/nsidc0719_SWE_Snow_Depth_v1/"
         file_name_pattern = "4km_SWE_Depth_WY{year}_v01.nc"
@@ -126,11 +129,30 @@ def url_to_ds(root, file_name,requires_auth=False, username=None, password=None)
 
 
 def elapsed(time_start):
+    """
+    Calculate and print the elapsed time since the given start time.
+
+    Args:
+        time_start (float): The start time in seconds since the epoch.
+
+    Returns:
+        None
+    """
     elapsed_time = time.time() - time_start
     print(f"______Elapsed time is {int(elapsed_time)} seconds")
 
 
 def s3_to_ds(bucket_name, file_name):
+    """
+    Load a dataset from an S3 bucket into an xarray Dataset.
+
+    Parameters:
+    bucket_name (str): The name of the S3 bucket.
+    file_name (str): The name of the file in the S3 bucket.
+
+    Returns:
+    xarray.Dataset: The loaded dataset.
+    """
     s3_path = f"s3://{bucket_name}/{file_name}"
     fs = s3fs.S3FileSystem(anon=False)
     with fs.open(s3_path) as f:
@@ -203,15 +225,6 @@ def dat_to_s3(dat, bucket_name, f_out, file_type="netcdf", region_name="us-west-
     file_extension = file_extension_map[file_type]
     output_file = f"{f_out}{file_extension}"
 
-    # Save the dataset in the specified format
-
-    # if file_type == "zarr":
-    #     # Save Zarr directly to S3
-    #     dat.to_zarr(f"s3://{bucket_name}/{output_file}/", mode="w")
-    #     print(f"Zarr dataset successfully uploaded to s3://{bucket_name}/{output_file}")
-    #     return
-
-
     if file_type == "csv":
         dat.to_csv(output_file, index=True)
     elif file_type == "parquet":
@@ -258,6 +271,21 @@ def s3_to_df(file_name, bucket_name):
 
 # Returns a geo dataframe of geometries from the shape bornze bucket
 def get_basin_geos (huc_lev, huc_no, bucket_nm = "shape-bronze"):
+    """
+    Retrieve a basin's geographical data from an S3 bucket.
+
+    Parameters:
+        huc_lev (str): The hydrologic unit code level.
+        huc_no (str): The hydrologic unit code number.
+        bucket_nm (str, optional): The name of the S3 bucket where the 
+        shapefile is stored. Defaults to "shape-bronze".
+
+        Returns:
+            GeoDataFrame: A gpd with geographical data of the basin.
+
+        Raises:
+            ValueError: If the shapefile not found in the specified S3 bucket.
+        """
     file_nm = f"{huc_lev}_in_{huc_no}.geojson"
     if not isin_s3(bucket_nm, file_nm):
         raise ValueError(f"No shape file found for {file_nm} in {bucket_nm}")

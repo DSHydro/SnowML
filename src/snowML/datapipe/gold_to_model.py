@@ -10,6 +10,23 @@ from snowML.datapipe import get_dem as gd
 
 
 def gather_gold_files(huc_id, var_list = None, bucket_dict = None):
+    """
+    Gather gold files based on HUC ID and variable list.
+
+    This function generates a list of file paths for gold data files based on 
+    the provided HUC ID and variable list. If no variable list or bucket 
+    dictionary is provided, default values are used.
+
+    Args:
+        huc_id (str): The Hydrologic Unit Code (HUC) ID to identify the region.
+        var_list (list, optional): A list of variables to include in the file names. 
+                Defaults to None, which will use a default variable list.
+        bucket_dict (dict, optional): A dictionary mapping bucket names to their paths. 
+                Defaults to None, which will use a default bucket dictionary.
+
+    Returns:
+        list: A list of file paths for the gold data files.
+    """
     # some set up
     if bucket_dict is None:
         bucket_dict = sdc.create_bucket_dict("prod")
@@ -25,7 +42,25 @@ def gather_gold_files(huc_id, var_list = None, bucket_dict = None):
 
     return gold_files_long
 
+
 def clean_and_filter(df, start_date = "1983-10-01", end_date = "2022-09-30"):
+    """
+    Cleans and filters the input DataFrame based on the specified date range.
+
+    Parameters:
+        df (pandas.DataFrame): The input DataFrame containing a 'day' column 
+            with date values.
+        start_date (str): The start date for filtering the DataFrame 
+            in the format 'YYYY-MM-DD'. Default is "1983-10-01".
+        end_date (str): The end date for filtering the DataFrame 
+            in the format 'YYYY-MM-DD'. Default is "2022-09-30".
+
+        Returns:
+            pandas.DataFrame: The cleaned and filtered DataFrame. The 'day' 
+            column is converted to datetime format, and the DataFrame include 
+            only rows where the 'day' value falls within the specified date 
+            range. The 'huc_id' column is dropped from the DataFrame. 
+    """
     df['day'] = pd.to_datetime(df['day'])
     df =  df[(df["day"] >= start_date) & (df["day"] < end_date)]
     df = df[df.columns.drop("huc_id")]
@@ -33,6 +68,21 @@ def clean_and_filter(df, start_date = "1983-10-01", end_date = "2022-09-30"):
 
 
 def huc_model_wrf(huc_id, bucket_dict, var_list = None):
+    """
+    Generate a DataFrame for a given HUC (Hydrologic Unit Code) by merging 
+    and processing data from multiple sources.
+
+    Parameters:
+        huc_id (str): The Hydrologic Unit Code identifier.
+        bucket_dict (dict): Dictionary containing bucket information for 
+            accessing data.
+        var_list (list, optional): List of variables to include in the model. If 
+            None, a default list is created.
+
+        Returns:
+        pd.DataFrame: A DataFrame containing the processed and merged data 
+            for the specified HUC.
+    """
 
     # some set up
     if var_list is None:
@@ -40,9 +90,11 @@ def huc_model_wrf(huc_id, bucket_dict, var_list = None):
         var_list = list(var_dict.keys())
 
 
-    files = gather_gold_files(huc_id, var_list = var_list, bucket_dict = bucket_dict)
+    files = gather_gold_files(
+        huc_id,
+        var_list = var_list,
+        bucket_dict = bucket_dict)
     #print(files)
-
 
     # open all vars and merge into one df
     fs = s3fs.S3FileSystem()
@@ -55,12 +107,12 @@ def huc_model_wrf(huc_id, bucket_dict, var_list = None):
 
     # update units & columns
     model_df["mean_swe"] = model_df["mean_swe"] / 1000  #set units to be mm
-    model_df["mean_tair"] = model_df["mean_tmmx"]/2 +  model_df["mean_tmmn"] / 2  # avg of max and min
+    model_df["mean_tair"] = model_df["mean_tmmx"]/2 +  model_df["mean_tmmn"] / 2
     model_df["mean_tair"] = model_df["mean_tair"] - 273.15  # set units to be C
     model_df = model_df[model_df.columns.drop(["mean_tmmx", "mean_tmmn"])]
     model_df["mean_rmax"] = model_df["mean_rmax"] / 100  # set units to be %
     model_df["mean_rmin"] = model_df["mean_rmin"] / 100  # set units to be %
-    model_df["mean_hum"] = model_df["mean_rmax"]/2 +  model_df["mean_rmin"] / 2  # avg of max and min
+    model_df["mean_hum"] = model_df["mean_rmax"]/2 +  model_df["mean_rmin"] / 2
 
 
     # reset index

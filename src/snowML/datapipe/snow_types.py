@@ -6,14 +6,36 @@ import requests
 import xarray as xr
 import pandas as pd
 import numpy as np
-import warnings
 import s3fs
 from snowML.datapipe import get_geos as gg
 from snowML.datapipe import set_data_constants as sdc
 
 
 def get_snow_class_data(geos = None):
+    """
+    Fetches and processes snow classification data from a remote NetCDF file.
+
+    Parameters:
+        geos (geopandas.GeoDataFrame, optional): A GeoDataFrame containing 
+            geometries to clip the dataset to. If None, the function returns 
+            data for the contiguous United States (CONUS).
+
+    Returns:
+        xarray.Dataset: The processed snow classification dataset, either 
+            clipped to the provided geometries or to the CONUS region if no 
+            geometries are provided.
+
+    Notes:
+        - The dataset is fetched from the NSIDC DAAC data repository.
+        - The dataset is expected to be in NetCDF format and is opened 
+            using the h5netcdf engine.
+        - The coordinate reference system (CRS) is set to "EPSG:4326".
+        - If `geos` is provided, it is reprojected to match the dataset's CRS
+             before clipping.
+    """
+
     url = "https://daacdata.apps.nsidc.org/pub/DATASETS/nsidc0768_global_seasonal_snow_classification_v01/SnowClass_NA_05km_2.50arcmin_2021_v01.0.nc"
+
     response = requests.get(url)
     ds = xr.open_dataset(io.BytesIO(response.content), engine="h5netcdf")
     if geos is None: # return the data for CONUS
@@ -31,7 +53,25 @@ def get_snow_class_data(geos = None):
     return ds_final
 
 def save_snow_class_data(ds, bucket_dict = None):
-    if bucket_dict is None: 
+    """
+    Save the snow class data to an S3 bucket in Zarr format.
+
+    Parameters:
+        ds (xarray.Dataset): The dataset to be saved.
+        bucket_dict (dict, optional): A dictionary containing S3 bucket 
+                information. If None, a default bucket dictionary for "prod" 
+                is created.
+
+    Returns:
+        None
+
+    Notes:
+        - Checks if the Zarr file already exists in the specified S3 path.
+        - If the file exists, prints a message indicating the file's existence.
+        - If the file does not exist, saves the dataset to Zarr 
+    """
+
+    if bucket_dict is None:
         bucket_dict = sdc.create_bucket_dict("prod")
     bucket = bucket_dict["bronze"]
     file_name = "snow_class_data.zarr"
@@ -44,7 +84,24 @@ def save_snow_class_data(ds, bucket_dict = None):
         print(f"Created new Zarr file at s3://{bucket}/{s3_path}")
 
 def snow_class_data_from_s3(geos = None, bucket_dict = None):
-    if bucket_dict is None: 
+    """
+    Fetch snow classification data from an S3 bucket and optionally clip it to 
+    a specified geographic region.
+
+    Parameters:
+        geos (geopandas.GeoDataFrame, optional): A GeoDataFrame containing the 
+            geographic region to clip the data to. If None, the full dataset for
+            CONUS (Continental United States) is returned.
+        bucket_dict (dict, optional): A dictionary containing S3 bucket info. 
+            If None, a default bucket dictionary for the "prod" environment is 
+            created using `sdc.create_bucket_dict("prod")`.
+
+    Returns:
+        xarray.Dataset: The snow classification dataset, either for the full 
+        CONUS region or clipped to the specified geographic region.
+    """
+
+    if bucket_dict is None:
         bucket_dict = sdc.create_bucket_dict("prod")
     bucket = bucket_dict["bronze"]
     zarr_store_url = f's3://{bucket}/snow_class_data.zarr'
@@ -59,6 +116,10 @@ def snow_class_data_from_s3(geos = None, bucket_dict = None):
     return ds_clipped
 
 def map_snow_class_names():
+    """ Function to map snow class values to their corresponding names.
+    Returns:
+        dict: A dictionary mapping snow class values to their names.
+    """
     snow_class_names = {
         1: "Tundra",
         2: "Boreal Forest",
@@ -114,15 +175,16 @@ def display_df(df):
     """
     Appends an average row to the DataFrame and reorders columns.
 
-    This function calculates the average of all columns except 'huc_id' in the given DataFrame,
-    appends this average as a new row with 'huc_id' set to "Average", and reorders the columns
-    so that 'huc_id' is the first column.
+    This function calculates the average of all columns except 'huc_id' in the 
+    given DataFrame,appends this average as a new row with 'huc_id' set to 
+    "Average", and reorders the columns so that 'huc_id' is the first column.
 
     Parameters:
-    df (pandas.DataFrame): The input DataFrame with a column named 'huc_id'.
+        df (pandas.DataFrame): The input DataFrame with a column named 'huc_id'.
 
     Returns:
-    pandas.DataFrame: The modified DataFrame with an appended average row and reordered columns.
+        pandas.DataFrame: The modified DataFrame with an appended average row 
+            and reordered columns.
     """
     ave_row = df.drop(columns=['huc_id']).mean().round(1).to_frame().T
     # Add 'huc_id' to the ave_row after filtering
@@ -150,6 +212,20 @@ def classify_hucs(df):
     return df_without_avg, snow_class_counts  # Return updated DataFrame and counts as a dictionary
 
 def save_snow_types(df, huc_id):
+    """
+    Save a DataFrame as a markdown table to a file.
+
+    Parameters:
+    df (pandas.DataFrame): The DataFrame containing snow types data.
+    huc_id (str): The HUC (Hydrologic Unit Code) id to be used in the filename.
+
+    Returns:
+    None
+
+    The function converts the DataFrame to a markdown table and saves it to a 
+    file located at '../../docs/tables/snow_types{huc_id}.md'. It also prints a 
+    message indicating the location of the saved file.
+    """
     markdown_table = df.to_markdown(index=False)
     with open(f'../../docs/tables/snow_types{huc_id}.md', 'w') as f:
         f.write(markdown_table)

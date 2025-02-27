@@ -3,12 +3,17 @@
 
 # Script to run an expiriment on multiple HUCs
 import torch
-from torch import optim
+import importlib
+from torch import optim()
 import mlflow
 from snowML.LSTM import LSTM_train as LSTM_tr
 from snowML.LSTM import LSTM_model as LSTM_mod
 from snowML.LSTM import set_hyperparams as sh
 from snowML.LSTM import LSTM_pre_process as pp
+
+importlib.reload(LSTM_tr)
+importlib.reload(sh)
+
 
 def set_ML_server(params):
     """
@@ -68,7 +73,13 @@ def run_expirement(train_hucs, val_hucs, test_hucs, params = None):
     if params is None:
         params = sh.create_hyper_dict()
     df_dict_tr = pp.pre_process(train_hucs, params["var_list"])
+    print("First tr df:")
+    #first_key = next(iter(df_dict_tr))  # Get the first key in the dictionary
+    #print(df_dict_tr[first_key].head(2))  # Print the first two rows of the corresponding DataFrame
     df_dict_val = pp.pre_process(val_hucs, params["var_list"])
+    #print("First val df:")
+    #first_key = next(iter(df_dict_val))  # Get the first key in the dictionary
+    print(df_dict_val[first_key].head(2))  # Print the first two rows of the corresponding DataFrame
    
 
     set_ML_server(params)

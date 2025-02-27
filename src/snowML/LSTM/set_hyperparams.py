@@ -13,7 +13,7 @@ def create_hyper_dict():
         "lookback": 180,
         "batch_size": 64,
         "n_steps": 1,
-        "num_workers": 2,
+        "num_workers": 8,
         "var_list": ["mean_pr", "mean_tair", "Mean Elevation"],
         "expirement_name": "Multi_All",
         "loss_type": "mse",

@@ -4,7 +4,7 @@
 # Script to run an expiriment on multiple HUCs
 import torch
 import importlib
-from torch import optim()
+from torch import optim
 import mlflow
 from snowML.LSTM import LSTM_train as LSTM_tr
 from snowML.LSTM import LSTM_model as LSTM_mod
@@ -61,7 +61,7 @@ def initialize_model(params):
     # Set the loss function based on the loss_type parameter
     if params["loss_type"] == "mse":
         loss_fn_dawgs = torch.nn.MSELoss()
-    elif params["loss_type"] == "hybrid":
+    else: #params["loss_type"] == "hybrid"
         loss_fn_dawgs = LSTM_mod.HybridLoss(initial_lambda=params["mse_lambda"],
                                             final_lambda=params["mse_lambda"],
                                             total_epochs=params["n_epochs"])
@@ -73,14 +73,7 @@ def run_expirement(train_hucs, val_hucs, test_hucs, params = None):
     if params is None:
         params = sh.create_hyper_dict()
     df_dict_tr = pp.pre_process(train_hucs, params["var_list"])
-    print("First tr df:")
-    #first_key = next(iter(df_dict_tr))  # Get the first key in the dictionary
-    #print(df_dict_tr[first_key].head(2))  # Print the first two rows of the corresponding DataFrame
     df_dict_val = pp.pre_process(val_hucs, params["var_list"])
-    #print("First val df:")
-    #first_key = next(iter(df_dict_val))  # Get the first key in the dictionary
-    print(df_dict_val[first_key].head(2))  # Print the first two rows of the corresponding DataFrame
-   
 
     set_ML_server(params)
     model_dawgs_pretrain, optimizer_dawgs, loss_fn_dawgs = initialize_model(params)

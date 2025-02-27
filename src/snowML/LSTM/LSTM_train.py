@@ -36,7 +36,8 @@ def pre_train(model, optimizer, loss_fn, df_dict, params, epoch):
     available_keys = list(df_dict.keys())
     random.shuffle(available_keys)
 
-    loss_fn.set_epoch(epoch)
+    if params["loss_type"] == "hybrid":
+        loss_fn.set_epoch(epoch)
     model.train()  # Set model to training mode
 
 
@@ -48,6 +49,7 @@ def pre_train(model, optimizer, loss_fn, df_dict, params, epoch):
             df_dict[selected_key],
             params
             )
+        #print(f"type of loader object is type{loader}")
 
         # Training Loop
         for X_batch, y_batch in loader:
@@ -177,7 +179,11 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
 
     # Loop through each HUC
     for selected_key in available_keys:
+        print(f"evaluating on huc {selected_key}")
         data, y_train_pred, y_test_pred, y_train_true, y_test_true, train_size_main = predict(model_dawgs, df_dict, selected_key, params)
+        #print(y_test_true[0:5])
+        #print(y_test_pred[0:5])
+        
         # Compute MSE
         if params["train_size_dimension"] == "time":
             train_mse = mean_squared_error(y_train_true, y_train_pred)

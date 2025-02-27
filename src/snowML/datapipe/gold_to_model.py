@@ -48,7 +48,6 @@ def huc_model_wrf(huc_id, bucket_dict, var_list = None):
     fs = s3fs.S3FileSystem()
     dfs = [pd.read_csv(fs.open(file_path)) for file_path in files]
     dfs_clean = [clean_and_filter(df) for df in dfs]
-    mismatch = check_for_mismatch(dfs_clean)
 
     model_df = dfs_clean[0]
     for df in dfs_clean[1:]:

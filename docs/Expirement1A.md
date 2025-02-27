@@ -12,10 +12,10 @@ In this expirement 1A, all watersheds were trained *only* using the data from th
 
 ## ProtoTyped Model - UA Data 
 
-!(../notebooks/Prototype_Model_Results/charts/UAData_SWE_Post_Predictions_for_huc_1711000504.png)
+![foo](../notebooks/Prototype_Model_Results/charts/UAData_SWE_Post_Predictions_for_huc_1711000504.png)
 
 ## ProtoTyped Model - Original Data 
-!(../notebooks/Prototype_Model_Results/charts/SWE_Post_Predictions_for_huc_1711000504.png)
+![foo](../notebooks/Prototype_Model_Results/charts/SWE_Post_Predictions_for_huc_1711000504.png)
 
 ## Test_MSE and KGE By Basin - UA Data
 | HUC_ID      | Test MSE  | Test KGE  |

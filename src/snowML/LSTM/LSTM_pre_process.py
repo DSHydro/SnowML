@@ -72,7 +72,7 @@ def pre_process(huc_list, var_list, bucket_dict=None):
         df = z_score_normalize(df, global_means, global_stds)  # Pass global mean and std for normalization
         df_dict[huc] = df  # Store normalized DataFrame
 
-    print(f"number of sub units for training is {len(df_dict)}")
+    print(f"number of sub units is {len(df_dict)}")
     return df_dict
 
 def create_tensor(dataset, lookback, var_list):

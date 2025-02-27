@@ -36,21 +36,6 @@ In this expirement 1A, all watersheds were trained *only* using the data from th
 ## Model Details: ProtoTyped Model - UA Data 
 | Parameter           | Value                       |
 |---------------------|-----------------------------|
-| hidden_size         | 64                          |
-| num_class           | 1                           |
-| num_layers          | 1                           |
-| dropout             | 0.5                         |
-| learning_rate       | 0.001                       |
-| n_epochs            | 10                          |
-| pre_train_fraction  | 0                           |
-| train_size_fraction | 0.67                        |
-| lookback            | 180                         |
-| batch_size          | 16                          |
-| n_steps             | 1                           |
-| num_workers         | 8                           |
-| var_list            | ['mean_pr', 'mean_tair']    |
-| experiment_name     | BackToBasics_Skagitt        |
-| run_mame            | likeable-vole-19            |
-| run_id              | b1649da4415449c49ad0841fd230d950|
+||
 
 

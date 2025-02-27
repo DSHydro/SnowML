@@ -1,6 +1,27 @@
-# Module to download raw data to bronze bucket
-# pylint: disable=C0103
 
+
+# pylint: disable=C0103
+"""
+Module provides functions to download and process climate data from a
+specified URL and save it to an S3 bucket in Zarr format. Includes functions to 
+handle authentication, process datasets, and manage progress tracking. 
+
+Functions:
+    url_to_ds(url, requires_auth=False, username=None, password=None, timeout=60):
+
+    download_year(var, year):
+        Downloads data for a given variable and year.
+
+    process_year(ds, var):
+
+    download_multiple_years(start_year, end_year, var, s3_bucket, 
+                append_to=False):
+        Downloads and processes data for multiple years, saving the results to a 
+        Zarr file on S3.
+
+    get_bronze(var, bronze_bucket_nm, year_start=1995, year_end=2023, 
+         append_to=False):
+"""
 
 import warnings
 import time
@@ -71,6 +92,18 @@ def download_year(var, year):
     return ds
 
 def process_year(ds, var):
+    """
+    Processes a dataset for a given year and variable.
+
+    Parameters:
+        ds (xarray.Dataset): The dataset to be processed.
+        var (str): The variable to process. 
+
+    Returns:
+        xarray.Dataset: The processed dataset with sorted latand lon coords.
+        If the variable is "swe", the "SWE" var long name will be reset to "swe"
+        and the "DEPTH" variable will be dropped from the dataset.
+    """
     if var == "swe":
         ds = ds.rename({"time": "day"})
         ds = ds["SWE"] # drop DEPTH variable from SWE Dataset
@@ -81,7 +114,37 @@ def process_year(ds, var):
 
     return ds
 
-def download_multiple_years(start_year, end_year, var, s3_bucket, append_to=False):
+def download_multiple_years(
+        start_year,
+        end_year,
+        var,
+        s3_bucket,
+        append_to=False):
+
+    """
+    Downloads and processes data for multiple years, saving the results to a 
+    Zarr file on S3.
+
+    Parameters:
+        start_year (int): The starting year of the range to download.
+        end_year (int): The ending year of the range to download.
+        var (str): The variable name to download and process.
+        s3_bucket (str): The name of the S3 bucket to store Zarr file.
+        append_to (bool, optional): If True, append to an existing Zarr file. 
+            If False, create a new Zarr file. Default is False.
+
+        Returns:
+            str: The S3 path to the saved Zarr file.
+
+        Raises:
+            ValueError: If the S3 Zarr path exists and append_to is False.
+
+        Notes:
+        - The function tracks completed years using a local progress file.
+        - Data is processed and saved year by year, either creating a new Zarr 
+                file or appending to an existing one.
+        """
+
     time_start = time.time()
     s3_path = f"{var}_all.zarr"
 
@@ -90,16 +153,19 @@ def download_multiple_years(start_year, end_year, var, s3_bucket, append_to=Fals
 
     # Check if the S3 Zarr path already exists
     if fs.exists(f"s3://{s3_bucket}/{s3_path}") and not append_to:
-        raise ValueError(f"Warning: The path s3://{s3_bucket}/{s3_path} already exists in the S3 bucket.")
+        raise ValueError(
+            f"Warning: The path s3://{s3_bucket}/{s3_path} already exists "
+            "in the S3 bucket."
+        )
 
     # define some data-specific attributes
     dim_to_concat = "day"
 
     # Load progress from a local file to keep track of completed years
-    progress_file = f"{var}_progress.json"  
+    progress_file = f"{var}_progress.json"
     completed_years = set()
     if os.path.exists(progress_file):
-        with open(progress_file, "r") as f:
+        with open(progress_file, "r", encoding="utf-8") as f:
             completed_years = set(json.load(f))
     print(f"Resuming with completed years: {sorted(completed_years)}")
 
@@ -128,7 +194,7 @@ def download_multiple_years(start_year, end_year, var, s3_bucket, append_to=Fals
                 ds.to_zarr(f"s3://{s3_bucket}/{s3_path}", mode="a", append_dim=dim_to_concat, consolidated=True)
                 print(f"Appended year {year} to s3://{s3_bucket}/{s3_path}")
                 completed_years.add(year)
-                with open(progress_file, "w") as f:
+                with open(progress_file, "w", encoding="utf-8") as f:
                     json.dump(sorted(completed_years), f)
                 du.elapsed(time_start)
 

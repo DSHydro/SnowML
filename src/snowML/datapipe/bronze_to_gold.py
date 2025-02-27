@@ -1,9 +1,15 @@
-"""Module to calculate daily mean of climate data and save as a csv file"""
+"""
+Module to process climate data from bronze to gold standard.
+
+This module includes functions to prepare datasets from Zarr files stored in S3 
+buckets,create masks for specific geometries, and convert datasets to a 
+standardized format by resampling and averaging specified variables. 
+The processed data is then saved as CSV files.
+"""
 
 
 # pylint: disable=C0103
 
-import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 import xarray as xr
 from snowML.datapipe import data_utils as du
@@ -13,6 +19,25 @@ from snowML.datapipe import set_data_constants as sdc
 VAR_DICT = sdc.create_var_dict()
 
 def prep_bronze(var, bucket_dict = None):
+    """
+    Prepares a dataset from a Zarr file stored in an S3 bucket.
+
+    This function opens a Zarr file from an S3 bucket, processes the 
+    dataset,and writes spatial information to it. The dataset is then closed 
+    and returned.
+
+    Parameters:
+        var (str): The variable name to be processed.
+        bucket_dict (dict, optional): A dictionary containing bucket names. 
+            If None, a default bucket dictionary for the "prod" environment
+            is created.
+
+        Returns:
+            xarray.Dataset: The processed dataset with spatial information.
+
+        Raises:
+            KeyError: If the "bronze" key is not found in the bucket_dict.
+        """
     if bucket_dict is None:
         bucket_dict = sdc.create_bucket_dict("prod")
     b_bronze = bucket_dict["bronze"]
@@ -57,7 +82,7 @@ def ds_to_gold(ds, var):
 
     Parameters:
     ds (xarray.Dataset): The input dataset containing the data to be processed.
-    var (str): The variable name to be processed, which should be a key in the VAR_DICT.
+    var (str): The variable name to be processed, should be a key in VAR_DICT.
 
     Returns:
     xarray.Dataset: A new dataset containing the daily mean of the specified variable, 
@@ -74,6 +99,24 @@ def ds_to_gold(ds, var):
 
 
 def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite):
+    """
+    Processes a single row(geometry) of data from bronze to gold.
+
+    Args:
+        row (dict): A dictionary containing the data for a single geometry, 
+            including 'huc_id'.
+        var (str): The variable name to process (e.g., 'tmmn', 'rmax').
+        idx (int): The index of the current row being processed.
+        bucket_dict (dict): A dictionary containing S3 bucket information.
+        crs (str): Coordinate reference system information.
+        var_name (str): The name of the variable to be used in the 
+            final gold dataset.
+        overwrite (bool): Flag indicating whether to 
+            overwrite existing files in the gold bucket.
+
+    Returns:
+        None
+    """
     huc_id = row['huc_id']
     print(f"Processing huc {idx+1}, huc_id: {huc_id}")
 
@@ -106,6 +149,23 @@ def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite):
         #du.elapsed(time_start)
 
 def process_geos(geos, var, bucket_dict= None, overwrite=False, max_wk = 8):
+    """
+    Processes geographical data in parallel using a ProcessPoolExecutor.
+
+    Args:
+        geos (GeoDataFrame): A GeoDataFrame containing the data to be processed.
+            var (str): The variable to be processed, used to retrieve the 
+                variable name from VAR_DICT.
+            bucket_dict (dict, optional): A dictionary containing bucket info. 
+                If None, a default bucket dictionary is created. 
+            overwrite (bool, optional): A flag indicating whether to 
+                overwrite existing data. Defaults to False.
+            max_wk (int, optional): The maximum number of worker processes to 
+                use for parallel processing. Defaults to 8.
+
+        Returns:
+            None
+        """
     crs = geos.crs
     var_name = VAR_DICT.get(var)
     if bucket_dict is None:

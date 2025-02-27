@@ -17,6 +17,7 @@ Sections include
 
 
 # Data Pipeline - Repo Steps <br>
+For instructions on how to reproduce the data pipeline, or create model-ready data for additional huc units, please refer to our [DataPipe Notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/DataPipe.ipynb)
 
 # Model Ready Data <br>
 Data ready to be deployed into the Frosty Dawgs SnowML model can be downloaded from the S3 bucket named "snowML-model-ready". <br>

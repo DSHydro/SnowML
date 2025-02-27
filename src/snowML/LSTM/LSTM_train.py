@@ -183,7 +183,7 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
         data, y_train_pred, y_test_pred, y_train_true, y_test_true, train_size_main = predict(model_dawgs, df_dict, selected_key, params)
         #print(y_test_true[0:5])
         #print(y_test_pred[0:5])
-        
+    
         # Compute MSE
         if params["train_size_dimension"] == "time":
             train_mse = mean_squared_error(y_train_true, y_train_pred)

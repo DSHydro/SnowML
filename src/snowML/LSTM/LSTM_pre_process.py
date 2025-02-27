@@ -6,10 +6,7 @@ import pandas as pd
 import numpy as np
 import torch
 from snowML.datapipe import data_utils as du
-from snowML.datapipe import get_geos as gg
 from snowML.datapipe import set_data_constants as sdc
-from snowML.datapipe import snow_types as st
-
 
 
 def z_score_normalize(df, global_means, global_stds):

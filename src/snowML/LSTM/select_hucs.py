@@ -1,12 +1,11 @@
 # Module to select hucs for train, test, validate for multi-huc expirement
 
 import random
-import pandas as pd
 import json
 from snowML.datapipe import snow_types as st
 from snowML.datapipe import get_geos as gg
 
-# Define constants 
+# Define constants
 
 huc_maritime = [17020009, 17110006, 17110005, 17110009, 17020011]
 huc_montane =  [17060207, 17010304, 17010302, 17060208]
@@ -16,7 +15,7 @@ INPUT_PAIRS = [[huc, '12'] for huc in huc_all]
 TRAIN_SIZE_FRACTION = 0.6
 VAL_SIZE_FRACTION = 0.2
 TEST_SIZE_FRACTION = 0.2
-EXLCUDED_EPHEMERAL = True 
+EXLCUDED_EPHEMERAL = True
 # Excluded Hucs Due to Missing SWE Data (Canada)
 EXCLUDED_HUCS = ["1711000501", "1711000502", "1711000503", "171100050101", "171100050102", \
                 "171100050201", "171100050202", "171100050203", "171100050301", \
@@ -47,7 +46,7 @@ def assemble_huc_list(input_pairs):
             geos = snowclass_filter(geos)
             #print(f"filtered shape for {pair[0]} is {geos.shape}")
         hucs.extend(geos["huc_id"].to_list())
-    # Filter out excluded hucs 
+    # Filter out excluded hucs
     hucs = [huc for huc in hucs if huc not in EXCLUDED_HUCS]
     return hucs
 
@@ -69,7 +68,7 @@ def split_by_huc(hucs, train_size_frac, val_size_frac):
     test_hucs = hucs[val_end:]
     return train_hucs, val_hucs, test_hucs
 
-def select_hucs(input_pairs, f_out="hucs_data.json"): 
+def select_hucs(input_pairs, f_out="hucs_data.json"):
     hucs = assemble_huc_list(input_pairs)
     train_hucs, val_hucs, test_hucs = split_by_huc(hucs, TRAIN_SIZE_FRACTION, VAL_SIZE_FRACTION)
    # Combine the lists into a dictionary
@@ -81,7 +80,7 @@ def select_hucs(input_pairs, f_out="hucs_data.json"):
     # Save the dictionary to a single JSON file
     with open(f_out, "w") as json_file:
         json.dump(hucs_dict, json_file, indent=2)
-    
+
     return train_hucs, val_hucs, test_hucs
 
 def find_nan_dataframes(df_dict):
@@ -92,7 +91,3 @@ def find_nan_dataframes(df_dict):
             print(f"Warning: The DataFrame for '{key}' has {nan_count} NaN values.")
             nan_dfs.append(key)
     return nan_dfs
-    
-
-    
-

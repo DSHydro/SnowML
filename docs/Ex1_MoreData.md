@@ -30,9 +30,13 @@ Interestingly, the model performed dramatically better in some watersheds than i
 
 ## ProtoTyped Model - UA Data vs. Original Data
 
+## ProtoTyped Model - UA Data vs. Original Data
+
 | ProtoTyped Model - UA Data | ProtoTyped Model - Original Data |
 |----------------------------|---------------------------------|
 | ![UA Data](../notebooks/Prototype_Model_Results/charts/UAData_SWE_Post_Predictions_for_huc_1711000504.png) | ![Original Data](../notebooks/Prototype_Model_Results/charts/SWE_Post_Predictions_for_huc_1711000504.png) |
+| ![UA Data](../notebooks/Prototype_Model_Results/charts/UAData_SWE_Post_Predictions_for_huc_1711000506.png) | ![Original Data](../notebooks/Prototype_Model_Results/charts/SWE_Post_Predictions_for_huc_1711000506.png) |
+
 
 
 ## 

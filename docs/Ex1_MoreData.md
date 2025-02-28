@@ -22,30 +22,18 @@ The variation in model performance in different Huc10 watershed units is also no
 **Variability in "Actual" SWE Between UA and SnowTel Datasets**
 [** TO BE INSERTED **] 
 
-# Limitations and Questions For Further Research**
-[** TO BE INSERTED **] 
-
-
-
-For huc 1711000504 **TO DO - maybe give it a name** the test KGE was an eye popping .94, compared to a value of .47 using the prior data.  
-
-# Results For All 8 Watersheds 
-
-Using **TO DO** Also note differences in "truth" SWE - a reminder that our predictions are limited by the accuracy of our "ground truth" data/  
-
-Interestingly, the model performed dramatically better in some watersheds than in others. We further explore differences in model performance by watershed is explored in later expirements. 
-
-
-
-
-## Figure1- UA Data vs. Original Data, Prediction Plots for two Example HUC12 Units - 1711000504 and 1711000506
+## Figure1
+## UA Data vs. Original Data, Prediction Plots for two Example HUC12 Units - 1711000504 and 1711000506
 
 | ProtoTyped Model - UA Data | ProtoTyped Model - Original Data |
 |----------------------------|---------------------------------|
 | ![UA Data](../notebooks/Prototype_Model_Results/charts/UAData_SWE_Post_Predictions_for_huc_1711000504.png) | ![Original Data](../notebooks/Prototype_Model_Results/charts/SWE_Post_Predictions_for_huc_1711000504.png) |
 | ![UA Data](../notebooks/Prototype_Model_Results/charts/UAData_SWE_Post_Predictions_for_huc_1711000506.png) | ![Original Data](../notebooks/Prototype_Model_Results/charts/SWE_Post_Predictions_for_huc_1711000506.png) |
 
+## Figure2
+## UA Data vs. Original Data, Goodness of Fit Measures 
 
+[** TO BE INSERTED **] 
 
 ## What is KGE? 
 [Klinge-Gupta Efficiency](https://en.wikipedia.org/wiki/Kling%E2%80%93Gupta_efficiency), is a metric is commonly used to assess the performance of hydrological models. KGE is a composite measure that considers (i) Correlation (r) between observed and simulated data, (ii) the Bias (β) assesaws S the ratio of the mean of simulated data to the mean of observed data, and (iii) Variability (y), which compares the standard deviations of simulated and observed data to evaluate the model's ability to reproduce the variability in the observed data.  It is calculated as KGE=1− sqrt((r−1)^2+(β−1)^2+(γ−1)^2).  
@@ -53,8 +41,14 @@ Interestingly, the model performed dramatically better in some watersheds than i
 KGE values range from negative infinity to 1, with a KGE value of 1 indicating perfect agreement between the simulated and observed data. A model which simply predicts the mean will have a KGE of -0.44.  What is considered a "good" KGE score is context specific.  For our expirements, we considered KGE > 0.7 to be acceptable, KGE >0.8 to be good, and KGE > 0.9 to be excellent based on literature reviwe of similar expirements.  
 
 
+# Limitations and Questions For Further Research**
+[** TO BE INSERTED **] 
 
-## Model Details: ProtoTyped Model - UA Data 
+## How to Reproduce The Reults 
+The results for this expirement were produced using jupyter notebooks: [Ex1: Notebook - Snowtel Data](https://github.com/DSHydro/SnowML/blob/a38b71732907f79f4150c4a3fa5794b1a0aafe2e/notebooks/Prototype_Model_Results/Original_Tutorial_Time_Series_Prediction_of_Snow_Water_Equivalent_(SWE)_Using_LSTM_in_PyTorch.ipynb)  and [Ex1: Notebook - UA Data](https://github.com/DSHydro/SnowML/blob/a38b71732907f79f4150c4a3fa5794b1a0aafe2e/notebooks/Prototype_Model_Results/Original_Tutorial_Time_Series_Prediction_of_Snow_Water_Equivalent_(SWE)_Using_LSTM_in_PyTorch-NewData.ipynb).  Parameters used resulting mdoel weights, and diagnostic metrics were all saved in MLFlow for later retreiveal and analysis. 
+
+Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes. 
+
 | Parameter           | Value                       |
 |---------------------|-----------------------------|
 ||

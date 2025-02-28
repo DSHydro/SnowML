@@ -14,7 +14,7 @@ from snowML.LSTM import LSTM_pre_process as pp
 def create_dataloader(df, params):
     """ Creates a DataLoader for a given HUC dataset """
     if params["train_size_dimension"] == "time":
-        train_data, _, _, _ = pp.train_test_split(
+        train_data, _, _, _ = pp.train_test_split_time(
                                     df, params["train_size_fraction"])
         X_train, y_train = pp.create_tensor(train_data,
                                     params["lookback"], params["var_list"])
@@ -31,9 +31,10 @@ def create_dataloader(df, params):
     )
     return loader
 
-# Pre-training Phase: Train on multiple HUCs
+# Pre-training Phase
 def pre_train(model, optimizer, loss_fn, df_dict, params, epoch):
-    """ Pre-train the model on multiple HUCs """
+    """ First training pass. Model saved for potential fine tuning."""
+
     # Initialize available keys for sampling without replacement
 
     available_keys = list(df_dict.keys())
@@ -69,7 +70,7 @@ def pre_train(model, optimizer, loss_fn, df_dict, params, epoch):
     mlflow.log_metric("avg_training_mse", avg_loss, step=epoch)
 
 
-def fine_tune(model, optimizer, loss_fn, df_dict, target_key, params, epoch):
+def fine_tune(model, optimizer, loss_fn, df_train, params, epoch):
     """
     Fine-tunes the given model on the target dataset specified by target_key.
 
@@ -77,9 +78,7 @@ def fine_tune(model, optimizer, loss_fn, df_dict, target_key, params, epoch):
         model (torch.nn.Module): The model to be fine-tuned.
         optimizer (torch.optim.Optimizer): The optimizer ufor updating the model.
         loss_fn (torch.nn.Module): The loss function used to calc loss.
-        df_dict (dict): A dictionary containing dataframes of different datasets.
-        target_key (str): The key in df_dict that specifies the target dataset 
-            for fine-tuning.
+        df_train (dict): The training data. 
         params (dict): A dictionary of parameters for creating the DataLoader.
         epoch (int): The current epoch number.
 
@@ -87,11 +86,9 @@ def fine_tune(model, optimizer, loss_fn, df_dict, target_key, params, epoch):
         None
     """
 
-    df_target = df_dict[target_key]
-
     # Create DataLoader for fine-tuning (target HUC)
     loader = create_dataloader(
-        df_target,
+        df_train,
         params
         )
 
@@ -209,8 +206,8 @@ def predict (model_dawgs, df_dict, selected_key, params):
     data = df_dict[selected_key]
 
     if params["train_size_dimension"] == "time":
-        train_main, test_main, train_size_main, _  = pp.train_test_split(data,
-                                        params['train_size_fraction'])
+        train_main, test_main, train_size_main, _  = pp.train_test_split_time(
+                                        data, params['train_size_fraction'])
         X_train, y_train = pp.create_tensor(train_main,
                                         params['lookback'],
                                         params['var_list'])

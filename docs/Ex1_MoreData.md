@@ -6,7 +6,7 @@ The first adjustment we made to the proptoyped LSTM Model was to use the Univers
 
 We reran the protoype LSTM model with the new data, leaving all other hyperparmeters unchanged except one. We reduced the number of epochs to 10 after observing early convergence of the model -- possibly due to the increased training data available. The graphs below compare the prior data run at 200 epochs with the new data run at 10 epochs, but the observations are robust to the number of epochs used. Please refer to the [Viz10COmpare notebook](notebooks/Prototype_Model_Results/VizHuc10Compare.ipynb) for sensitivy analysis related to number of epochs used.  
 
-In this expirement 1A, each Huc10 watersheds was trained *only* using the data from that wattershed. Train/test split was accomplished by reserving the final two thirds of the time period as test data. 
+In this Expirement 1, each Huc10 watershed was trained *only* using the data from that wattershed. Train/test split was accomplished by reserving the final two thirds of the time period as test data. 
 
 
 # Observations and Results 
@@ -14,24 +14,24 @@ In this expirement 1A, each Huc10 watersheds was trained *only* using the data f
 **More Data = Better Results** <br>
 Not surprisingly, including longer time series of data generally increased model fit. Figure 1 below graphs actual and predicted levels of swe for two example Huc10 units within the [Skagit Basin](docs/basin_fact_sheets/Skagit(17110005).md), 1711000504 and 171100506, using both data sets. From visual inspection, using the longer time series from the UA data set appears to decrease overfitting and aid model performance. 
 
-These visual observations are confimed by two goodness of fit measures: Mean Squared Error ("MSE"), and  [Klinge-Gupta Efficiency](https://github.com/DSHydro/SnowML/blob/main/docs/Ex1_MoreData.md#figure1--ua-data-vs-original-data-prediction-plots-for-two-example-huc12-units---1711000504-and-1711000506). As shown in Figure 2, the longer time series data showed test KGE improvements for each of the eight watersheds tested, as shown in the third chart below. Mean Squared Error results were more mixed. In the majority of watersheds, mean squared error improved when running the model with the longer time series of data, but in two watersheds, the model deteriorated with the increased time series of data.
+These visual observations are confimed by two goodness of fit measures: Mean Squared Error ("MSE"), and  [Klinge-Gupta Efficiency](https://github.com/DSHydro/SnowML/blob/main/docs/Ex1_MoreData.md#figure1--ua-data-vs-original-data-prediction-plots-for-two-example-huc12-units---1711000504-and-1711000506). As shown in Figure 2, the longer time series data showed test KGE improvements for each of the eight watersheds tested. Mean Squared Error results were more mixed. In the majority of watersheds, mean squared error improved when running the model with the longer time series of data, but in two watersheds, the model deteriorated with the increased time series of data.
 
-**Discrepency in Model Performance Accross Different Huc12 Units** <br>
-The variation in model performance in different Huc10 watershed units is also notable, given that in this expirement a separate model was trained for that watershed. In expirement 2, we investigate perforance variation acrros different huc units in more detail. 
+**Discrepency in Model Performance Accross Different Huc10 Units** <br>
+The variation in model performance in different Huc10 watershed units is also notable, given that in this expirement a separate model was trained for that watershed. In Expirement 2, we investigate perforance variation acrros different huc units in more detail. 
 
 **Variability in "Actual" SWE Between UA and SnowTel Datasets**
 [** TO BE INSERTED **] 
 
 ## Figure1
-## UA Data vs. Original Data, Prediction Plots for two Example HUC12 Units - 1711000504 and 1711000506
+**UA Data vs. SnowTel Data Prediction Plots for two Example HUC10 Units - 1711000504 and 1711000506
 
-| ProtoTyped Model - UA Data | ProtoTyped Model - Original Data |
+| ProtoTyped Model - UA Data | ProtoTyped Model - Original (SnowTel) Data |
 |----------------------------|---------------------------------|
 | ![UA Data](../notebooks/Prototype_Model_Results/charts/UAData_SWE_Post_Predictions_for_huc_1711000504.png) | ![Original Data](../notebooks/Prototype_Model_Results/charts/SWE_Post_Predictions_for_huc_1711000504.png) |
 | ![UA Data](../notebooks/Prototype_Model_Results/charts/UAData_SWE_Post_Predictions_for_huc_1711000506.png) | ![Original Data](../notebooks/Prototype_Model_Results/charts/SWE_Post_Predictions_for_huc_1711000506.png) |
 
 ## Figure2
-## UA Data vs. Original Data, Goodness of Fit Measures 
+** UA Data vs. Original (SnowTel) Data, Goodness of Fit Measures 
 
 [** TO BE INSERTED **] 
 

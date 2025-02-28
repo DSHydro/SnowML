@@ -1,4 +1,4 @@
-# pylint: disable=C0103
+# pylint: disable=C0103, R0913, R0914
 
 import random
 import torch
@@ -14,10 +14,13 @@ from snowML.LSTM import LSTM_pre_process as pp
 def create_dataloader(df, params):
     """ Creates a DataLoader for a given HUC dataset """
     if params["train_size_dimension"] == "time":
-        train_data, _, _, _ = pp.train_test_split(df, params["train_size_fraction"])
-        X_train, y_train = pp.create_tensor(train_data, params["lookback"], params["var_list"])
+        train_data, _, _, _ = pp.train_test_split(
+                                    df, params["train_size_fraction"])
+        X_train, y_train = pp.create_tensor(train_data,
+                                    params["lookback"], params["var_list"])
     else:
-        X_train, y_train = pp.create_tensor(df, params["lookback"], params["var_list"])
+        X_train, y_train = pp.create_tensor(df,
+                                    params["lookback"], params["var_list"])
 
     # Create a DataLoader
     loader = torch.utils.data.DataLoader(
@@ -40,6 +43,7 @@ def pre_train(model, optimizer, loss_fn, df_dict, params, epoch):
         loss_fn.set_epoch(epoch)
     model.train()  # Set model to training mode
 
+    loss_val_list = []
 
     for i, selected_key in enumerate(available_keys, start=1):
         if i % 5 == 0:
@@ -49,7 +53,6 @@ def pre_train(model, optimizer, loss_fn, df_dict, params, epoch):
             df_dict[selected_key],
             params
             )
-        #print(f"type of loader object is type{loader}")
 
         # Training Loop
         for X_batch, y_batch in loader:
@@ -59,9 +62,30 @@ def pre_train(model, optimizer, loss_fn, df_dict, params, epoch):
             loss.backward()
             optimizer.step()
 
+            loss_val_list.append(loss.item())
 
-# Fine-tuning Phase: Train on target HUC
+    avg_loss = np.mean(loss_val_list)
+    print(f"Average loss for epoch {epoch} is {avg_loss}")
+    mlflow.log_metric("avg_training_mse", avg_loss, step=epoch)
+
+
 def fine_tune(model, optimizer, loss_fn, df_dict, target_key, params, epoch):
+    """
+    Fine-tunes the given model on the target dataset specified by target_key.
+
+    Args:
+        model (torch.nn.Module): The model to be fine-tuned.
+        optimizer (torch.optim.Optimizer): The optimizer ufor updating the model.
+        loss_fn (torch.nn.Module): The loss function used to calc loss.
+        df_dict (dict): A dictionary containing dataframes of different datasets.
+        target_key (str): The key in df_dict that specifies the target dataset 
+            for fine-tuning.
+        params (dict): A dictionary of parameters for creating the DataLoader.
+        epoch (int): The current epoch number.
+
+    Returns:
+        None
+    """
 
     df_target = df_dict[target_key]
 
@@ -85,6 +109,37 @@ def fine_tune(model, optimizer, loss_fn, df_dict, target_key, params, epoch):
 
 
 def kling_gupta_efficiency(y_true, y_pred):
+    """
+    Calculate the Kling-Gupta Efficiency (KGE) and its components.
+
+    The KGE is a metric used to evaluate the performance of hydrological models.
+    It is composed of three components: correlation (r), variability ratio 
+    (alpha), and bias ratio (beta).
+
+    Parameters:
+    y_true (np.ndarray): Array of true values.
+    y_pred (np.ndarray): Array of predicted values.
+
+    Returns:
+    tuple: A tuple containing the following elements:
+        - kg (float): Kling-Gupta Efficiency.
+        - r (float): Correlation coefficient between y_true and y_pred.
+        - alpha (float): Variability ratio (standard deviation of y_pred / 
+            standard deviation of y_true).
+        - beta (float): Bias ratio (mean of y_pred / mean of y_true).
+
+    Notes:
+    - If NaN values are detected in y_true or y_pred, the function will print 
+        an error message and return (np.nan, np.nan, np.nan, np.nan).
+    - If zero variance is detected in y_true or y_pred, the function will print 
+        an error message and return (np.nan, np.nan, np.nan, np.nan).
+
+    Example:
+    >>> y_true = np.array([1, 2, 3, 4, 5])
+    >>> y_pred = np.array([1.1, 2.1, 2.9, 4.1, 5.1])
+    >>> kling_gupta_efficiency(y_true, y_pred)
+    (0.993, 0.998, 1.0, 1.02)
+    """
     # Check for NaNs
     if np.isnan(y_true).any() or np.isnan(y_pred).any():
         print("Error: NaN values detected in y_true or y_pred")
@@ -107,6 +162,18 @@ def kling_gupta_efficiency(y_true, y_pred):
     return kg, r, alpha, beta
 
 def store_metrics(metric_names, metrics_list_dict, available_keys, epoch):
+    """
+    Stores and logs the mean and median of given metrics for each epoch.
+
+    Parameters:
+        metric_names (list of str): List of metric names to be stored and logged.
+        metrics_list_dict (dict): Dict of metric values, keyed by metric names.
+        available_keys (list): List of keys to be used as the index for the DataFrame.
+        epoch (int): The current epoch number, used for logging metrics in mlflow.
+
+    Returns:
+        None
+    """
     df = pd.DataFrame({
         metric_names[0]: metrics_list_dict[metric_names[0]],
         metric_names[1]: metrics_list_dict[metric_names[1]],
@@ -142,7 +209,8 @@ def predict (model_dawgs, df_dict, selected_key, params):
     data = df_dict[selected_key]
 
     if params["train_size_dimension"] == "time":
-        train_main, test_main, train_size_main, _  = pp.train_test_split(data, params['train_size_fraction'])
+        train_main, test_main, train_size_main, _  = pp.train_test_split(data,
+                                        params['train_size_fraction'])
         X_train, y_train = pp.create_tensor(train_main,
                                         params['lookback'],
                                         params['var_list'])
@@ -168,6 +236,20 @@ def predict (model_dawgs, df_dict, selected_key, params):
 
 
 def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
+    """
+    Evaluate the performance of the model on the given dataset.
+
+    Parameters:
+        model_dawgs (object): The trained model to be evaluated.
+        df_dict (dict): Dictionary of dataframes for each HUC to be evaluated.
+        params (dict): Dictionary containing the parameters for evaluation.
+        epoch (int): The current epoch number.
+        selected_keys (list, optional): List of keys to be evaluated. 
+            If None, all keys in df_dict are used.
+
+    Returns:
+        None
+    """
     if selected_keys is None:
         available_keys = list(df_dict.keys())
         random.shuffle(available_keys)
@@ -181,31 +263,29 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
     for selected_key in available_keys:
         print(f"evaluating on huc {selected_key}")
         data, y_train_pred, y_test_pred, y_train_true, y_test_true, train_size_main = predict(model_dawgs, df_dict, selected_key, params)
-        #print(y_test_true[0:5])
-        #print(y_test_pred[0:5])
-    
+
         # Compute MSE
         if params["train_size_dimension"] == "time":
             train_mse = mean_squared_error(y_train_true, y_train_pred)
-        else:
-            train_mse = -500  # TO DO: Make more elegant
         test_mse = mean_squared_error(y_test_true, y_test_pred)
 
         # Compute KGE
         if params["train_size_dimension"] == "time":
             train_kge, _, _, _ = kling_gupta_efficiency(y_train_true, y_train_pred)
-        else:
-            train_kge = -500 # TO DO: Make more elegant
         test_kge, _, _, _ = kling_gupta_efficiency(y_test_true, y_test_pred)
 
-        metrics = [train_mse, test_mse, train_kge, test_kge]
+        if params["train_size_dimension"] == "time":
+            metrics = [test_mse, test_kge]
+        else:
+            metrics = [train_mse, test_mse, train_kge, test_kge]
 
 
         # Log, print, & save metrics
-        for i in range(len(metrics)):
-            mlflow.log_metric(f"{metric_names[i]}_{str(selected_key)}", metrics[i], step=epoch)
-            print(f"{metric_names[i]}_{str(selected_key)}: {metrics[i]}")
-            metrics_list_dict[metric_names[i]].append(metrics[i])
+        for i, metric in enumerate(metrics):
+            mlflow.log_metric(f"{metric_names[i]}_{str(selected_key)}",
+                              metric, step=epoch)
+            print(f"{metric_names[i]}_{str(selected_key)}: {metric}")
+            metrics_list_dict[metric_names[i]].append(metric)
         print("")
 
 
@@ -220,6 +300,25 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
 
 
 def plot(data, y_train_pred, y_test_pred, train_size, huc_id, params):
+    """
+    Plots the actual and predicted SWE (Snow Water Equivalent) values for 
+    training and testing datasets.
+
+    Args:
+        data (pd.DataFrame): DataFrame containing the actual SWE values 
+            with a datetime index.
+        y_train_pred (np.ndarray): Array of predicted SWE for the training set.
+        y_test_pred (np.ndarray): Array of predicted SWE for the testing set.
+        train_size (int): The size of the training dataset.
+        huc_id (str): Hydrologic Unit Code identifier for the dataset.
+        params (dict): Dictionary containing parameters for the plot, including:
+            - "train_size_dimension" (str): Training size dim, e.g., "time".
+            - "lookback" (int): Number of time steps to consider for predictions.
+            - "expirement_name" (str): Name of experiment for labeling the plot.
+
+    Returns:
+        None
+    """
 
     train_plot = np.full_like(data['mean_swe'].values, np.nan, dtype=float)
     test_plot = np.full_like(data['mean_swe'].values, np.nan, dtype=float)

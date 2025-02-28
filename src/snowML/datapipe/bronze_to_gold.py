@@ -45,6 +45,7 @@ def prep_bronze(var, bucket_dict = None):
 
     # Open the Zarr file directly with storage options
     ds = xr.open_zarr(zarr_store_url, consolidated=True, storage_options={'anon': False})
+    print("Opened Zarr file successfully.")
 
     # Process the dataset as needed
     if var != "swe":
@@ -103,7 +104,7 @@ def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite):
     Processes a single row(geometry) of data from bronze to gold.
 
     Args:
-        row (dict): A dictionary containing the data for a single geometry, 
+        row (dict): A series containing the data for a single geometry, 
             including 'huc_id'.
         var (str): The variable name to process (e.g., 'tmmn', 'rmax').
         idx (int): The index of the current row being processed.
@@ -123,7 +124,7 @@ def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite):
     # process to silver
     small_ds = prep_bronze(var, bucket_dict=bucket_dict)
     df_silver = create_mask(small_ds, row, crs)
-    #print(f"Processing huc {idx+1}, huc_id: {huc_id} to silver completed")
+    print(f"Processing huc {idx+1}, huc_id: {huc_id} to silver completed")
 
     # process to gold
     f_gold = f"mean_{var}_in_{huc_id}"

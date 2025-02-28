@@ -1,9 +1,8 @@
-# pylint: disable=C0103, R0913, R0914
+# pylint: disable=C0103, R0913, R0914, R0917
 
 import random
 import torch
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import mlflow
 from sklearn.metrics import mean_squared_error
@@ -92,7 +91,8 @@ def fine_tune(model, optimizer, loss_fn, df_train, params, epoch):
         params
         )
 
-    loss_fn.set_epoch(epoch)
+    if params["loss_type"] == "hybrid":
+        loss_fn.set_epoch(epoch)
     model.train()  # Set model to training mode
     #print(f"Epoch {epoch}: Fine-tuning on target HUC {target_key}")
 
@@ -158,48 +158,27 @@ def kling_gupta_efficiency(y_true, y_pred):
     print(f"r: {r}, alpha: {alpha}, beta: {beta}")
     return kg, r, alpha, beta
 
-def store_metrics(metric_names, metrics_list_dict, available_keys, epoch):
+def store_summ_metrics(metric_names, metrics_list_dict, epoch):
     """
-    Stores and logs the mean and median of given metrics for each epoch.
+   Computes and logs the mean and median of given metrics for each epoch.
 
     Parameters:
         metric_names (list of str): List of metric names to be stored and logged.
         metrics_list_dict (dict): Dict of metric values, keyed by metric names.
-        available_keys (list): List of keys to be used as the index for the DataFrame.
         epoch (int): The current epoch number, used for logging metrics in mlflow.
 
     Returns:
         None
     """
-    df = pd.DataFrame({
-        metric_names[0]: metrics_list_dict[metric_names[0]],
-        metric_names[1]: metrics_list_dict[metric_names[1]],
-        metric_names[2]: metrics_list_dict[metric_names[2]],
-        metric_names[3]: metrics_list_dict[metric_names[3]]
-        }, index=available_keys)
-
-    # Compute the mean and median for each metric
-    if df.shape[0] > 1:
-        mean_values = df.mean()
-        median_values = df.median()
-
-        print("Mean Metrics:")
-        print(mean_values)
-        print("")
-
-        print("Median Metrics:")
-        print(median_values)
-        print("")
-
-        # Log each mean and median metric in mlflow
-        for metric_name, mean_value in mean_values.items():
-            mlflow.log_metric(f"mean_{metric_name}", mean_value, step=epoch)
-
-        for metric_name, median_value in median_values.items():
-            mlflow.log_metric(f"median_{metric_name}", median_value, step=epoch)
-
-        df.loc['Total'] = mean_values
-
+    for i in range(len(metric_names)):
+        metric_nm = metric_names[i]
+        metric_list = metrics_list_dict[metric_nm]
+        mean_value = np.mean(metric_list)
+        print(f"mean_{metric_nm} is {mean_value}")
+        mlflow.log_metric(f"mean_{metric_nm}", mean_value, step=epoch)
+        median_value = np.median(metric_list)
+        print(f"median_{metric_nm} is {median_value}")
+        mlflow.log_metric(f"median_{metric_nm}", median_value, step=epoch)
 
 
 def predict (model_dawgs, df_dict, selected_key, params):
@@ -264,18 +243,23 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
         # Compute MSE
         if params["train_size_dimension"] == "time":
             train_mse = mean_squared_error(y_train_true, y_train_pred)
+        else:
+            train_mse = -500
+        metrics_list_dict["train_mse"].append(train_mse)
         test_mse = mean_squared_error(y_test_true, y_test_pred)
+        metrics_list_dict["test_mse"].append(test_mse)
 
         # Compute KGE
         if params["train_size_dimension"] == "time":
             train_kge, _, _, _ = kling_gupta_efficiency(y_train_true, y_train_pred)
-        test_kge, _, _, _ = kling_gupta_efficiency(y_test_true, y_test_pred)
-
-        if params["train_size_dimension"] == "time":
-            metrics = [test_mse, test_kge]
         else:
-            metrics = [train_mse, test_mse, train_kge, test_kge]
+            train_kge = -500
+        metrics_list_dict["train_kge"].append(train_kge)
+        test_kge, _, _, _ = kling_gupta_efficiency(y_test_true, y_test_pred)
+        metrics_list_dict["test_kge"].append(test_kge)
 
+
+        metrics = [train_mse, test_mse, train_kge, test_kge]
 
         # Log, print, & save metrics
         for i, metric in enumerate(metrics):
@@ -292,8 +276,9 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
                 plot(data, y_train_pred, y_test_pred, train_size_main, selected_key, params)
             except Exception as e:
                 print(f"Error occurred while plotting: {e}")
-
-    store_metrics(metric_names, metrics_list_dict, available_keys, epoch)
+    
+        if len(available_keys) > 1: 
+            store_summ_metrics(metric_names, metrics_list_dict, epoch)
 
 
 def plot(data, y_train_pred, y_test_pred, train_size, huc_id, params):

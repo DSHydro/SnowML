@@ -8,16 +8,17 @@ def create_hyper_dict():
         "num_class": 1,
         "num_layers": 1,
         "dropout": 0.5,
-        "learning_rate": 5e-4,  # 3e-3
-        "n_epochs": 30,
+        "learning_rate": 1e-3,  # 3e-3
+        "n_epochs": 10,
         "lookback": 180,
         "batch_size": 64,
         "n_steps": 1,
         "num_workers": 8,
-        "var_list": ["mean_pr", "mean_tair", "Mean Elevation"],
-        "expirement_name": "Multi_All",
+        "var_list": ["mean_pr", "mean_tair"],
+        "expirement_name": "Single All",
         "loss_type": "mse",
         "mse_lambda": 1, 
-        "train_size_dimension": "huc"
+        "train_size_dimension": "time",
+        "train_size_fraction": .67
     }
     return param_dict

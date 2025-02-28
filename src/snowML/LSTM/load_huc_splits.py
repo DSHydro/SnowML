@@ -1,4 +1,4 @@
-# Load tr, val, te values
+""" Moduel that loads and returns train, validate, and test hucs from a saved json file"""
 
 import json
 

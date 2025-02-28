@@ -277,8 +277,8 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
             except Exception as e:
                 print(f"Error occurred while plotting: {e}")
     
-        if len(available_keys) > 1: 
-            store_summ_metrics(metric_names, metrics_list_dict, epoch)
+    if len(available_keys) > 1: 
+        store_summ_metrics(metric_names, metrics_list_dict, epoch)
 
 
 def plot(data, y_train_pred, y_test_pred, train_size, huc_id, params):

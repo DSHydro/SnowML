@@ -103,4 +103,26 @@ def create_tensor(dataset, lookback, var_list):
 
     #du.elapsed(time_start)
     return X_tensor, y_tensor
+
+def train_test_split_time(data, train_size_fraction):
+    """
+    Splits the given time series data into training and testing sets along the 
+    time dimension.
+
+    Parameters:
+        data (iterable): The time series data to be split.
+        train_size_fraction (float): The fraction of the data to be used for 
+            training. Should be between 0 and 1.
+
+    Returns
+        tuple: A tuple containing:
+            - train_main (iterable): The training set.
+            - test_main (iterable): The testing set.
+            - train_size_main (int): The size of the training set.
+            - test_size_main (int): The size of the testing set.
+    """
+    train_size_main = int(len(data) * train_size_fraction)
+    test_size_main = len(data) - train_size_main
+    train_main, test_main = data[:train_size_main], data[train_size_main:]
+    return train_main, test_main, train_size_main, test_size_main
    

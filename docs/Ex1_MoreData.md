@@ -1,4 +1,4 @@
-# Expirement 1A: Add longer time series data
+# Expirement: Use more Data! 
 
 ** TO DO: Explain that the original prototyped model was run on 8 watersheds within Skagit and we did same **
 
@@ -26,12 +26,19 @@ Using the longer time series data showed test KGE improvements for each of the e
 Interestingly, the model performed dramatically better in some watersheds than in others. We further explore differences in model performance by watershed is explored in later expirements. 
 
 
-## ProtoTyped Model - UA Data, 1711000504 
+## ProtoTyped Model - UA Data vs. Original Data
 
-![foo](../notebooks/Prototype_Model_Results/charts/UAData_SWE_Post_Predictions_for_huc_1711000504.png)
+<div style="display: flex; justify-content: center; gap: 10px;">
+    <div>
+        <h3>ProtoTyped Model - UA Data</h3>
+        <img src="../notebooks/Prototype_Model_Results/charts/UAData_SWE_Post_Predictions_for_huc_1711000504.png" width="45%">
+    </div>
+    <div>
+        <h3>ProtoTyped Model - Original Data</h3>
+        <img src="../notebooks/Prototype_Model_Results/charts/SWE_Post_Predictions_for_huc_1711000504.png" width="45%">
+    </div>
+</div>
 
-## ProtoTyped Model - Original Data 
-![foo](../notebooks/Prototype_Model_Results/charts/SWE_Post_Predictions_for_huc_1711000504.png)
 
 ## 
 

@@ -75,7 +75,7 @@ def run_local_exp(hucs, train_size_frac, params = None):
     if params is None:
         params = sh.create_hyper_dict()
     df_dict = pp.pre_process(hucs, params["var_list"])
-    
+
     set_ML_server(params)
     model_dawgs, optimizer_dawgs, loss_fn_dawgs = initialize_model(params)
 
@@ -91,7 +91,7 @@ def run_local_exp(hucs, train_size_frac, params = None):
             df = df_dict[huc]
             df_dict_small = {huc: df}
             df_train, df_test, _, _ = pp.train_test_split_time(df, train_size_frac)
-            
+
             for epoch in range(params["n_epochs"]):
                 print(f"Epoch {epoch}")
 

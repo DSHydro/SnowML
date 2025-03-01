@@ -71,11 +71,11 @@ def initialize_model(params):
     return model_dawgs, optimizer_dawgs, loss_fn_dawgs
 
 
-def run__local_train_test(hucs, train_size_frac, params = None):
+def run_local_exp(hucs, train_size_frac, params = None):
     if params is None:
         params = sh.create_hyper_dict()
     df_dict = pp.pre_process(hucs, params["var_list"])
-    
+
     set_ML_server(params)
     model_dawgs, optimizer_dawgs, loss_fn_dawgs = initialize_model(params)
 
@@ -90,8 +90,8 @@ def run__local_train_test(hucs, train_size_frac, params = None):
             print(f"Training on HUC {huc}")
             df = df_dict[huc]
             df_dict_small = {huc: df}
-            df_train, df_test, _, _ = LSTM_tr.train_test_split_time(df, train_size_frac)
-            
+            df_train, df_test, _, _ = pp.train_test_split_time(df, train_size_frac)
+
             for epoch in range(params["n_epochs"]):
                 print(f"Epoch {epoch}")
 
@@ -100,18 +100,17 @@ def run__local_train_test(hucs, train_size_frac, params = None):
                 model_dawgs,
                 optimizer_dawgs,
                 loss_fn_dawgs,
-                df_dict,
-                huc,
+                df_train,
                 params,
                 epoch
                 )
 
-            # validate
-            LSTM_tr.evaluate(
-                model_dawgs,
-                df_dict_small,
-                params,
-                epoch)
+                # validate
+                LSTM_tr.evaluate(
+                    model_dawgs,
+                    df_dict_small,
+                    params,
+                    epoch)
 
             # log the model
             mlflow.pytorch.log_model(model_dawgs,

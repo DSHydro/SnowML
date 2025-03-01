@@ -33,7 +33,8 @@ The variation in model performance in different Huc10 watershed units is also no
 ## Figure2
 **UA Data vs. Original (SnowTel) Data, Goodness of Fit Measures**
 
-[** TO BE INSERTED **] 
+[KGE_Compare](https://github.com/DSHydro/SnowML/blob/e0ee4f9ebcec079b35945f16297b8243fad30189/notebooks/Ex1_MoreData/charts/Klinge_Gupta_Efficiency_By_Huc_and_Type_of_Data_Used.png)
+[MSE_Compare](https://github.com/DSHydro/SnowML/blob/e0ee4f9ebcec079b35945f16297b8243fad30189/notebooks/Ex1_MoreData/charts/Mean_Square_Error_By_Huc_and_Type_of_Data_Used.png)
 
 # What is KGE? 
 [Klinge-Gupta Efficiency](https://en.wikipedia.org/wiki/Kling%E2%80%93Gupta_efficiency), is a metric is commonly used to assess the performance of hydrological models. KGE is a composite measure that considers (i) Correlation (r) between observed and simulated data, (ii) the Bias (β) assesaws S the ratio of the mean of simulated data to the mean of observed data, and (iii) Variability (y), which compares the standard deviations of simulated and observed data to evaluate the model's ability to reproduce the variability in the observed data.  It is calculated as KGE=1− sqrt((r−1)^2+(β−1)^2+(γ−1)^2).  
@@ -42,7 +43,7 @@ KGE values range from negative infinity to 1, with a KGE value of 1 indicating p
 
 
 # Limitations and Questions For Further Research
-[** TO BE INSERTED **] 
+[** TO BE INSERTED **]
 
 # How to Reproduce The Reults 
 The results for this expirement were produced using jupyter notebooks: [Ex1: Notebook - Snowtel Data](https://github.com/DSHydro/SnowML/blob/a38b71732907f79f4150c4a3fa5794b1a0aafe2e/notebooks/Prototype_Model_Results/Original_Tutorial_Time_Series_Prediction_of_Snow_Water_Equivalent_(SWE)_Using_LSTM_in_PyTorch.ipynb)  and [Ex1: Notebook - UA Data](https://github.com/DSHydro/SnowML/blob/a38b71732907f79f4150c4a3fa5794b1a0aafe2e/notebooks/Prototype_Model_Results/Original_Tutorial_Time_Series_Prediction_of_Snow_Water_Equivalent_(SWE)_Using_LSTM_in_PyTorch-NewData.ipynb).  Parameters used resulting mdoel weights, and diagnostic metrics were all saved in MLFlow for later retreiveal and analysis. 

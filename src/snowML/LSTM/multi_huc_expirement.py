@@ -72,8 +72,14 @@ def initialize_model(params):
 def run_expirement(train_hucs, val_hucs, test_hucs, params = None):
     if params is None:
         params = sh.create_hyper_dict()
-    df_dict_tr = pp.pre_process(train_hucs, params["var_list"])
-    df_dict_val = pp.pre_process(val_hucs, params["var_list"])
+    tr_and_val_hucs = train_hucs + val_hucs  
+    df_dict = pp.pre_process(tr_and_val_hucs, params["var_list"])  
+    df_dict_tr = {huc: df_dict[huc] for huc in train_hucs if huc in df_dict}  
+    #first_df = next(iter(df_dict_tr.values()))  # Get the first DataFrame in the dictionary
+    #print(first_df.head(2))  # Print the first two rows
+    df_dict_val = {huc: df_dict[huc] for huc in val_hucs if huc in df_dict}
+    #first_df = next(iter(df_dict_val.values()))  # Get the first DataFrame in the dictionary
+    #print(first_df.head(2))  # Print the first two rows
 
     set_ML_server(params)
     model_dawgs_pretrain, optimizer_dawgs, loss_fn_dawgs = initialize_model(params)

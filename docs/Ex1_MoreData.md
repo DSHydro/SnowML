@@ -33,7 +33,8 @@ The variation in model performance in different Huc10 watershed units is also no
 ## Figure2
 **UA Data vs. Original (SnowTel) Data, Goodness of Fit Measures**
 
-![KGE_Compare]([https://github.com/DSHydro/SnowML/blob/e0ee4f9ebcec079b35945f16297b8243fad30189/notebooks/Ex1_MoreData/charts/Klinge_Gupta_Efficiency_By_Huc_and_Type_of_Data_Used.png]
+![KGE_Compare](https://github.com/DSHydro/SnowML/blob/7b9d88797ac90603c03b732958c8c35ee3aa0d18/notebooks/Ex1_MoreData/charts/Klinge_Gupta_Efficiency_By_Huc_and_Type_of_Data_Used.png)
+
 ![MSE_Compare](https://github.com/DSHydro/SnowML/blob/e0ee4f9ebcec079b35945f16297b8243fad30189/notebooks/Ex1_MoreData/charts/Mean_Square_Error_By_Huc_and_Type_of_Data_Used.png)
 
 # What is KGE? 

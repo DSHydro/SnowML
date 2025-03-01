@@ -31,11 +31,12 @@ The variation in model performance in different Huc10 watershed units is also no
 | ![UA Data](../notebooks/Ex1_MoreData/charts/UAData_SWE_Post_Predictions_for_huc_1711000506.png) | ![Original Data](../notebooks/Ex1_MoreData/charts/SWE_Post_Predictions_for_huc_1711000506.png) |
 
 ## Figure2
-**UA Data vs. Original (SnowTel) Data, Goodness of Fit Measures**
 
+**KGE - Higher Values (Closer to 1) Represent Better Fit 
 ![KGE_Compare](https://github.com/DSHydro/SnowML/blob/7b9d88797ac90603c03b732958c8c35ee3aa0d18/notebooks/Ex1_MoreData/charts/Klinge_Gupta_Efficiency_By_Huc_and_Type_of_Data_Used.png)
 
-![MSE_Compare](https://github.com/DSHydro/SnowML/blob/e0ee4f9ebcec079b35945f16297b8243fad30189/notebooks/Ex1_MoreData/charts/Mean_Square_Error_By_Huc_and_Type_of_Data_Used.png)
+**MSE - Lower Values (Closer to 0) Represent Better Fit 
+![MSE_Compare](https://github.com/DSHydro/SnowML/blob/399f07908822c42e43942bc28d908fbc3a58ab06/notebooks/Ex1_MoreData/charts/Mean_Square_Error_By_Huc_and_Type_of_Data_Used.pngI
 
 # What is KGE? 
 [Klinge-Gupta Efficiency](https://en.wikipedia.org/wiki/Kling%E2%80%93Gupta_efficiency), is a metric is commonly used to assess the performance of hydrological models. KGE is a composite measure that considers (i) Correlation (r) between observed and simulated data, (ii) the Bias (β) assesaws S the ratio of the mean of simulated data to the mean of observed data, and (iii) Variability (y), which compares the standard deviations of simulated and observed data to evaluate the model's ability to reproduce the variability in the observed data.  It is calculated as KGE=1− sqrt((r−1)^2+(β−1)^2+(γ−1)^2).  

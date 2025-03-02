@@ -40,7 +40,7 @@ The training/validation/huc splits are also recorded below.  The expirement was 
 The results were gathered over three MLflow expirements(using the same parameters), each on a subset of the total hucs used, to make run_times manageable.
 
 
-The metrics discussed above were downloaded from ML flow using the notebook **TO INSERT** and analyzed using the notebook **TO INSERT**
+The metrics discussed above were downloaded from ML flow using [this notebook](https://github.com/DSHydro/SnowML/blob/d1653c0b190fa6e54b4473dc1d4808fe5c590e81/notebooks/Ex2_VarianceByHuc/DownloadMetrics.ipynb) and analyzed using this notebook **TO INSERT**
 
 ## Model Parameters
 

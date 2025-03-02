@@ -1,13 +1,18 @@
 # Expirement 2: Investigate Model Performance Accross Hucs 
 
-[** TO BE INSERTED **] 
+In the second expirement, we examined how the simple, local training LSTM model performed accross a variety of Hus12(sub-watershed) units.  We examined **insert number** watersheds with a variety of predominant snow types - Ephemeral, Maritime, and Montane Forest.  Each individual Huc12 unit was trained using data only fromthat same Huc12 unit, and tested on later years of data using a train/test split of .67.  
 
 
 # Observations and Results 
 
+Several interesting observations result from this expirement: 
 [** TO BE INSERTED **] 
 
+
+
+
 ## Figure1
+[Map of Huc12 Units Tested - by Snow Type]
 
 
 ## Figure2

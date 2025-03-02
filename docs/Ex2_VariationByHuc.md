@@ -7,17 +7,6 @@
 
 [** TO BE INSERTED **] 
 
-**More Data = Better Results** <br>
-Not surprisingly, including longer time series of data generally increased model fit. Figure 1 below graphs actual and predicted levels of swe for two example Huc10 units within the [Skagit Basin](docs/basin_fact_sheets/Skagit(17110005).md), 1711000504 and 171100506, using both data sets. From visual inspection, using the longer time series from the UA data set appears to decrease overfitting and aid model performance. 
-
-These visual observations are confimed by two goodness of fit measures: Mean Squared Error ("MSE"), and  [Klinge-Gupta Efficiency](https://github.com/DSHydro/SnowML/blob/main/docs/Ex1_MoreData.md#figure1--ua-data-vs-original-data-prediction-plots-for-two-example-huc12-units---1711000504-and-1711000506) "KGE". As shown in Figure 2, the longer time series data showed test KGE improvements for each of the eight watersheds tested. Mean Squared Error results were more mixed. In the majority of watersheds, MSE improved when running the model with the longer time series of data, but in two watersheds, MSE deteriorated with the increased time series of data.
-
-**Discrepency in Model Performance Accross Different Huc10 Units** <br>
-The variation in model performance in different Huc10 watershed units is also notable, given that in this expirement a separate model was trained for each watershed. In Expirement 2, we investigate perforance variation acrros different huc units in more detail. 
-
-**Variability in "Actual" SWE Between UA and SnowTel Datasets** <br>
-[** TO BE INSERTED **] 
-
 ## Figure1
 **UA Data vs. SnowTel Data Prediction Plots for two Example HUC10 Units - 1711000504 and 1711000506**
 
@@ -48,7 +37,7 @@ The results for this expirement were produced using the snowML.LSTM package in t
 The training/validation/huc splits are also recorded below.  The expirement was then run by importing the module `multi-huc-expirement.py` and by calling the function
 `run_expirement(train_hucs, val_hucs, test_hucs)` Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes. 
 
-The results were gathered over three MLflow expirements(using the same parameters), each on a subset of the total hucs used, to make run_times manageable******
+The results were gathered over three MLflow expirements(using the same parameters), each on a subset of the total hucs used, to make run_times manageable.
 
 
 The metrics discussed above were downloaded from ML flow using the notebook **TO INSERT** and analyzed using the notebook **TO INSERT**

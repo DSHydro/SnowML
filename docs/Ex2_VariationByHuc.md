@@ -1,11 +1,18 @@
-# Expirement 2: Investigate Model Performance Accross Hucs 
+# Expirement 2: Investigate Model Performance Accross Huc12 Sub-Watersheds
 
-In the second expirement, we examined how the simple, local training LSTM model performed accross a variety of Hus12(sub-watershed) units.  We examined **insert number** watersheds with a variety of predominant snow types - Ephemeral, Maritime, and Montane Forest.  Each individual Huc12 unit was trained using data only fromthat same Huc12 unit, and tested on later years of data using a train/test split of .67.  
+In the second expirement, we examined how the simple, local training LSTM model performed accross a variety of Huc12(sub-watershed) units.  We examined **insert number** watersheds with a variety of predominant snow types - Ephemeral, Maritime, and Montane Forest.  Each individual Huc12 unit was trained using data only fromthat same Huc12 unit, and tested on later years of data using a train/test split of .67.  
 
 
 # Observations and Results 
 
 Several interesting observations result from this expirement: 
+
+**Variation in Model Effectiveness by Snow Type and Model Elevation** <br>
+
+**Divergence in Goodness of Fit Measures** <br>
+Figures **X** and **X** plot Test KGE values against Test MSE values accross Huc12 sub-watershed units.  The two goodness of fit measures diverge significantly for many of the Huc12 units, especially for regions dominated by ephemeral snow. In hydrology, KGE is typically considered the more relevant goodness of fit meausure, however, it is difficult to use directly as a loss function because it is not easily differentiable.  Nonetheless, figures **X** and *XX** highlight the imprecision introduced by using MSE as a loss function if the ultimate goal is to produce high values of KGE.  We briefly expiremented with using KGE, or a hybring KGE+MSE loss function during training but observed impractical training times and chaotic results, so did not further pursue this avenue at this time.  Nontheless, investigation into the best loss function strategy is a ripe area for future research. 
+
+
 [** TO BE INSERTED **] 
 
 
@@ -17,18 +24,20 @@ Several interesting observations result from this expirement:
 
 ## Figure2
 
+## Figure3 
+[Scatterplot of KGE vs. MSE] 
+
 
 
 
 # Limitations and Questions For Further Research
-[** TO BE INSERTED **]
+- We did not perform significant hyperparameter tuning. Future researchers may wish to investigate hyperparameter tuning using stratified cross-validation.Moreover, given the differences in model performance accross snow types and elevation, it would be worth purusing whether different snow types/elevations require different sets of optimized hyperparameters.  [**Add point about noisyness makes especially relevant to investigate finetuning**] 
+- As discussed w/r/t Expirement 1, the training data SWE values are themselves a model, so any imprecisions in the training SWE values would make model results diverge from ground truth even assuming the model perfectly predicted the training SWE values.
+- As noted above, using MSE as a training loss function may not optimize for the best KGE fit, but in hydrology KGE is viewed as the superior goodness of fit measure.  Using KGE itslef as a loss funciton is challenging because the measure is not easily differentiable and therefor highly computationally intensive. Training with KGE as a loss funciton can also lead to instabiliyt/lack of model convergence, as we observed directly with some initial experimentation using KGE as a loss function. Nonetheless, further research into using KGE as a trainign loss measure is warranted.  Future researchers could consider hybrid training strategies, such as using MSE as the loss function in early epochs and switching to a KGE or hybird measure only in later epochs when the model has stabalized. 
 
 # How to Reproduce The Results
-The results for this expirement were produced using the snowML.LSTM package in this repo.  The hyperparameters were set as shown in the section below. 
-The training/validation/huc splits are also recorded below.  The expirement was then run by importing the module `multi-huc-expirement.py` and by calling the function
-`run_expirement(train_hucs, val_hucs, test_hucs)` Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes. 
-
-The results were gathered over three MLflow expirements(using the same parameters), each on a subset of the total hucs used, to make run_times manageable.
+The results for this expirement were produced using the snowML.LSTM package in this repo.  The hyperparameters were set as shown in the section below. The expirement was then run by importing the module `local-training-expirement.py` and by calling the function
+`run_expirement()` Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes. 
 
 
 The metrics discussed above were downloaded from ML flow using [this notebook](https://github.com/DSHydro/SnowML/blob/d1653c0b190fa6e54b4473dc1d4808fe5c590e81/notebooks/Ex2_VarianceByHuc/DownloadMetrics.ipynb) and analyzed using [this notebook](https://github.com/DSHydro/SnowML/blob/24819a388afc00303ca350f9256376979f2f5298/notebooks/Ex2_VarianceByHuc/LSTM_By_Huc.ipynb). 

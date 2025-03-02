@@ -1,15 +1,11 @@
-# Expirement 1: Use more Data! 
+# Expirement 2: Investigate Model Performance Accross Hucs 
 
-** TO DO: Explain that the original prototyped model was run on 8 Huc10 watersheds within Skagit and we did same **
-
-The first adjustment we made to the proptoyped LSTM Model was to use the University of Arizona estimates of Snow Water Equivilent (SWE) [data]( https://climate.arizona.edu/data/UA_SWE/) as our target dataset for training and evaluating the model. This dataset contains a longer time series of available SWE data than used in the protoyped model. 
-
-We reran the protoype LSTM model with the new data, leaving all other hyperparmeters unchanged except one. We reduced the number of epochs to 10 after observing early convergence of the model -- possibly due to the increased training data available. The graphs below compare the prior data run at 200 epochs with the new data run at 10 epochs, but the observations are robust to the number of epochs used. Please refer to the [Viz10COmpare notebook](notebooks/Prototype_Model_Results/VizHuc10Compare.ipynb) for sensitivy analysis related to number of epochs used.  
-
-In this Expirement 1, each Huc10 watershed was trained *only* using the data from that wattershed. Train/test split was accomplished by reserving the final two thirds of the time period as test data. 
+[** TO BE INSERTED **] 
 
 
 # Observations and Results 
+
+[** TO BE INSERTED **] 
 
 **More Data = Better Results** <br>
 Not surprisingly, including longer time series of data generally increased model fit. Figure 1 below graphs actual and predicted levels of swe for two example Huc10 units within the [Skagit Basin](docs/basin_fact_sheets/Skagit(17110005).md), 1711000504 and 171100506, using both data sets. From visual inspection, using the longer time series from the UA data set appears to decrease overfitting and aid model performance. 
@@ -50,12 +46,36 @@ KGE values range from negative infinity to 1, with a KGE value of 1 indicating p
 # How to Reproduce The Results
 The results for this expirement were produced using the snowML.LSTM package in this repo.  The hyperparameters were set as shown in the section below. 
 The training/validation/huc splits are also recorded below.  The expirement was then run by importing the module `multi-huc-expirement.py` and by calling the function
+`run_expirement(train_hucs, val_hucs, test_hucs)` Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes. 
 
-```python
-run_expirement(train_hucs, val_hucs, test_hucs)```
+The results were gathered over three MLflow expirements(using the same parameters), each on a subset of the total hucs used, to make run_times manageable******
 
 
-Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes. 
+The metrics discussed above were downloaded from ML flow using the notebook **TO INSERT** and analyzed using the notebook **TO INSERT**
 
 ## Model Parameters
+
+| Parameter             | Value                        |
+|-----------------------|----------------------------|
+| hidden_size          | 64                           |
+| num_class           | 1                            |
+| num_layers         | 1                            |
+| dropout            | 0.5                          |
+| learning_rate      | 0.001                        |
+| n_epochs           | 10                           |
+| lookback           | 180                          |
+| batch_size         | 64                           |
+| n_steps            | 1                            |
+| num_workers        | 8                            |
+| var_list           | ['mean_pr', 'mean_tair']     |
+| expirement_name    | Single All                   |
+| loss_type          | mse                          |
+| mse_lambda         | 1                            |
+| train_size_dimension | time                        |
+| train_size_fraction | 0.67                         |
+| MLFlow Expirement   | Single ALl                  |
+| ML Flow Run IDs|  69d929bbdfdd43b4a2f45b823d945eb7, b0fa8180481a4dc6954f138e9ee934aa, aca5e4d1b42044a2aeabc055a0b14d8d|
+
+ 
+
 

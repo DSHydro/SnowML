@@ -57,7 +57,7 @@ Map of Huc12 Units Used in this Expirement, by Snow Type.
 **Figure 2C - Goodness of Fit Measures by Snow Type and Mean Basin Elevation** 
 | Test KGE by Elevation and SnowType | Test MSE by Elevation and SnowType |
 |------------------------------------|------------------------------------|
-| ![Test KGE by Elevation and SnowType](https://github.com/DSHydro/SnowML/blob/4319d34278c70bd2498704ad7b87d5e764fa96be/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20KGE%20by%20Elevation%20Category%20and%20Predominant_Snow%20-%20Locally%20Trained%20Sub-Watersheds.png) | ![Test MSE by Elevation and SnowType](https://github.com/DSHydro/Snow
+| ![Test KGE by Elevation and SnowType](https://github.com/DSHydro/SnowML/blob/4319d34278c70bd2498704ad7b87d5e764fa96be/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20KGE%20by%20Elevation%20Category%20and%20Predominant_Snow%20-%20Locally%20Trained%20Sub-Watersheds.png) | ![Test MSE by Elevation and SnowType](https://github.com/DSHydro/SnowML/blob/4319d34278c70bd2498704ad7b87d5e764fa96be/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20MSE%20by%20Elevation%20Category%20and%20Predominant_Snow%20-%20Locally%20Trained%20Sub-Watersheds.png)
 
 
 **Figure 2D - Goodness of FIt Measures By Basin**

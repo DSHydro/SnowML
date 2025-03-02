@@ -41,8 +41,10 @@ Map of Huc12 Units Used in this Expirement, by Snow Type.
 ## Figure2
 
 **Figure 2A - Goodness of Fit Measures By Snow Type**
-![Test KGE By Predominant Snow Type - Excludes Ephemeral](https://github.com/DSHydro/SnowML/blob/252b8399f385c7bb212a1f9f3c0dd62b57d67174/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20KGE%20by%20Predominant%20Snow%20Type%20-%20Locally%20Trained%20Hucs.png)
-![Test MSE By Predominant Snow Type](https://github.com/DSHydro/SnowML/blob/6192f2ae1ef7ce6792ff17c6f1c85deb4e456cc0/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20MSE%20by%20Predominant%20Snow%20Type%20-%20Locally%20Trained%20Hucs.png)
+![Test KGE By Predominant Snow Type - Excludes Ephemeral](https://github.com/DSHydro/SnowML/blob/094ee64af6af3a735df95ab1b9897bbf435b4007/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20KGE%20by%20Predominant%20Snow%20Type%20-%20Locally%20Trained%20Hucs%20-%20Excludes%20Ephemeral.png)
+![Test MSE By Predominant Snow Type - Excludes Ephemeral](https://github.com/DSHydro/SnowML/blob/6192f2ae1ef7ce6792ff17c6f1c85deb4e456cc0/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20MSE%20by%20Predominant%20Snow%20Type%20-%20Locally%20Trained%20Hucs.png)
+![Test KGE by Predominant Snow Type - Includes Ephemeral](https://github.com/DSHydro/SnowML/blob/094ee64af6af3a735df95ab1b9897bbf435b4007/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20KGE%20by%20Predominant%20Snow%20Type%20-%20Locally%20Trained%20Hucs.png)
+![Test MSE By Predominant Snow Type - Includes Ephemeral](https://github.com/DSHydro/SnowML/blob/094ee64af6af3a735df95ab1b9897bbf435b4007/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20KGE%20by%20Predominant%20Snow%20Type%20-%20Locally%20Trained%20Hucs.png)
 
 **Figure 2B - Goodness of Fit Measures By Mean Basin Elevation**
 | KGE by Mean Basin Elevation | MSE by Mean Basin Elevation |
@@ -53,8 +55,9 @@ Map of Huc12 Units Used in this Expirement, by Snow Type.
 **Figure 2C - Goodness of Fit Measures by Snow Type and Mean Basin Elevation** 
 
 **Figure 2D - Goodness of FIt Measures By Basin**
-
-| ![KGE By Basin](https://github.com/DSHydro/SnowML/blob/e167b7d1b6d78f23b2e39b0f428a400358be1bc0/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20KGE%20by%20Basins%20-%20Locally%20Trained%20Sub-Watersheds%20(Exludes%20Ephemeral%20Sub-Watersheds).png) |  |
+| KGE By Basin | MSE By Basin |
+|--------------|--------------|
+| ![KGE By Basin](https://github.com/DSHydro/SnowML/blob/e167b7d1b6d78f23b2e39b0f428a400358be1bc0/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20KGE%20by%20Basins%20-%20Locally%20Trained%20Sub-Watersheds%20(Exludes%20Ephemeral%20Sub-Watersheds).png) | ![MSE By Basin](https://github.com/DSHydro/SnowML/blob/094ee64af6af3a735df95ab1b9897bbf435b4007/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20MSE%20by%20Basins%20-%20Locally%20Trained%20Sub-Watersheds%20(Excludes%20Ephemeral%20Sub-Watersheds).png)|
 
 
 ## Figure3 

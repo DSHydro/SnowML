@@ -2,7 +2,9 @@
 
 In the second expirement, we examined how the simple, local training LSTM model performed accross a variety of Huc12(sub-watershed) units.  Again the model aimed to predict swe values using an LSTM model with mean_temperature and mean_precipittion as the feature inputs.  
 
-We examined **insert number** watersheds with a variety of predominant snow types - Ephemeral, Maritime, and Montane Forest.  Each individual Huc12 unit was trained using data only fromthat same Huc12 unit, and tested on later years of data using a train/test split of .67.  
+We examined **insert number** watersheds with a variety of predominant snow types - Ephemeral, Maritime, and Montane Forest. Figure 1 maps the Huc12 units by snow type. 
+
+Each individual Huc12 unit was trained using data only fromthat same Huc12 unit, and tested on later years of data using a train/test split of .67.  
 
 
 # Observations and Results 
@@ -25,11 +27,11 @@ Figures **X** and **X** plot Test KGE values against Test MSE values accross Huc
 
 ## Figure1
 Map of Huc12 Units Used in this Expirement, by Snow Type. 
-**Legend**
-Yellow - Maritime Snow Predominates
-Orange - Montane Forest Snow Predominates
-Blue - Ephemeral Snow Predominates
-Red - Prairie Snow Predominates 
+**Legend** <br>
+ - Yellow - Maritime Snow Predominates
+ - Orange - Montane Forest Snow Predominates
+ - Blue - Ephemeral Snow Predominates
+-  Red - Prairie Snow Predominates 
 
 ![Map of Huc12 Units Tested - by Snow Type](https://github.com/DSHydro/SnowML/blob/4429c9eb805581167fcb423bd0939adc7a6bb44b/notebooks/Ex2_VarianceByHuc/charts/TrainingHucMapBySnowType.png)
 

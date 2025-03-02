@@ -25,7 +25,10 @@ Figures **X** and **X** plot Test KGE values against Test MSE values accross Huc
 ## Figure2
 
 ## Figure3 
-[Scatterplot of KGE vs. MSE] 
+| KGE vs. MSE - All Snow Types | KGE vs. MSE - Maritime and Montane Forest |
+|------------------------------|------------------------------------------|
+| ![KGE vs. MSE - All Snow Types](https://github.com/DSHydro/SnowML/blob/9b099ff3cf6c3d787694b100911481a9cdb9f3a1/notebooks/Ex2_VarianceByHuc/charts/Scatter_Plot_of_Test_KGE_vs_Test_MSE_(Colored_by_Predominant_Snow_Type).png) | ![KGE vs. MSE - Maritime and Montane Forest](https://github.com/DSHydro/SnowML/blob/9b099ff3cf6c3d787694b100911481a9cdb9f3a1/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE%20vs.%20Test%20MSE%2C%20Excluding%20Hucs%20where%20Ephemeral%20Snow%20Predominates.png) |
+
 
 
 

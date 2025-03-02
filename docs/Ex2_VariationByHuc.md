@@ -30,10 +30,11 @@ Figure **XX** Test KGE values against Test MSE values accross Huc12 sub-watershe
 Map of Huc12 Units Used in this Expirement, by Snow Type. 
 
 **Legend** <br>
- - Yellow - Maritime Snow Predominates
- - Orange - Montane Forest Snow Predominates
- - Blue - Ephemeral Snow Predominates
--  Red - Prairie Snow Predominates 
+ - Yellow - Maritime Snow Predominates (155)
+ - Orange - Montane Forest Snow Predominates (187)
+ - Blue - Ephemeral Snow Predominates (180)
+-  Red - Prairie Snow Predominates (11)
+-  White - Boreal Forest (1)
 
 ![Map of Huc12 Units Tested - by Snow Type](https://github.com/DSHydro/SnowML/blob/252b8399f385c7bb212a1f9f3c0dd62b57d67174/notebooks/Ex2_VarianceByHuc/charts/TrainingHucMapBySnowType.png)
 

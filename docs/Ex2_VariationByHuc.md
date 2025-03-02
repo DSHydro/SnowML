@@ -2,7 +2,7 @@
 
 In the second expirement, we examined how the simple, local training LSTM model performed accross a variety of Huc12(sub-watershed) units.  Again the model aimed to predict swe values using an LSTM model with mean_temperature and mean_precipittion as the feature inputs.  
 
-We examined **insert number** watersheds with a variety of predominant snow types - Ephemeral, Maritime, and Montane Forest. Figure 1 maps the Huc12 units by snow type. 
+We examined 534 watersheds with a variety of predominant snow types - Ephemeral, Maritime, and Montane Forest. Figure 1 maps the Huc12 units by snow type. 
 
 Each individual Huc12 unit was trained using data only fromthat same Huc12 unit, and tested on later years of data using a train/test split of .67.  
 
@@ -12,7 +12,7 @@ Each individual Huc12 unit was trained using data only fromthat same Huc12 unit,
 Several interesting observations result from this expirement: 
 
 **Variation in Model Effectiveness by Snow Type and Model Elevation** <br>
-Figure 2 visualized variation in goodness of fit measures accross different dimensions. Figure 2A reveals stark contrast in goodness of fit between the relevant snow classes, with Ephemral snowclasses generally performing the worst in terms of KGE Efficiency.  Ephemeral basns perform relatively well in terms of MSE, likley because the lower levels of snow in these basins inherently create lowere MSE as MSE is a unit dependent measure. 
+Figure 2 visualized variation in goodness of fit measures accross different dimensions. Figure 2A reveals stark contrast in goodness of fit between the relevant snow classes, with Ephemral snowclasses generally performing the worst in terms of KGE Efficiency.  Ephemeral basns perform relatively well in terms of MSE, likley because the lower levels of snow in these basins inherently create lowere MSE as MSE is a unit dependent measure. The small number of Prairie and Boreal Forrest watersheds are excluded from Figure 2A due to the low sample size in these categories.  
 
 Figures 2B and 2C explore the differences between Montane Forest sub-watersheds and Maritime sub-watersheds. Because the more important goal in many contexts is the modelling of *non*-ephemeral regions, we focus in these charts only on sub-watersheds with non-ephermeral snow.  In terms of both KGE (higher is better) and MSE (lower is better) measures, Montane Forest sub-watershed are better predicted by the locally trained model than in Maritime sub-waterheds (Figure 2A).  Elevation is also highly correlated with how well a watershed is likely to be predicted by a locally trained model, with higher elevations performing better. (Figure 2B).  To a certain extent, differences in performance among snow classes may simply be "passing through" differences in elevation that are also correlated with snow class types.  However, snow classification appears to remain relevant even controlling for elevation. (Figure 2C).    
 

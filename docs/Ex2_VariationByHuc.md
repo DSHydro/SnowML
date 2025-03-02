@@ -24,6 +24,13 @@ Figures **X** and **X** plot Test KGE values against Test MSE values accross Huc
 
 
 ## Figure1
+Map of Huc12 Units Used in this Expirement, by Snow Type. 
+**Legend**
+Yellow - Maritime Snow Predominates
+Orange - Montane Forest Snow Predominates
+Blue - Ephemeral Snow Predominates
+Red - Prairie Snow Predominates 
+
 ![Map of Huc12 Units Tested - by Snow Type](https://github.com/DSHydro/SnowML/blob/4429c9eb805581167fcb423bd0939adc7a6bb44b/notebooks/Ex2_VarianceByHuc/charts/TrainingHucMapBySnowType.png)
 
 

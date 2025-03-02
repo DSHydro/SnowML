@@ -6,7 +6,7 @@ The first adjustment we made to the proptoyped LSTM Model was to use the Univers
 
 We reran the protoype LSTM model with the new data, leaving all other hyperparmeters unchanged except one. We reduced the number of epochs to 10 after observing early convergence of the model -- possibly due to the increased training data available. The graphs below compare the prior data run at 200 epochs with the new data run at 10 epochs, but the observations are robust to the number of epochs used. Please refer to the [Viz10COmpare notebook](notebooks/Prototype_Model_Results/VizHuc10Compare.ipynb) for sensitivy analysis related to number of epochs used.  
 
-In this Expirement 1, each Huc10 watershed was trained *only* using the data from that wattershed. Train/test split was accomplished by reserving the final two thirds of the time period as test data. 
+In this Expirement 1, each Huc10 watershed was trained *only* using the data from that wattershed. Train/test split was accomplished by reserving the final third of the time period as test data. 
 
 
 # Observations and Results 

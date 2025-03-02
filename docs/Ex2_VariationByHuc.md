@@ -17,7 +17,7 @@ Several interesting observations result from this expirement:
 While the variation in results accross Huc12 sub-watersheds is interesting and suggests avenues for future refinements, it is worth emphasizing that the current, fairly simply model produces relatively reliable resutls in select basisn. **Thus, watermanagers monitoring swe in high elevation and/or montane forest regions could consider using this model as a simple forecasting tool given predictions of future meteorological variables (precipitation, temperatures).**  This is a practicla result because this locally trained model - unlike the multi-huc model discussed in Exhibit 3 - can be trained quickly and with relatively limited compute power. Using the code in this repo, a local watershed model can be trained in approximately 10 minutes using a high end laptop computer. (When running in laptop mode, we used a 13th Gen Intel Core i9-13900H processor with 20 threads (10 cores, 2 threads per core), on a computer with 6GB of available RAM. 
 
 **Divergence in Goodness of Fit Measures** <br>
-Figures **X** and **X** plot Test KGE values against Test MSE values accross Huc12 sub-watershed units.  The two goodness of fit measures diverge significantly for many of the Huc12 units, especially for regions dominated by ephemeral snow. In hydrology, KGE is typically considered the more relevant goodness of fit meausure, however, it is difficult to use directly as a loss function because it is not easily differentiable.  Nonetheless, figures **X** and *XX** highlight the imprecision introduced by using MSE as a loss function if the ultimate goal is to produce high values of KGE.  We briefly expiremented with using KGE, or a hybring KGE+MSE loss function during training but observed impractical training times and chaotic results, so did not further pursue this avenue at this time.  Nontheless, investigation into the best loss function strategy is a ripe area for future research. 
+Figure **XX** Test KGE values against Test MSE values accross Huc12 sub-watershed units.  The two goodness of fit measures diverge significantly for many of the Huc12 units, especially for regions dominated by ephemeral snow. In hydrology, KGE is typically considered the more relevant goodness of fit meausure, however, it is difficult to use directly as a loss function because it is not easily differentiable.  Nonetheless, figures **X** and *XX** highlight the imprecision introduced by using MSE as a loss function if the ultimate goal is to produce high values of KGE.  We briefly expiremented with using KGE, or a hybring KGE+MSE loss function during training but observed impractical training times and chaotic results, so did not further pursue this avenue at this time.  Nontheless, investigation into the best loss function strategy is a ripe area for future research. 
 
 
 [** TO BE INSERTED **] 
@@ -27,6 +27,7 @@ Figures **X** and **X** plot Test KGE values against Test MSE values accross Huc
 
 ## Figure1
 Map of Huc12 Units Used in this Expirement, by Snow Type. 
+
 **Legend** <br>
  - Yellow - Maritime Snow Predominates
  - Orange - Montane Forest Snow Predominates

@@ -61,7 +61,7 @@ Map of Huc12 Units Used in this Expirement, by Snow Type.
 
 
 **Figure 2D - Goodness of FIt Measures By Basin**
-| Test KGE By Basin | Test MSE By Basin |
+| Test KGE By Huc08 SubBasin | Test MSE By Huc08 SubBasin |
 |--------------|--------------|
 | ![KGE By Basin](https://github.com/DSHydro/SnowML/blob/e167b7d1b6d78f23b2e39b0f428a400358be1bc0/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20KGE%20by%20Basins%20-%20Locally%20Trained%20Sub-Watersheds%20(Exludes%20Ephemeral%20Sub-Watersheds).png) | ![MSE By Basin](https://github.com/DSHydro/SnowML/blob/094ee64af6af3a735df95ab1b9897bbf435b4007/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20MSE%20by%20Basins%20-%20Locally%20Trained%20Sub-Watersheds%20(Excludes%20Ephemeral%20Sub-Watersheds).png)|
 
@@ -84,7 +84,7 @@ Map of Huc12 Units Used in this Expirement, by Snow Type.
 - As noted above, using MSE as a training loss function may not optimize for the best KGE fit, but in hydrology KGE is viewed as the superior goodness of fit measure.  Using KGE itslef as a loss funciton is challenging because the measure is not easily differentiable and therefor highly computationally intensive. Training with KGE as a loss function can also lead to instabiliyt/lack of model convergence, as we observed directly with some initial experimentation using KGE or hybrid loss functions. Nonetheless, further research into using KGE as a training loss measure is warranted.  Future researchers could consider hybrid training strategies, such as using MSE as the loss function in early epochs and switching to a KGE or hybird measure only in later epochs when the model has stabalized. 
 
 # How to Reproduce The Results
-The results for this expirement were produced using the snowML.LSTM package in this repo.  The hyperparameters were set as shown in the section below. The expirement was then run by importing the module `local-training-expirement.py` and by calling the function
+The results for this expirement were produced using the `snowML.LSTM` package in this repo.  The hyperparameters were set as shown in the section below. The expirement was then run by importing the module `local-training-expirement.py` and by calling the function
 `run_expirement()` Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes. 
 
 

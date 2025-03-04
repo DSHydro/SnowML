@@ -1,6 +1,6 @@
 ## Expirement 3: Multi-Huc Training 
 
-In Expirement 3, we considered whether model results could be generalized and unsed in ungauged basins.  We also expiremented with different variable combinations and trainging rates. 
+In Expirement 3, we considered whether model results could be generalized for use in ungauged basins.  We also expiremented with different variable combinations and trainging rates. 
 
 We focused on Huc12 sub-watershed units where Maritime or Montane Forest snow prrdominated.  We withheld from the training data all the Huc12 watersheds in the *XX** basin as a test set ("Test Set A"). The *XX* basin is **blah blah important** and plays the role of a completely ungauged basin in our expirement set up. 
 

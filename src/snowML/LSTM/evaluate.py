@@ -7,6 +7,7 @@ import pandas as pd
 from snowML.LSTM import LSTM_pre_process as pp
 from snowML.LSTM import LSTM_train
 from snowML.LSTM import set_hyperparams as sh
+from snowML.LSTM import LSTM_plot
 from snowML.datapipe import data_utils as du
 from snowML.datapipe import set_data_constants as sdc
 
@@ -95,7 +96,7 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
         data, y_train_pred, y_test_pred, y_train_true, y_test_true, train_size_main = LSTM_train.predict(model_dawgs, df_dict, huc, params)
         test_mse = LSTM_train.mean_squared_error(y_test_true, y_test_pred)
         test_kge, _, _, _ = LSTM_train.kling_gupta_efficiency(y_test_true, y_test_pred)
-        LSTM_train.plot(data, y_train_pred, y_test_pred, train_size_main, huc, params)
+        LSTM_plot.plot(data, y_train_pred, y_test_pred, train_size_main, huc, params)
         return test_mse, test_kge
 
     # else train/test split is time

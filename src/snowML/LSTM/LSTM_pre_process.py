@@ -73,7 +73,7 @@ def pre_process(huc_list, var_list, bucket_dict=None):
         df_dict[huc] = df  # Store normalized DataFrame
 
     print(f"number of sub units for training is {len(df_dict)}")
-    return df_dict
+    return df_dict, global_means, global_stds
 
 def create_tensor(dataset, lookback, var_list):
     """Transform the time series into a tensor object.

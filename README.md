@@ -22,7 +22,7 @@ Follow [installation instructions](https://mlflow.org/docs/latest/getting-starte
 ## New Teammates
 
 ### Where to Begin?
-the **data** folder contains our outputs from loss functions. The **docs** folder contains the most information, check out Experiments 1-3 and the data-pipeline file for an in-depth description of our data pipeline. The **notebooks** file contains the initial model provided by our sponsor and our LSTM model jupyternotebook scripts. 
+the **data** folder contains our outputs from loss functions. The **docs** folder contains the most information, check out Experiments 1-3 and the data-pipeline file for an in-depth description of our data pipeline. The **notebooks** folder contains the initial model provided by our sponsor and our LSTM model jupyternotebook scripts. 
 
 ### Task Directory
 Take a look at the task directory for ideas on where to take this project and interesting ideas to include in an academic poster. Sort the directory by completion status, type of project, and document your progress.

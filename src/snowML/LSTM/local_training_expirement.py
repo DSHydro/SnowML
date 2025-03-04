@@ -74,7 +74,7 @@ def initialize_model(params):
 def run_local_exp(hucs, train_size_frac, params = None):
     if params is None:
         params = sh.create_hyper_dict()
-    df_dict = pp.pre_process(hucs, params["var_list"])
+    df_dict, _, _ = pp.pre_process(hucs, params["var_list"])
 
     set_ML_server(params)
     model_dawgs, optimizer_dawgs, loss_fn_dawgs = initialize_model(params)

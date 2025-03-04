@@ -13,3 +13,4 @@ def huc_split(f="hucs_data.json"):
     te = data["test_hucs"]
     print(te[0:4])
     return tr, val, te
+    

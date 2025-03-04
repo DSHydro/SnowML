@@ -4,8 +4,8 @@
 # # pylint: disable=C0103
 
 
-import torch
 import importlib
+import torch
 from torch import optim
 import mlflow
 from snowML.LSTM import LSTM_train as LSTM_tr

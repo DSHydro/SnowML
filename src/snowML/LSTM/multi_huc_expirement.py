@@ -13,6 +13,7 @@ from snowML.LSTM import LSTM_pre_process as pp
 
 importlib.reload(LSTM_tr)
 importlib.reload(sh)
+importlib.reload(pp)
 
 
 def set_ML_server(params):
@@ -73,6 +74,7 @@ def run_expirement(train_hucs, val_hucs, test_hucs, params = None):
     if params is None:
         params = sh.create_hyper_dict()
     tr_and_val_hucs = train_hucs + val_hucs  
+    #print("finished finding tr and val hucs")
     df_dict, global_means, global_stds = pp.pre_process(tr_and_val_hucs, params["var_list"])  
     df_dict_tr = {huc: df_dict[huc] for huc in train_hucs if huc in df_dict}  
     df_dict_val = {huc: df_dict[huc] for huc in val_hucs if huc in df_dict}
@@ -89,8 +91,8 @@ def run_expirement(train_hucs, val_hucs, test_hucs, params = None):
         mlflow.log_param("val_hucs", val_hucs)
         mlflow.log_param("val_hucs", val_hucs)
         # log the normalization values 
-        mlfow.log_params(global_means)
-        mlfow.log_params(global_stds)
+        mlflow.log_param("global_means", global_means)
+        mlflow.log_param("global_stds", global_stds)
 
 
         for epoch in range(params["n_epochs"]):

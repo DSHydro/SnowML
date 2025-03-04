@@ -62,6 +62,8 @@ def pre_process(huc_list, var_list, bucket_dict=None):
         all_dfs.append(df)  # Collect DataFrames for global normalization
         df_dict[huc] = df  # Store DataFrame in dictionary
 
+    #print("finished making dictionary")
+
     # Step 2: Calculate global mean and std for each column of interest across all HUCs
     combined_df = pd.concat(all_dfs)
     global_means = combined_df.mean()

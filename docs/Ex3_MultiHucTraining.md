@@ -20,7 +20,7 @@ For each of 8 different variable and learning rate combinations, we trained the 
 Several interesting observations result from this expirement: [** TO BE INSERTED **]
 
 ##Figure1##
-[** TO BE INSERTED **]
+
 
 Figure2
 Limitations and Questions For Further Research

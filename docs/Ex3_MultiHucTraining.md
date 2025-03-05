@@ -17,13 +17,26 @@ For each of 8 different variable and learning rate combinations, we trained the 
 
 
 ## Observations and Results
-Several interesting observations result from this expirement: [** TO BE INSERTED **]
-
-##Figure1##
+ [** TO BE INSERTED **]
 
 
-Figure2
-Limitations and Questions For Further Research
+## Figure 1 ##
+
+| Training Data | Validation Data |
+|--------------|----------------|
+| ![MapOfTrainingData](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TrainSet.png) | ![MapOfValidationData](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/ValSet.png) |
+
+| Test Set A | Test Set B |
+|------------|------------|
+| ![MapOfTestSetA](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TestSetA.png) | ![MapOfTestSetB](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TestSetB.png) |
+
+
+## Figure2 ##
+
+## Figure 3 ##
+
+
+## Limitations and Questions For Further Research
 
 [** TO BE INSERTED **]
 

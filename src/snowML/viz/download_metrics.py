@@ -10,12 +10,12 @@ def create_run_dict_Ex3():
 
     run_dict = {}
     run_dict["base_1e-3"] = "a6c611d4c4cf410e9666796e3a8892b7" # debonair_dove (all 30)
-    run_dict["hum_1e-3"] = "9093eb3dc6d84e38a1168d4941286e8c" #beautiful finch (aborted at 23)
+    run_dict["hum_1e-3"] = "d71b47a8db534a059578162b9a8808b7" #peaceful stork (all 30)
     run_dict["srad_1e-3"] = "deed782fda71472fb47cf8670b668473" # enchanting-roo (aborted at 27)
-    run_dict["vs_1e-3"] = "4653005687094d9ba54c295b943a4667" # puzzled cow (RUNNING -13)
+    run_dict["vs_1e-3"] = "4653005687094d9ba54c295b943a4667" # puzzled cow (all 30)
 
     run_dict["base_3e-4"] = "e989030c272d4de59c84aff739d8063c" # spiffy whale (all 30)
-    run_dict["hum_3e-4"] = "51981555f99b4fc0b4386bfd00dc1104" # wise_crab (aborted at 20)
+    run_dict["hum_3e-4"] = "51884b406ec545ec96763d9eefd38c36" # capricious snipe (all 30)
     run_dict["srad_3e-4"] = "2b49d6cce3844ede8a66821ae9aec27b" # judicious_mare (all 30)
     run_dict["vs_3e-4"] = "bc031cafad7445adb73173adc43b63c6" # placid-croc (all 30)
 
@@ -59,7 +59,7 @@ def load_ml_metrics(
 def download_all(run_dict, folder ="data/", overwrite = False):
     for run_id in run_dict.values():
         f_out =  f"{folder}/run_id_data/metrics_from_{run_id}.csv"
-        print(f"processing file{f_out}")
+        print(f"processing file {f_out}")
         if (not os.path.exists(f_out) or overwrite):
             load_ml_metrics(run_id)
         else:

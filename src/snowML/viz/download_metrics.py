@@ -22,6 +22,13 @@ def create_run_dict_Ex3():
     return run_dict
 
 
+def create_run_dict_Ex3Eval():
+    run_dict = {}
+    run_dict["Test_Set_A"] = "ccc1af0a3007412bb23cbd4a7cb0d431" # invincable snail
+    run_dict["Test_Set_B"] = "148f7dddc0814c4f86bb93edbc425c4c" # bittersweet croc
+    return run_dict
+
+
 # function to retrieve metrics from ML server
 def load_ml_metrics(
     run_id,

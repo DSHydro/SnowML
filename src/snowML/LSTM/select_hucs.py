@@ -50,7 +50,7 @@ def assemble_huc_list(input_pairs):
     hucs = [huc for huc in hucs if huc not in EXCLUDED_HUCS]
     return hucs
 
-# function that filters geos to exlcude hucs where predominant snowtype is ephemeral
+# function that filters geos to exlcude hucs where ephemeral is >= 50
 def snowclass_filter(geos):
     df_snow_types = st.snow_class(geos)
     # Filter huc_ids where Ephemeral < 50

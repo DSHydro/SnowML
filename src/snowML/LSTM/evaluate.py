@@ -4,6 +4,7 @@
 import mlflow
 import mlflow.pytorch
 import pandas as pd
+from sklearn.metrics import r2_score
 from snowML.LSTM import LSTM_pre_process as pp
 from snowML.LSTM import LSTM_train
 from snowML.LSTM import set_hyperparams as sh
@@ -69,7 +70,7 @@ def assemble_df_dict(huc_list, var_list, bucket_dict=None):
         df = df[col_to_keep]
         df_dict[huc] = df  # Store DataFrame in dictionary
 
-        return df_dict
+    return df_dict
 
 
 # TO DO: add option to load in global_means and std from MLflow instead of recalc
@@ -77,13 +78,14 @@ def renorm(train_hucs, val_hucs, test_hucs, var_list):
     # compute global_means and std used in training
     huc_list_all_tr = train_hucs + val_hucs
     _, global_means, global_stds = pp.pre_process(huc_list_all_tr, var_list)
-    print(f"global means were {global_means}, global_stds were {global_stds}")
+    #print(f"global means were {global_means}, global_stds were {global_stds}")
     # create dictionary of of hucs to test
     df_dict = assemble_df_dict(test_hucs, var_list, bucket_dict=None)
     # renormalize with the global_means and global_std used in training
     for huc, df in df_dict.items():
         df = pp.z_score_normalize(df, global_means, global_stds)
         df_dict[huc] = df  # Store normalized DataFrame
+
     return df_dict
 
 
@@ -96,8 +98,9 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
         data, y_train_pred, y_test_pred, y_train_true, y_test_true, train_size_main = LSTM_train.predict(model_dawgs, df_dict, huc, params)
         test_mse = LSTM_train.mean_squared_error(y_test_true, y_test_pred)
         test_kge, _, _, _ = LSTM_train.kling_gupta_efficiency(y_test_true, y_test_pred)
+        test_r2 = r2_score(y_test_true, y_test_pred)
         LSTM_plot.plot(data, y_train_pred, y_test_pred, train_size_main, huc, params)
-        return test_mse, test_kge
+        return test_mse, test_kge, test_r2
 
     # else train/test split is time
     print("still working on this branch")
@@ -118,7 +121,7 @@ def predict_from_pretrain (train_hucs,
 
     model_dawgs = load_model(model_uri)
 
-    #df_dict_test = assemble_df_dict(test_hucs, params["var_list"])
+    df_dict_test = assemble_df_dict(test_hucs, params["var_list"])
     df_dict_test = renorm(train_hucs, val_hucs, test_hucs, var_list)
     print(df_dict_test)
 
@@ -131,6 +134,9 @@ def predict_from_pretrain (train_hucs,
         mlflow.log_param("model_uri", model_uri)
 
         for huc in test_hucs:
-            test_mse, test_kge = eval_from_saved_model(model_dawgs, df_dict_test, huc, params)
-            print (f"for huc {huc}, test_mse was {test_mse}, test_kge was {test_kge}")
+            test_mse, test_kge, test_r2 = eval_from_saved_model(model_dawgs, df_dict_test, huc, params)
+            for met, met_nm in zip([test_mse, test_kge, test_r2], ["test_mse", "test_kge", "test_r2"]):
+                mlflow.log_metric(f"{met_nm}_{str(huc)}", met)
+                print(f"{met_nm}: {met}")
+            
                

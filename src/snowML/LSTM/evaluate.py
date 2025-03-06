@@ -12,6 +12,9 @@ from snowML.LSTM import LSTM_plot
 from snowML.datapipe import data_utils as du
 from snowML.datapipe import set_data_constants as sdc
 
+import importlib
+importlib.reload(LSTM_plot)
+
 def load_model(model_uri):
     print(model_uri)
     model = mlflow.pytorch.load_model(model_uri)
@@ -95,12 +98,13 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
     if params["train_size_dimension"] == "huc":
         # all data is "test" data
         params["train_size_fraction"] = 0
-        data, y_train_pred, y_test_pred, y_train_true, y_test_true, train_size_main = LSTM_train.predict(model_dawgs, df_dict, huc, params)
+        data, y_train_pred, y_test_pred, _, y_test_true, train_size_main = LSTM_train.predict(model_dawgs, df_dict, huc, params)
         test_mse = LSTM_train.mean_squared_error(y_test_true, y_test_pred)
         test_kge, _, _, _ = LSTM_train.kling_gupta_efficiency(y_test_true, y_test_pred)
         test_r2 = r2_score(y_test_true, y_test_pred)
-        LSTM_plot.plot(data, y_train_pred, y_test_pred, train_size_main, huc, params)
-        return test_mse, test_kge, test_r2
+        metric_dict = dict(zip(["test_mse", "test_kge", "test_r2"], [test_mse, test_kge, test_r2]))
+        LSTM_plot.plot(data, y_train_pred, y_test_pred, train_size_main, huc, params, metrics_dict = metric_dict)
+        return metric_dict
 
     # else train/test split is time
     print("still working on this branch")
@@ -134,9 +138,8 @@ def predict_from_pretrain (train_hucs,
         mlflow.log_param("model_uri", model_uri)
 
         for huc in test_hucs:
-            test_mse, test_kge, test_r2 = eval_from_saved_model(model_dawgs, df_dict_test, huc, params)
-            for met, met_nm in zip([test_mse, test_kge, test_r2], ["test_mse", "test_kge", "test_r2"]):
+            metric_dict = eval_from_saved_model(model_dawgs, df_dict_test, huc, params)
+            for met_nm, met in metric_dict.items():
                 mlflow.log_metric(f"{met_nm}_{str(huc)}", met)
                 print(f"{met_nm}: {met}")
-            
                

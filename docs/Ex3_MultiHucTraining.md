@@ -27,10 +27,12 @@ For each of 8 different variable and learning rate combinations, we trained the 
 
 ## Observations and Results
 
-**Impact Of Variable Selection and Learning Rate**
+**Impact Of Variable Selection and Learning Rate** <br>
 Figure 2 plots the results of each of the eight models by epoch, in terms of the "Median Test_Kge" observed accross the validation set of 54 Huc12 units for that epoch.  The results are relatively noisy. The main impact of variable selection and learning rate appears to be on the stability of the model over epochs.  All eight models reach a maximum value of median kge within a relatively tight range, from .78 (Solar Radiation, .0001 learning rate, epoch 9) to .82 (Humidity, .0003 learning rate, epoch 27). All models, except one, spend several epochs oscilatting up and down, before dropping precipitously in later epochs, likely due to overfitting in later epochs.  The exception is the Base Model plus Humidity model, at the .0003 learning rate, which remains relatively stable throughout the entire epochs. More generally, the modles using the lower .0003 learning rate appear noisier during early epohcs than the models run at the larger, .001 learning rate, contrary to what might be expected.  
 
-## Impact of Learning Rate ## 
+** The Model Trained on Multiple Hucs Generalizes Relatively Well To Ungauged Basins ** <br>
+
+
 
 
 

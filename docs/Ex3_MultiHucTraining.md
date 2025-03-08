@@ -11,16 +11,30 @@ Within these regions, we treated each Huc12 sub-unit as a  separate time series 
 We randomly split these 270 Huc12 sub-watersheds into training, validaton, and test groups using a 
 60/20/20 split, resulting in 162 Huc12 sub-watersheds used in model training, 54 in validation, and 54 in Test Set A. Its worth noting that train/validation/test splits resulting from random selection resulted in a validation set that was somewhat overweighted in Motane Forest sub-watersheds (65%) compared to the training (52%) and test sets(56%).
 
-We also defined Test set B as the Huc12 units in  [Upper Yakima](basin_fact_sheets/UpperYakima(17030001).md) (17030001) and [Naches](basin_fact_sheets/Naches(17030002).md) (17030002), which contain a mix of Maritime and Montane Forest snowpack. The Yakima/Naches region is ecologically important in the Pacific Northwest and for farming in the Yakima valley.  These basins play the role of completely ungauged basin in our expirement set up. 
+We also defined Test set B as the Huc12 units in  [Upper Yakima](basin_fact_sheets/UpperYakima(17030001).md) (17030001) and [Naches](basin_fact_sheets/Naches(17030002).md) (17030002), which contain a mix of Maritime and Montane Forest snowpack. The Yakima/Naches region is ecologically important in the Pacific Northwest and for farming in the Yakima valley. These basins play the role of completely ungauged basin in our expirement set up. 
+
+In this expirement, we explored eight model different variations, consisting of four different variabe combinations, each run using a learning rate of .001 and .0003. 
+| Name                | Features                                      |
+|---------------------|----------------------------------------------|
+| Base Model         | Precipitation, Temperature, Mean Elevation   |
+| Base plus Srad     | Precipitation, Temperature, Elevation, Solar Radiation |
+| Base plus WindSpeed | Precipitation, Temperature, Elevation, Wind Speed |
+| Base plus Humidity | Precipitation, Temperature, Elevation, Humidity |
+
 
 For each of 8 different variable and learning rate combinations, we trained the model using the multiple basins in the training set, for 30 epochs, assessing performance against the validation set at the end of each epoch, and logging a separate model in mlflow at the end of each epoch.  After all runs were complete, we selected the "best" model by examining the median test_kge accross all the validation set hucs and choosing the model that resulted in the maximum value of median_test_kge. Finally, we used the selected model to predict results on both Test Set A and Test Set B. 
 
 
 ## Observations and Results
- [** TO BE INSERTED **]
+
+**Impact Of Variabe Selection**
+Figure 2 and 3 plot the results of each of the eight models by epoch, in terms of the "Median Test_Kge" observed accross the validation set of 54 Huc12 units for that epoch.  The results are relatively noisy. The main impact of variable selection appears to be on the stability of the model over epochs.  All eight models reach a maximum value of median kge within a relatively tight range, from .78 (Solar Radiation, .0001 learning rate, epoch 9) to .82 (Humidity, .0003 learning rate, epoch 27). All models, except one, spend several epochs oscilatting up and down, before dropping precipitously in later epochs, likely due to overfitting in later epochs.  The exception is the Base Model plus Humidity model, at the .0003 learning rate, which remains relatively stable throughout the entire epochs. More generally, the Base Model plus Windspeed and Base Model plus Solar Radiation exhibit more variability in early epochs, and deteriorate more quickly than the models the Base Model and Base Models with Humidity.  
+
+## Impact of Learning Rate ## 
 
 
-## Figure 1 ##
+
+## Figure 1 - Map of Training, Validation, and Test Sets ##
 
 | Training Data | Validation Data |
 |--------------|----------------|
@@ -31,12 +45,21 @@ For each of 8 different variable and learning rate combinations, we trained the 
 | ![MapOfTestSetA](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TestSetA.png) | ![MapOfTestSetB](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TestSetB.png) |
 
 
-## Figure2 ##
+## Figure 2  - Comparison of Model Performance by Variable, Learning Rate, and Epoch ##
+| ![Base Model, by learning rate](https://github.com/DSHydro/SnowML/blob/15825854103b13824585109cdfdbd3244260cf58/notebooks/Ex3_MultiHucTraining/charts/ModelChoice/Median_KGE_Comparison_By_Epoch_And_Learning_Rate_Base_Model.png) | ![Humidity, by Learning Rate](https://github.com/DSHydro/SnowML/blob/15825854103b13824585109cdfdbd3244260cf58/notebooks/Ex3_MultiHucTraining/charts/ModelChoice/Median_KGE_Comparison_By_Epoch_And_Learning_Rate_Base_Model_Plus_Humidity.png) |
+|---|---|
+| ![Solar Radiation, by Learning Rate](https://github.com/DSHydro/SnowML/blob/15825854103b13824585109cdfdbd3244260cf58/notebooks/Ex3_MultiHucTraining/charts/ModelChoice/Median_KGE_Comparison_By_Epoch_And_Learning_Rate_Base_Model_Plus_Solar_Radiation.png) | ![Wind Speed, by Learning Rate](https://github.com/DSHydro/SnowML/blob/15825854103b13824585109cdfdbd3244260cf58/notebooks/Ex3_MultiHucTraining/charts/ModelChoice/Median_KGE_Comparison_By_Epoch_And_Learning_Rate_Base_Model_Plus_Wind_Speed.png) |
+
+
+
+
+
 
 ## Figure 3 ##
 
 
 ## Limitations and Questions For Further Research
+- 
 
 [** TO BE INSERTED **]
 

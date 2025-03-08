@@ -55,14 +55,15 @@ Figure 2 plots the results of each of the eight models by epoch, in terms of the
 
 
 ## Figure 3- Results on Ungauged Huc Units - Test Set A 
-
+| ![Histogram of Median Test KGE in Naches and Upper Yakima](https://github.com/DSHydro/SnowML/blob/4ebc428282ec3eff50d5c7395bf80eab1adb47c7/notebooks/Ex3_MultiHucTraining/charts/histogram.png) 
 
 
 ## Figure 4 - Test Results on UnGauged Huc Units - Test Set B 
-| ![Histogram of Median Test KGE in Naches and Upper Yakima](https://github.com/DSHydro/SnowML/blob/4ebc428282ec3eff50d5c7395bf80eab1adb47c7/notebooks/Ex3_MultiHucTraining/charts/histogram.png) | ![Plot of Predicted vs. Actual SWE - Example of High Test KGE (90% percentile)](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc170300010402.png) |
-| ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| ![Plot of Predicted vs. Actual SWE - Example Near Median Test KGE Value](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc17030020106.png) | ![Plot of Predicted vs. Actual SWE - Example of Low Test KGE Value (10% percentile)](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc170300010701.png) |
-Clockwise from top left - Histogram of Test KGE for all Huc10 units, example Huc12 with a High Test KGE (90% percentile within the TestB set), example Huc12 near the median value Test KGE, example Huc 12 with a low Test KGE (10%) percentile.   
+
+| ![Plot of Predicted vs. Actual SWE - Example of High Test KGE (90% percentile)](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc170300010402.png) |
+| ![Plot of Predicted vs. Actual SWE - Example Near Median Test KGE Value](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc17030020106.png) |
+| ![Plot of Predicted vs. Actual SWE - Example of Low Test KGE Value (10% percentile)](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc170300010701.png) |
+
 
 
 ## Limitations and Questions For Further Research

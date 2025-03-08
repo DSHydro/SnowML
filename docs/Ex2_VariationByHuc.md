@@ -11,12 +11,15 @@ Each individual Huc12 unit was trained using data only fromthat same Huc12 unit,
 
 Several interesting observations result from this expirement: 
 
-**Variation in Model Effectiveness by Snow Type and Model Elevation** <br>
-Figure 2 visualized variation in goodness of fit measures accross different dimensions. Figure 2A reveals stark contrast in goodness of fit between the relevant snow classes, with Ephemral snow classes generally performing the worst in terms of KGE Efficiency. Ephemeral basins perform relatively well in terms of MSE, likley because the lower levels of snow in these basins inherently create lowere MSE as MSE is a unit dependent measure.  Montane Forest regions outperform Maritime regions with respect to both Test KGE and Tese MSE. The small number of Prairie and Boreal Forrest watersheds are excluded from Figures 2A-2D due to the low sample size in these categories.  
+**Variation in Model Effectiveness by Snow Type** <br>
+Figure 2 visualized variation in goodness of fit measures accross different dimensions. Figure 2A reveals stark contrast in goodness of fit between the relevant snow classes, with Ephemral snow classes generally performing the worst in terms of KGE Efficiency. Ephemeral basins perform relatively well in terms of MSE, likley because the lower levels of snow in these basins inherently create lowere MSE as MSE is a unit dependent measure.  Montane Forest regions outperform Maritime regions with respect to both Test KGE and Tese MSE. The small number of Prairie and Boreal Forrest watersheds are excluded from Figures 2A-2D due to the low sample size in these categories. 
 
-Elevation is also highly correlated with how well a watershed is likely to be predicted by a locally trained model, with higher elevations performing better. (Figure 2B).  To a certain extent, differences in performance among snow classes may simply be "passing through" differences in elevation that are also correlated with snow class types.  However, snow classification appears to remain relevant even controlling for elevation, but much less so. (Figure 2C).    
+We ran pairwise t-tests with unequal variance (Welch Test) to test for inequality of mean Test KGE and mean Test MSE between snow types. All values were significaant at p = 0.001 level.  
 
-Finally, Figure 2D plots model performance by HUC08 region within the Pacific North West.  
+**Variation in Model Effectiveness by Basin Elevation** <br>
+
+Elevation is also highly correlated with how well a watershed is likely to be predicted by a locally trained model, with higher elevations performing better. (Figure 2B).  To a certain extent, differences in performance among snow classes may simply be "passing through" differences in elevation that are also correlated with snow class types.  
+
 
 **Impressive Results in Select Basins** <br>
 While the variation in results accross Huc12 sub-watersheds is interesting and suggests avenues for future refinements, it is worth emphasizing that the current, fairly simply model produces relatively reliable resutls in select basins. **Thus, water managers monitoring swe in high elevation and/or montane forest regions could consider using this model as a simple forecasting tool given predictions of future meteorological variables (precipitation, temperatures).**  This is a practical result because this locally trained model - unlike the multi-huc model discussed in Exhibit 3 - can be trained quickly and with relatively limited compute power. Using the code in this repo, a local watershed model can be trained in approximately 10 minutes using a high end laptop computer. (When running in laptop mode, we used a 13th Gen Intel Core i9-13900H processor with 20 threads (10 cores, 2 threads per core), on a computer with 6GB of available RAM. 
@@ -45,6 +48,15 @@ Map of Huc12 Units Used in this Expirement, by Snow Type.
 | ![Test KGE By Predominant Snow Type - Excludes Ephemeral ](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20KGE%20by%20Predominant%20Snow%20Type%20-%20Locally%20Trained%20Hucs%20-%20Excludes%20Ephemeral.png) | ![Test MSE By Predominant Snow Type - Excludes Ephemeral](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20MSE%20by%20Predominant%20Snow%20Type%20-%20Locally%20Trained%20Hucs%20_Excludes%20Ephemeral_.png) |
 |:---:|:---:|
 | ![Test KGE by Predominant Snow Type - Includes Ephemeral](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20KGE%20by%20Predominant%20Snow%20Type%20-%20Locally%20Trained%20Hucs.png) | ![Test MSE By Predominant Snow Type - Includes Ephemeral](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20MSE%20by%20Predominant%20Snow%20Type%20-%20Locally%20Trained%20Hucs.png) |
+
+
+Results from pair-wise Welch's t-test of null hypothesis of equality of mean_kge in different snow_type classes
+
+| Group1           | Group2           | P-Value        |
+|------------------|------------------|----------------|
+| Ephemeral        | Maritime         | 6.300075e-23   |
+| Ephemeral        | Montane Forest   | 1.279809e-16   |
+| Maritime         | Montane Forest   | 1.869237e-19   |
 
 
 

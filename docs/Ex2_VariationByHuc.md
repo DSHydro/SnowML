@@ -27,8 +27,8 @@ While the variation in results accross Huc12 sub-watersheds is interesting and s
 **Divergence in Goodness of Fit Measures** <br>
 Figure 3 plots [Test KGE](https://github.com/DSHydro/SnowML/blob/main/docs/Ex2_VariationByHuc.md#what-is-kge) and Test MSE. The two goodness of fit measures diverge significantly for many of the Huc12 units, especially for regions dominated by ephemeral snow. In hydrology, KGE is typically considered the more relevant goodness of fit meausure, however, it is difficult to use directly as a loss function because it is not easily differentiable.  Nonetheless, figure 3 highlight the imprecision introduced by using MSE as a loss function if the ultimate goal is to produce high values of KGE.  We briefly expiremented with using KGE, or a hybring KGE+MSE loss function during training but observed impractical training times and chaotic results, so did not further pursue this avenue at this time.  Nontheless, investigation into the best loss function strategy is a ripe area for future research. 
 
-## Figure1
-Map of Huc12 Units Used in this Expirement, by Snow Type. 
+## Figure1 - Map of Huc12 Units Used in this Expirement, by Snow Type. 
+
 
 **Legend** <br>
  - Yellow - Maritime Snow Predominates (155)
@@ -51,12 +51,24 @@ Map of Huc12 Units Used in this Expirement, by Snow Type.
 
 
 Results from pair-wise Welch's t-test of null hypothesis of equality of mean_kge in different snow_type classes
+| Group1           | Group2           | P-Value        |
+|------------------|------------------|----------------|
+| Ephemeral        | Maritime         | 3.964527e-13   |
+| Ephemeral        | Montane Forest   | 9.953465e-22   |
+| Maritime         | Montane Forest   | 2.322637e-09   |
 
+Results from pair-wise Welch's t-test of null hypothesis of equality of mean_kge in different snow_type classes
 | Group1           | Group2           | P-Value        |
 |------------------|------------------|----------------|
 | Ephemeral        | Maritime         | 6.300075e-23   |
 | Ephemeral        | Montane Forest   | 1.279809e-16   |
 | Maritime         | Montane Forest   | 1.869237e-19   |
+
+
+
+
+
+
 
 
 

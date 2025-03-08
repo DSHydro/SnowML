@@ -59,7 +59,8 @@ Figure 2 plots the results of each of the eight models by epoch, in terms of the
 
 
 ## Figure 4 - Test Results on UnGauged Huc Units - Test Set B 
-! [Histogram of Median Test KGE in Naches and Upper Yakima]
+![Histogram of Median Test KGE in Naches and Upper Yakima](notebooks/Ex3_MultiHucTraining/charts/histogram.png)
+
 ! [Plot of Predicted vs. Actual SWE - Example of High Test KGE]
 ! [Plot of Predicted vs. Actual SWE - Example Near Median Test KGE Value]
 ! [Plot of Predicted vs. Actual SWE - Example of Low Test KGE Value]

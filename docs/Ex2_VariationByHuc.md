@@ -18,7 +18,7 @@ We ran pairwise t-tests with unequal variance (Welch Test) to test for inequalit
 
 **Variation in Model Effectiveness by Basin Elevation** <br>
 
-Elevation is also highly correlated with how well a watershed is likely to be predicted by a locally trained model, with higher elevations performing better. FIgure 3. To a certain extent, differences in performance among snow classes may simply be "passing through" differences in elevation that are also correlated with snow class types.  
+Elevation is also highly correlated with how well a watershed is likely to be predicted by a locally trained model, with higher elevations performing better. Figure 3. To a certain extent, differences in performance among snow classes may simply be "passing through" differences in elevation that are also correlated with snow class types.  
 
 
 **Impressive Results in Select Basins** <br>

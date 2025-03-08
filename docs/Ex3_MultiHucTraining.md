@@ -27,7 +27,8 @@ For each of 8 different variable and learning rate combinations, we trained the 
 
 ## Observations and Results
 
-**Impact Of Variable Selection and Learning Rate** <br>
+# Impact Of Variable Selection and Learning Rate
+
 Figure 2 plots the results of each of the eight models by epoch, in terms of the "Median Test_Kge" observed accross the validation set of 54 Huc12 units for that epoch.  The results are relatively noisy. The main impact of variable selection and learning rate appears to be on the stability of the model over epochs.  All eight models reach a maximum value of median kge within a relatively tight range, from .78 (Solar Radiation, .0001 learning rate, epoch 9) to .82 (Humidity, .0003 learning rate, epoch 27). All models, except one, spend several epochs oscilatting up and down, before dropping precipitously in later epochs, likely due to overfitting in later epochs.  The exception is the Base Model plus Humidity, at the .0003 learning rate, which remains relatively stable throughout all 30 epochs. More generally, the modele using the lower .0003 learning rate appear noisier during early epohcs than the models run at the larger, .001 learning rate, contrary to what might be expected.  
 
 ** The Model Trained on Multiple Hucs Generalizes Relatively Well To Ungauged Basins ** <br>
@@ -36,7 +37,7 @@ Figure 2 plots the results of each of the eight models by epoch, in terms of the
 
 
 
-## Figure 1 - Map of Training, Validation, and Test Sets ##
+## Figure 1 - Map of Training, Validation, and Test Sets 
 
 | Training Data | Validation Data |
 |--------------|----------------|
@@ -49,16 +50,18 @@ Figure 2 plots the results of each of the eight models by epoch, in terms of the
 
 
 
-## Figure 2 - Comparison of Model Performance by Variable, Learning Rate, and Epoch ##
+## Figure 2 - Comparison of Model Performance by Variable, Learning Rate, and Epoch 
 | ![All Variables, .0003 Learning Rate](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/ModelChoice/Median_KGE_Comparison_By_Variable_Combo_Using_Learning_Rate_0.0003.png) | ![All Variables, .001 Learning Rate ](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/ModelChoice/Median_KGE_Comparison_By_Variable_Combo_Using_Learning_Rate_0.001.png) |
 |---|---|
 
 
-## Figure 3- Results on Ungauged Huc Units - Test Set A 
-| ![Histogram of Median Test KGE in Naches and Upper Yakima](https://github.com/DSHydro/SnowML/blob/4ebc428282ec3eff50d5c7395bf80eab1adb47c7/notebooks/Ex3_MultiHucTraining/charts/histogram.png) 
+# Figure 3- Results on Ungauged Huc Units 
+| ![Test Set A](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/Historgram%20of%20Test%20KGE%20Values%20Among%20Test%20SetA.png) | ![Naches and Upper Yakima](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/Historgram%20of%20Test%20KGE%20For%20HUC12%20Sub-Watersheds%20In%20Test%20Set%20B.png) |
+|-----------------------------------|-----------------------------------|
 
 
-## Figure 4 - Test Results on UnGauged Huc Units - Test Set B 
+
+# Figure 4 - Test Results on UnGauged Huc Units - Test Set B 
 
 | ![Plot of Predicted vs. Actual SWE - Example of High Test KGE (90% percentile)](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc170300010402.png) |
 | ![Plot of Predicted vs. Actual SWE - Example Near Median Test KGE Value](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc17030020106.png) |

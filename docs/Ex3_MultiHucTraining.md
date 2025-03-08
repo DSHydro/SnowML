@@ -92,7 +92,7 @@ These distribution of Test KGE values within Test Sets A and B is similar to the
 
 
 
-# Figure 4 - Example Snow Prediction vs. Actual Plots For a Range of Test_KGE Values From Test Set B 
+# Figure 4 - Example Prediction SWE vs. Actual SWE Plots For a Range of Test_KGE Values From Test Set B (Naches and Yakima) 
 
 | ![Plot of Predicted vs. Actual SWE - Example of High Test KGE (90% percentile)](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc170300010402.png) |
 | ![Plot of Predicted vs. Actual SWE - Example Near Median Test KGE Value](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc17030020106.png) |

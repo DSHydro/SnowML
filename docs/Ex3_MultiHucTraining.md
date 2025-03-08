@@ -27,7 +27,7 @@ For each of 8 different variable and learning rate combinations, we trained the 
 
 ## Observations and Results
 
-**Impact Of Variabe Selection**
+**Impact Of Variable Selection**
 Figure 2 and 3 plot the results of each of the eight models by epoch, in terms of the "Median Test_Kge" observed accross the validation set of 54 Huc12 units for that epoch.  The results are relatively noisy. The main impact of variable selection appears to be on the stability of the model over epochs.  All eight models reach a maximum value of median kge within a relatively tight range, from .78 (Solar Radiation, .0001 learning rate, epoch 9) to .82 (Humidity, .0003 learning rate, epoch 27). All models, except one, spend several epochs oscilatting up and down, before dropping precipitously in later epochs, likely due to overfitting in later epochs.  The exception is the Base Model plus Humidity model, at the .0003 learning rate, which remains relatively stable throughout the entire epochs. More generally, the Base Model plus Windspeed and Base Model plus Solar Radiation exhibit more variability in early epochs, and deteriorate more quickly than the models the Base Model and Base Models with Humidity.  
 
 ## Impact of Learning Rate ## 
@@ -45,21 +45,20 @@ Figure 2 and 3 plot the results of each of the eight models by epoch, in terms o
 | ![MapOfTestSetA](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TestSetA.png) | ![MapOfTestSetB](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TestSetB.png) |
 
 
-## Figure 2  - Comparison of Model Performance by Variable, Learning Rate, and Epoch ##
-| ![Base Model, by learning rate](https://github.com/DSHydro/SnowML/blob/15825854103b13824585109cdfdbd3244260cf58/notebooks/Ex3_MultiHucTraining/charts/ModelChoice/Median_KGE_Comparison_By_Epoch_And_Learning_Rate_Base_Model.png) | ![Humidity, by Learning Rate](https://github.com/DSHydro/SnowML/blob/15825854103b13824585109cdfdbd3244260cf58/notebooks/Ex3_MultiHucTraining/charts/ModelChoice/Median_KGE_Comparison_By_Epoch_And_Learning_Rate_Base_Model_Plus_Humidity.png) |
+
+
+## Figure 2 - Comparison of Model Performance by Variable, Learning Rate, and Epoch ##
+| ![All Variables, .0003 Learning Rate](https://github.com/DSHydro/SnowML/blob/118020691ab2abe82628893a1fe284e073c498fe/notebooks/Ex3_MultiHucTraining/charts/ModelChoice/Median_KGE_Comparison_By_Variable_Combo_Using_Learning_Rate_0.0003.png) | ![All Variables, .001 Learning Rate](https://github.com/DSHydro/SnowML/blob/118020691ab2abe82628893a1fe284e073c498fe/notebooks/Ex3_MultiHucTraining/charts/ModelChoice/Median_KGE_Comparison_By_Variable_Combo_Using_Learning_Rate_0.001.png) |
 |---|---|
-| ![Solar Radiation, by Learning Rate](https://github.com/DSHydro/SnowML/blob/15825854103b13824585109cdfdbd3244260cf58/notebooks/Ex3_MultiHucTraining/charts/ModelChoice/Median_KGE_Comparison_By_Epoch_And_Learning_Rate_Base_Model_Plus_Solar_Radiation.png) | ![Wind Speed, by Learning Rate](https://github.com/DSHydro/SnowML/blob/15825854103b13824585109cdfdbd3244260cf58/notebooks/Ex3_MultiHucTraining/charts/ModelChoice/Median_KGE_Comparison_By_Epoch_And_Learning_Rate_Base_Model_Plus_Wind_Speed.png) |
 
 
-
-
-
-
-## Figure 3 ##
+## Figure 4 - Test Results 
 
 
 ## Limitations and Questions For Further Research
-- 
+- The eight model variations explored in this expirement barely scratch the surface in terms of the potential for tuning hyperparameters and investigating variable selection. - Future researchers may wish to pursue further tuning.  However, given lengthy training tiems for each model run, computational intensive methods, such as grid search among hyperparameters may not be practical. 
+-
+
 
 [** TO BE INSERTED **]
 

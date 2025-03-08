@@ -55,14 +55,15 @@ def plot(data, y_train_pred, y_test_pred, train_size, huc_id, params, mlflow_on=
     plt.title(ttle)
 
     # Display metrics in the upper-right corner if metrics_dict is not None
+       # Display metrics in the upper-left corner with a background for visibility
     if metrics_dict is not None:
-        # Get the current axis to place the text without interfering with the legend
         ax = plt.gca()
-        # Position the metrics dictionary in the upper right
-        for i, (key, value) in enumerate(metrics_dict.items()):
-            # Format value to 3 decimal places
-            value_str = f"{value:.3f}"
-            ax.text(0.95, 0.95 - i * 0.05, f"{key}: {value_str}", transform=ax.transAxes, ha='left', va='top', fontsize=10, color='black')
+        metric_text = "\n".join([f"{key}: {value:.3f}" for key, value in metrics_dict.items()])
+        
+        ax.text(
+            0.02, 0.98, metric_text, transform=ax.transAxes, ha='left', va='top',
+            fontsize=10, color='black', bbox=dict(facecolor='white', alpha=0.7, edgecolor='black')
+        )
 
 
     if mlflow_on:

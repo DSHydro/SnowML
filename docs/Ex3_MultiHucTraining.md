@@ -2,16 +2,16 @@
 
 In Expirement 3, we considered whether model results could be generalized for use in ungauged basins.  We also expiremented with different variable combinations and training rates. 
 
-For training, we focused on Huc08 basins where Maritime or Montane Forest snow predominated, including:  <br>
+For training, we focused on Huc08 sub-Basins where Maritime or Montane Forest snow predominated, including:  <br>
  - Maritme Basins: [Chelan](basin_fact_sheets/Chelan(17020009).md) (17020009), [Sauk](basin_fact_sheets/Sauk(17110006).md) (17110006), [Skagit](basin_fact_sheets/Skagit(17110005).md) (17110005), [Skykomish](basin_fact_sheets/Skykomish(1711009).md) (17110009), and [Wenatche](basin_fact_sheets/Wenatche(17020011).md) (17020011)
  - Montane Forest Basins: [Middle Salmon Chamberlain](basin_fact_sheets/Middle_Salmon-Chamberlain(17060207).md)(17060207), [St.Joe](basin_fact_sheets/St._Joe(17010304).md) (17010304), [South Fork Coeur d'ALene](basin_fact_sheets/South_Fork_Coeur_d'Alene(17010302).md) (17010302), [South Fork Salmon River](basin_fact_sheets/South_Fork_Salmon_River(17060208).md)(17060208) and [Upper Couer d'Alene](basin_fact_sheets/Upper_Coeur_d'Alene(17010301).md) (17010301)
 
-Within these regions, we treated each Huc12 sub-unit as a  separate time series of data.  We excluded Huc12 sub watershed dominated by ephemral snow as we are primiarly interested in modelling persistent snow pack.  This resulted in 270 Huc12 units available for training.
+Within these regions, we treated each Huc12 sub-unit as a  separate time series of data.  We excluded Huc12 sub-watersheds dominated by ephemral snow as we are primiarly interested in modelling persistent snow pack, and we learned from expirement 2 that ephemeral snow is less well modelled by our LSTM model.  This selection process reulted in 270 Huc12 units available for training.
 
 We randomly split these 270 Huc12 sub-watersheds into training, validaton, and test groups using a 
 60/20/20 split, resulting in 162 Huc12 sub-watersheds used in model training, 54 in validation, and 54 in Test Set A. Its worth noting that train/validation/test splits resulting from random selection resulted in a validation set that was somewhat overweighted in Motane Forest sub-watersheds (65%) compared to the training (52%) and test sets(56%).
 
-We also defined Test set B as the Huc12 units in  [Upper Yakima](basin_fact_sheets/UpperYakima(17030001).md) (17030001) and [Naches](basin_fact_sheets/Naches(17030002).md) (17030002), which contain a mix of Maritime and Montane Forest snowpack. The Yakima/Naches region is ecologically important in the Pacific Northwest and for farming in the Yakima valley. These basins play the role of completely ungauged basin in our expirement set up. 
+We also defined Test set B as the Huc12 units in  [Upper Yakima](basin_fact_sheets/UpperYakima(17030001).md) (17030001) and [Naches](basin_fact_sheets/Naches(17030002).md) (17030002), which contain a mix of Maritime and Montane Forest snowpack, again excluding any Huc12 sub-watershed units predominated by ephemeral snow. The Yakima/Naches region is ecologically important in the Pacific Northwest and for farming in the Yakima valley. These Huc08 sub-Basins play the role of completely ungauged regions in our expirement set up. 
 
 In this expirement, we explored eight model different variations, consisting of four different variabe combinations, each run using a learning rate of .001 and .0003. 
 | Name                | Features                                      |
@@ -22,13 +22,13 @@ In this expirement, we explored eight model different variations, consisting of 
 | Base plus Humidity | Precipitation, Temperature, Elevation, Humidity |
 
 
-For each of 8 different variable and learning rate combinations, we trained the model using the multiple basins in the training set, for 30 epochs, assessing performance against the validation set at the end of each epoch, and logging a separate model in mlflow at the end of each epoch.  After all runs were complete, we selected the "best" model by examining the median test_kge accross all the validation set hucs and choosing the model that resulted in the maximum value of median_test_kge. Finally, we used the selected model to predict results on both Test Set A and Test Set B. 
+For each of 8 different variable and learning rate combinations, we trained the model using the multiple Huc12 units in the training set, for 30 epochs, assessing performance against the validation set at the end of each epoch, and logging a separate model in mlflow at the end of each epoch.  After all runs were complete, we selected the "best" model by examining the median test_kge accross all the validation set hucs and choosing the model that resulted in the maximum value of median_test_kge. Finally, we used the selected model to predict results on both Test Set A and Test Set B. 
 
 
 ## Observations and Results
 
 **Impact Of Variable Selection and Learning Rate** <br>
-Figure 2 plots the results of each of the eight models by epoch, in terms of the "Median Test_Kge" observed accross the validation set of 54 Huc12 units for that epoch.  The results are relatively noisy. The main impact of variable selection and learning rate appears to be on the stability of the model over epochs.  All eight models reach a maximum value of median kge within a relatively tight range, from .78 (Solar Radiation, .0001 learning rate, epoch 9) to .82 (Humidity, .0003 learning rate, epoch 27). All models, except one, spend several epochs oscilatting up and down, before dropping precipitously in later epochs, likely due to overfitting in later epochs.  The exception is the Base Model plus Humidity model, at the .0003 learning rate, which remains relatively stable throughout the entire epochs. More generally, the modles using the lower .0003 learning rate appear noisier during early epohcs than the models run at the larger, .001 learning rate, contrary to what might be expected.  
+Figure 2 plots the results of each of the eight models by epoch, in terms of the "Median Test_Kge" observed accross the validation set of 54 Huc12 units for that epoch.  The results are relatively noisy. The main impact of variable selection and learning rate appears to be on the stability of the model over epochs.  All eight models reach a maximum value of median kge within a relatively tight range, from .78 (Solar Radiation, .0001 learning rate, epoch 9) to .82 (Humidity, .0003 learning rate, epoch 27). All models, except one, spend several epochs oscilatting up and down, before dropping precipitously in later epochs, likely due to overfitting in later epochs.  The exception is the Base Model plus Humidity, at the .0003 learning rate, which remains relatively stable throughout all 30 epochs. More generally, the modele using the lower .0003 learning rate appear noisier during early epohcs than the models run at the larger, .001 learning rate, contrary to what might be expected.  
 
 ** The Model Trained on Multiple Hucs Generalizes Relatively Well To Ungauged Basins ** <br>
 

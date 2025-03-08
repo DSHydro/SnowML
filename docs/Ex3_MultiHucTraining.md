@@ -92,7 +92,8 @@ These distribution of Test KGE values within Test Sets A and B is similar to the
 
 
 
-# Figure 4 - Example Prediction SWE vs. Actual SWE Plots For a Range of Test_KGE Values From Test Set B (Naches and Yakima) 
+# Figure 4 - Example Prediction SWE vs. Actual SWE Plots 
+Example prediction plots for Huc12 Units demonstrating s range of Test_KGE Values from Test Set B (Naches and Yakima).  Results shown range from from a low Test KGE of .61 (10% percentile within Test Set B) to a high of .94, (90% percentile).  
 
 | ![Plot of Predicted vs. Actual SWE - Example of High Test KGE (90% percentile)](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc170300010402.png) |
 | ![Plot of Predicted vs. Actual SWE - Example Near Median Test KGE Value](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc17030020106.png) |

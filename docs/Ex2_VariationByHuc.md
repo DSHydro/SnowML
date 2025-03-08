@@ -68,7 +68,11 @@ Results from pair-wise Welch's t-test of null hypothesis of equality of mean_kge
 
 **Figure 3 - Test KGE By Basin Elevatoin**
 
-| ![All Snow Types](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20HUCs.png)) | ![Maritime Only](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20Hucs%2C%20Maritime%20Only.png) 
+| ![All Snow Types](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20HUCs.png) | ![Maritime Only](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20Hucs%2C%20Maritime%20Only.png) |
+|:---:|:---:|
+| ![Montane Forest](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20Hucs%2C%20Montaine%20Forest%20Only.png) | ![Ephemeral](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20Hucs%2C%20Ephemeral%20Only.png) |
+
+
 
 The R-squared value for each chart represents the proportion of the variance in Test KGE observed between different Hucs that can be attributed to differences in mean basin elvation. 
 
@@ -83,6 +87,7 @@ The R-squared value for each chart represents the proportion of the variance in 
 | TEst KGE vs. Test MSE - All Snow Types | Test KGE vs. Test MSE - Maritime and Montane Forest |
 |------------------------------|------------------------------------------|
 | ![KGE vs. MSE - All Snow Types](https://github.com/DSHydro/SnowML/blob/9b099ff3cf6c3d787694b100911481a9cdb9f3a1/notebooks/Ex2_VarianceByHuc/charts/Scatter_Plot_of_Test_KGE_vs_Test_MSE_(Colored_by_Predominant_Snow_Type).png) | ![KGE vs. MSE - Maritime and Montane Forest](https://github.com/DSHydro/SnowML/blob/9b099ff3cf6c3d787694b100911481a9cdb9f3a1/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE%20vs.%20Test%20MSE%2C%20Excluding%20Hucs%20where%20Ephemeral%20Snow%20Predominates.png) |
+
 
 [**TO DO** - Insert example plots of mismatched MSE/KGE]
 
@@ -107,7 +112,7 @@ The results for this expirement were produced using the `snowML.LSTM` package in
 `run_expirement()` Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes. 
 
 
-The metrics discussed above were downloaded from ML flow using [this notebook](https://github.com/DSHydro/SnowML/blob/d1653c0b190fa6e54b4473dc1d4808fe5c590e81/notebooks/Ex2_VarianceByHuc/DownloadMetrics.ipynb) and analyzed using [this notebook](https://github.com/DSHydro/SnowML/blob/24819a388afc00303ca350f9256376979f2f5298/notebooks/Ex2_VarianceByHuc/LSTM_By_Huc.ipynb). 
+The metrics discussed above were downloaded from ML flow using [this notebook](https://github.com/DSHydro/SnowML/blob/d1653c0b190fa6e54b4473dc1d4808fe5c590e81/notebooks/Ex2_VarianceByHuc/DownloadMetrics.ipynb) and analyzed using [this notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/LSTM_By_Huc.ipynb)). 
 
 ## Model Parameters
 

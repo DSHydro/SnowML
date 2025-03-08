@@ -127,7 +127,7 @@ def calc_bounds(geos):
     return outer_bound
 
 
-def map_snow_types(ds, geos, huc):
+def map_snow_types(ds, geos, huc, class_colors = None, output_dir = None):
 
     # Set up the Cartopy projection
     fig, ax = plt.subplots(
@@ -137,8 +137,8 @@ def map_snow_types(ds, geos, huc):
 
     # Add a baselayer
     
-
-    class_colors = snow_colors()
+    if class_colors is None:
+        class_colors = snow_colors()
     # Create a colormap and normalization based on the dictionary
     cmap = mcolors.ListedColormap([class_colors[i] for i in sorted(class_colors.keys())])
     bounds = list(class_colors.keys()) + [max(class_colors.keys()) + 1]  # Class boundaries
@@ -193,8 +193,12 @@ def map_snow_types(ds, geos, huc):
     plt.tight_layout()
 
     # Save the plot
-    output_dir = os.path.join("docs", "basic_maps")
+    
     file_name = f"Snow_classes_in_{huc}.png"
+    if output_dir is not None:
+        os.makedirs(output_dir, exist_ok=True)
+    else: 
+        output_dir = os.path.join("docs", "basic_maps")
     file_path = os.path.join(output_dir, file_name)
     plt.savefig(file_path)
     plt.close(fig)  # Close the figure to free memory

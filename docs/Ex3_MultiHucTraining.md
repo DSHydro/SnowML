@@ -44,7 +44,7 @@ Figure 4 plots actual and predicted SWE fro selected Huc12 regions in Test Set B
 |--------------|----------------|
 | ![MapOfTrainingData](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TrainSet.png) | ![MapOfValidationData](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/ValSet.png) |
 
-| Test Set A | Test Set B |
+| Test Set A | Test Set B (Naches and Upper Yakima) |
 |------------|------------|
 | ![MapOfTestSetA](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TestSetA.png) | ![MapOfTestSetB](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TestSetB.png) |
 

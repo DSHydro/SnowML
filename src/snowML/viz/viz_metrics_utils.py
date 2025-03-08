@@ -137,16 +137,13 @@ def plot_metric(df, metric_type, output_file="plot.png"):
     print(f"\nPlot saved as {output_file}")
 
 
-def retrieve_plot (huc):  
+def retrieve_plot (huc, key):  
     bucket = "sues-test" # TO DO - UPDATE TO DIFF S3 BUCKET
     s3 = boto3.client('s3')
-    key_root = "34/215fe6997cc04f4493cce8d003dea9a5/artifacts/"
-    key_suff = f"SWE_Predictions_for_huc{huc} using Baseline Model.png"
-    key = key_root + key_suff
-    print(key)
-    local_file_path = f"../docs/model_results/SWE_Predictions_for_huc{huc}.png"
+    local_file_path = f"docs/model_results/SWE_Predictions_for_huc{huc}.png"
     s3.download_file(bucket, key, local_file_path)
     s3.close()
+
 
 def load_snow_type_data(input_pairs):
     snow_types = pd.DataFrame()

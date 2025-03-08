@@ -1,4 +1,4 @@
-## Expirement 3: Multi-Huc Training 
+# Expirement 3: Multi-Huc Training 
 
 In Expirement 3, we considered whether model results could be generalized for use in ungauged basins.  We also expiremented with different variable combinations and training rates. 
 
@@ -25,13 +25,16 @@ In this expirement, we explored eight model different variations, consisting of 
 For each of 8 different variable and learning rate combinations, we trained the model using the multiple Huc12 units in the training set, for 30 epochs, assessing performance against the validation set at the end of each epoch, and logging a separate model in mlflow at the end of each epoch.  After all runs were complete, we selected the "best" model by examining the median test_kge accross all the validation set hucs and choosing the model that resulted in the maximum value of median_test_kge. Finally, we used the selected model to predict results on both Test Set A and Test Set B. 
 
 
-## Observations and Results
+# Observations and Results
 
-# Impact Of Variable Selection and Learning Rate
+## Impact Of Variable Selection and Learning Rate
 
 Figure 2 plots the results of each of the eight models by epoch, in terms of the "Median Test_Kge" observed accross the validation set of 54 Huc12 units for that epoch.  The results are relatively noisy. The main impact of variable selection and learning rate appears to be on the stability of the model over epochs.  All eight models reach a maximum value of median kge within a relatively tight range, from .78 (Solar Radiation, .0001 learning rate, epoch 9) to .82 (Humidity, .0003 learning rate, epoch 27). All models, except one, spend several epochs oscilatting up and down, before dropping precipitously in later epochs, likely due to overfitting in later epochs.  The exception is the Base Model plus Humidity, at the .0003 learning rate, which remains relatively stable throughout all 30 epochs. More generally, the modele using the lower .0003 learning rate appear noisier during early epohcs than the models run at the larger, .001 learning rate, contrary to what might be expected.  
 
-** The Model Trained on Multiple Hucs Generalizes Relatively Well To Ungauged Basins ** <br>
+## The LSTM Model Generalizes  
+The results of the multi-trained model on ungauged basins is, on average, on par with the results of the locally trained model. Figure 3 plots the Test KGE values for each of the Huc12 subunits in both Test Set A and Test Set B, as well as providing summary statistics for several goodness of fit measures incuding Test KGE, Test MSE, and Test R2.  For Test Set A, the median Test KGE value was .85 with an interquartile range of (0.63 to 0.90). Test Set B had a median Test KGE value of .82 with an interquartile range of (.70, .88).  
+
+These distribution of test_kge values within Test Sets A and B is similar to the distribution of Test KGE values obtained in Expirement 2 for locally trained Huc12 subunits dominated by Maritime and Montane Forest snow.  In Expirement 2 we observed a median KGE and interquartile range of ___ among Maritime HUc12 subunits and a median KGE of __ and interquartile range of ___.  However, the two expirements are not directly comprable.  The second expirement introduced the enw variables of mean_humidity and mean_elevation (although mean elevation would not be relevant for a locally trained huc since it would always be a constant). Expirement 3 also used a smaller batch size as the introduction of new variables required smaller batches to stay within the limits of the computing power available to us.  An interesting area for future research will be to compare the performacne of particular Huc12 sub-watersheds using (a) a locally trained model; (b) a multi-huc model model with local fine tuning, and (c) a multi-huc model with no local fine tuning, using a stable set of variables and hyperparameters.  
 
 
 
@@ -99,10 +102,8 @@ Figure 2 plots the results of each of the eight models by epoch, in terms of the
 
 ## Limitations and Questions For Further Research
 - The eight model variations explored in this expirement barely scratch the surface in terms of the potential for tuning hyperparameters and investigating variable selection. - Future researchers may wish to pursue further tuning.  However, given lengthy training tiems for each model run, computational intensive methods, such as grid search among hyperparameters may not be practical. 
--
+- An interesting area for future research will be to compare the performacne of particular Huc12 sub-watersheds using (a) a locally trained model; (b) a multi-huc model model with local fine tuning, and (c) a multi-huc model with no local fine tuning, using a stable set of variables and hyperparameters.  
 
-
-[** TO BE INSERTED **]
 
 ## How to Reproduce The Results
 The results for this expirement were produced using the snowML.LSTM package in this repo. The hyperparameters were set as shown in the section below. The training/validation/huc splits are also recorded below. The expirement was then run by importing the module multi-huc-expirement.py and by calling the function run_expirement(train_hucs, val_hucs, test_hucs) Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes.

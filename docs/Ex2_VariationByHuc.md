@@ -4,14 +4,13 @@ In the second expirement, we examined how the simple, local training LSTM model 
 
 We examined 534 watersheds with a variety of predominant snow types - Ephemeral, Maritime, and Montane Forest. Figure 1 maps the Huc12 units by snow type. 
 
-Each individual Huc12 unit was trained using data only fromthat same Huc12 unit, and tested on later years of data using a train/test split of .67.  
+Each individual Huc12 unit was trained using data only from that same Huc12 unit, and tested on later years of data using a train/test split of .67.  
 
 
 # Observations and Results 
 
-Several interesting observations result from this expirement: 
-
 ##Variation in Model Effectiveness by Snow Type
+
 Figure 2 visualized variation in goodness of fit measures accross different dimensions. Figure  reveals stark contrast in goodness of fit between the relevant snow classes, with Ephemral snow classes generally performing the worst in terms of KGE Efficiency. Ephemeral basins perform relatively well in terms of MSE, likley because the lower levels of snow in these basins inherently create lowere MSE as MSE is a unit dependent measure.  Montane Forest regions outperform Maritime regions with respect to both Test KGE and Tese MSE. The small number of Prairie and Boreal Forrest watersheds are excluded from Figures 2 and 3 due to the low sample size in these categories. 
 
 We ran pairwise t-tests with unequal variance (Welch Test) to test for inequality of mean Test KGE and mean Test MSE between snow types. All values were significaant at p = 0.001 level.  
@@ -27,7 +26,9 @@ While the variation in results accross Huc12 sub-watersheds is interesting and s
 ## Divergence in Goodness of Fit Measures 
 Figure 5 plots [Test KGE](https://github.com/DSHydro/SnowML/blob/main/docs/Ex2_VariationByHuc.md#what-is-kge) and Test MSE. The two goodness of fit measures diverge significantly for many of the Huc12 units, especially for regions dominated by ephemeral snow. In hydrology, KGE is typically considered the more relevant goodness of fit meausure, however, it is difficult to use directly as a loss function because it is not easily differentiable.  Nonetheless, figure 3 highlight the imprecision introduced by using MSE as a loss function if the ultimate goal is to produce high values of KGE.  We briefly expiremented with using KGE, or a hybring KGE+MSE loss function during training but observed impractical training times and chaotic results, so did not further pursue this avenue at this time.  Nontheless, investigation into the best loss function strategy is a ripe area for future research. 
 
-# Figure1 - Map of Huc12 Units Used in this Expirement, by Snow Type. 
+# Tables and Figures 
+
+## Figure1 - Map of Huc12 Units Used in this Expirement, by Snow Type. 
 
 
 **Legend** <br>
@@ -40,7 +41,7 @@ Figure 5 plots [Test KGE](https://github.com/DSHydro/SnowML/blob/main/docs/Ex2_V
 ![Map of Huc12 Units Tested - by Snow Type](https://github.com/DSHydro/SnowML/blob/252b8399f385c7bb212a1f9f3c0dd62b57d67174/notebooks/Ex2_VarianceByHuc/charts/TrainingHucMapBySnowType.png)
 
 
-# Figure2 - Goodness of Fit Measures By Snow Type
+## Figure2 - Goodness of Fit Measures By Snow Type
 
 | Test KGE | Test MSE |
 |----------|----------|
@@ -65,7 +66,7 @@ Results from pair-wise Welch's t-test of null hypothesis of equality of mean_kge
 
 
 
-# Figure 3 - Test KGE By Mean Elevation of Huc12 Sub-Watershed
+## Figure 3 - Test KGE By Mean Elevation of Huc12 Sub-Watershed
 
 | ![All Snow Types](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20HUCs.png) | ![Maritime Only](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20Hucs%2C%20Maritime%20Only.png) |
 |:---:|:---:|
@@ -74,13 +75,13 @@ Results from pair-wise Welch's t-test of null hypothesis of equality of mean_kge
 The R-squared value for each chart represents the proportion of the variance in Test KGE observed between different Hucs that can be attributed to differences in mean basin elvation. 
 
 
-# Figure 4- Goodness of Fit Measures By Basin
+## Figure 4- Goodness of Fit Measures By Basin
 | Test KGE By Huc08 SubBasin | Test MSE By Huc08 SubBasin |
 |--------------|--------------|
 | ![KGE By Basin](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20KGE%20by%20Basins%20-%20Locally%20Trained%20Sub-Watersheds%20_Excludes%20Ephemeral_.png) | ![MSE By Basin](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20MSE%20by%20Basins%20-%20Locally%20Trained%20Sub-Watersheds%20_Excludes%20Ephemeral%20Sub-Watersheds_.png)|
 
 
-# Figure5 
+## Figure5 
 | TEst KGE vs. Test MSE - All Snow Types | Test KGE vs. Test MSE - Maritime and Montane Forest |
 |------------------------------|------------------------------------------|
 | ![KGE vs. MSE - All Snow Types](https://github.com/DSHydro/SnowML/blob/9b099ff3cf6c3d787694b100911481a9cdb9f3a1/notebooks/Ex2_VarianceByHuc/charts/Scatter_Plot_of_Test_KGE_vs_Test_MSE_(Colored_by_Predominant_Snow_Type).png) | ![KGE vs. MSE - Maritime and Montane Forest](https://github.com/DSHydro/SnowML/blob/9b099ff3cf6c3d787694b100911481a9cdb9f3a1/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE%20vs.%20Test%20MSE%2C%20Excluding%20Hucs%20where%20Ephemeral%20Snow%20Predominates.png) |

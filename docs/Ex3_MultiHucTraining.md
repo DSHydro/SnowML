@@ -38,7 +38,7 @@ These distribution of Test KGE values within Test Sets A and B is similar to the
 
 
 
-
+# Tables and Figures 
 
 ## Figure 1 - Map of Training, Validation, and Test Sets 
 
@@ -59,7 +59,7 @@ These distribution of Test KGE values within Test Sets A and B is similar to the
 
 
 
-# Figure 3- Results on Ungauged Huc Units 
+## Figure 3- Results on Ungauged Huc Units 
 | Test Set A | Naches and Upper Yakima |
 |------------|-------------------------|
 | ![Test Set A](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/Historgram%20of%20Test%20KGE%20Values%20Among%20Test%20SetA.png) | ![Naches and Upper Yakima](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/Historgram%20of%20Test%20KGE%20For%20HUC12%20Sub-Watersheds%20In%20Test%20Set%20B.png) |
@@ -90,9 +90,7 @@ These distribution of Test KGE values within Test Sets A and B is similar to the
 
 
 
-
-
-# Figure 4 - Example Prediction SWE vs. Actual SWE Plots 
+## Figure 4 - Example Prediction SWE vs. Actual SWE Plots 
 Example prediction plots for Huc12 Units demonstrating s range of Test_KGE Values from Test Set B (Naches and Yakima).  Results shown range from from a low Test KGE of .61 (10% percentile within Test Set B) to a high of .94, (90% percentile).  
 
  ![Plot of Predicted vs. Actual SWE - Example of High Test KGE (90% percentile)](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc170300010402.png) 
@@ -101,7 +99,7 @@ Example prediction plots for Huc12 Units demonstrating s range of Test_KGE Value
 
 
 
-## Limitations and Questions For Further Research
+# Limitations and Questions For Further Research
 - The eight model variations explored in this expirement barely scratch the surface in terms of the potential for tuning hyperparameters and investigating variable selection. - Future researchers may wish to pursue further tuning.  However, given lengthy training tiems for each model run, computational intensive methods, such as grid search among hyperparameters may not be practical. 
 - An interesting area for future research will be to compare the performacne of particular Huc12 sub-watersheds using (a) a locally trained model; (b) a multi-huc model model with local fine tuning, and (c) a multi-huc model with no local fine tuning, using a stable set of variables and hyperparameters.  
 

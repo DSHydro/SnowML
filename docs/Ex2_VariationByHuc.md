@@ -4,7 +4,7 @@ In the second expirement, we examined how the simple, local training LSTM model 
 
 We examined 534 watersheds with a variety of predominant snow types - Ephemeral, Maritime, and Montane Forest. Figure 1 maps the Huc12 units by snow type. 
 
-Each individual Huc12 unit was trained using data only fromthat same Huc12 unit, and tested on later years of data using a train/test split of .67.  
+Each individual Huc12 unit was trained using data only from that same Huc12 unit, and tested on later years of data using a train/test split of .67.  
 
 
 # Observations and Results 

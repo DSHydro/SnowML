@@ -54,6 +54,13 @@ Figure 2 plots the results of each of the eight models by epoch, in terms of the
 | ![All Variables, .0003 Learning Rate](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/ModelChoice/Median_KGE_Comparison_By_Variable_Combo_Using_Learning_Rate_0.0003.png) | ![All Variables, .001 Learning Rate ](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/ModelChoice/Median_KGE_Comparison_By_Variable_Combo_Using_Learning_Rate_0.001.png) |
 |---|---|
 
+
+
+# Figure 3- Results on Ungauged Huc Units 
+| Test Set A | Naches and Upper Yakima |
+|------------|-------------------------|
+| ![Test Set A](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/Historgram%20of%20Test%20KGE%20Values%20Among%20Test%20SetA.png) | ![Naches and Upper Yakima](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/Historgram%20of%20Test%20KGE%20For%20HUC12%20Sub-Watersheds%20In%20Test%20Set%20B.png) |
+
 **Summary Statistics Test Set A**
 |       | Test MSE  | Test KGE  | Test R2  |
 |-------|----------|----------|----------|
@@ -77,14 +84,6 @@ Figure 2 plots the results of each of the eight models by epoch, in terms of the
 | 50%   | 0.004246  | 0.821192  | 0.918686  |
 | 75%   | 0.008932  | 0.883383  | 0.934607  |
 | max   | 0.050682  | 0.969418  | 0.963966  |
-
-
-
-# Figure 3- Results on Ungauged Huc Units 
-| Test Set A | Naches and Upper Yakima |
-|------------|-------------------------|
-| ![Test Set A](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/Historgram%20of%20Test%20KGE%20Values%20Among%20Test%20SetA.png) | ![Naches and Upper Yakima](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/Historgram%20of%20Test%20KGE%20For%20HUC12%20Sub-Watersheds%20In%20Test%20Set%20B.png) |
-
 
 
 

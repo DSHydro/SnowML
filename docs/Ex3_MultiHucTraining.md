@@ -36,6 +36,12 @@ The LSTM model generalized reasoably well to ungauged basins when trained on mul
 
 Figure 4 plots actual and predicted SWE fro selected Huc12 regions in Test Set B spanning some of the worst results (Test KGE of .61, or 10% percentile) to some of the best (Test KGE of .94, or 90% percentile).  
 
+## Differences In Model Performance By Snow Type 
+[**To Be Inserted**]
+
+## Difference in Model Perfrmance By Elevation 
+With training on multiple Huc12 units and the explicite inclusion of mean elevation in the feature set, we no longer see a significant correlation bewteen model perforamance and mean elevation. Figure 6 plots Test KGE agains Mean Elevation for the combined Test Sets A and B.  Similar results were observed when examining the relationship between mean elevation and Test KGE on the individual Test Sets A and B.  
+
 # Tables and Figures 
 
 ## Figure 1 - Map of Training, Validation, and Test Sets 
@@ -94,6 +100,13 @@ Example prediction plots for Huc12 Units demonstrating s range of Test_KGE Value
  ![Plot of Predicted vs. Actual SWE - Example of High Test KGE (90% percentile)](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc170300010402.png) 
  ![Plot of Predicted vs. Actual SWE - Example Near Median Test KGE Value](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc17030020106.png) 
 ![Plot of Predicted vs. Actual SWE - Example of Low Test KGE Value (10% percentile)](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc170300010701.png) 
+
+## Figure 5 
+[** TO BE INSERTED **]
+
+## Figure 6 - Model Performance By Mean Elevation  
+![Model Performance By Mean Elevation](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/Test%20KGE_vs_mean_elevation_MultiHucModel_CombinedTestSets.png)
+
 
 
 

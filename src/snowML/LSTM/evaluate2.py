@@ -1,4 +1,5 @@
-# Module to evaluate model results from a saved model
+# Module to evaluate model results from a saved model and save locally (no MLFlow)
+# Uses plot2 function (warm colors and flexible y scale)
 # pylint: disable=C0103, R0913, R0914, R0917
 
 import mlflow
@@ -8,9 +9,14 @@ from sklearn.metrics import r2_score
 from snowML.LSTM import LSTM_pre_process as pp
 from snowML.LSTM import LSTM_train
 from snowML.LSTM import set_hyperparams as sh
-from snowML.LSTM import LSTM_plot
+from snowML.LSTM import LSTM_plot2 
 from snowML.datapipe import data_utils as du
 from snowML.datapipe import set_data_constants as sdc
+
+import importlib
+importlib.reload(LSTM_plot2)
+
+#model_uri = "s3://sues-test/298/51884b406ec545ec96763d9eefd38c36/artifacts/epoch27_model"
 
 
 def load_model(model_uri):
@@ -18,19 +24,6 @@ def load_model(model_uri):
     model = mlflow.pytorch.load_model(model_uri)
     print(model)
     return model
-
-def set_ML_server(expirement_name):
-    """
-    Configures the MLflow tracking server and sets the experiment.
-
-    Returns:
-        None
-    """
-    tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
-    mlflow.set_tracking_uri(tracking_uri)
-    # Define the expirement
-    mlflow.set_experiment(expirement_name)
-
 
 def reset_params(var_list,
                 learning_rate,
@@ -101,7 +94,7 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
         test_kge, _, _, _ = LSTM_train.kling_gupta_efficiency(y_test_true, y_test_pred)
         test_r2 = r2_score(y_test_true, y_test_pred)
         metric_dict = dict(zip(["test_mse", "test_kge", "test_r2"], [test_mse, test_kge, test_r2]))
-        LSTM_plot.plot(data, y_train_pred, y_test_pred, train_size_main, huc, params, metrics_dict = metric_dict)
+        LSTM_plot2.plot(data, y_train_pred, y_test_pred, train_size_main, huc, params, metrics_dict = metric_dict)
         return metric_dict
 
     # else train/test split is time
@@ -127,17 +120,8 @@ def predict_from_pretrain (train_hucs,
     df_dict_test = renorm(train_hucs, val_hucs, test_hucs, var_list)
     print(df_dict_test)
 
-    # initialize ML server
-    set_ML_server(params["expirement_name"])
-
-    with mlflow.start_run():
-        mlflow.log_params(params)
-        mlflow.log_param("test_hucs", test_hucs)
-        mlflow.log_param("model_uri", model_uri)
-
-        for huc in test_hucs:
-            metric_dict = eval_from_saved_model(model_dawgs, df_dict_test, huc, params)
-            for met_nm, met in metric_dict.items():
-                mlflow.log_metric(f"{met_nm}_{str(huc)}", met)
-                print(f"{met_nm}: {met}")
+    for huc in test_hucs:
+        metric_dict = eval_from_saved_model(model_dawgs, df_dict_test, huc, params)
+        for met_nm, met in metric_dict.items():
+            print(f"{met_nm}: {met}")
                

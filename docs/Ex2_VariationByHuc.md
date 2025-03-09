@@ -1,6 +1,6 @@
  # Expirement 2: Investigate Model Performance Across Varied Huc12 Sub-Watersheds
 
-In the second expirement, we examined how the simple, local training LSTM model performed accross a variety of Huc12(sub-watershed) units.  Again the model aimed to predict swe values using an LSTM model with mean_temperature and mean_precipittion as the feature inputs.  
+In the second experiment, we examined how the simple, local training LSTM model performed accross a variety of Huc12 (sub-watershed) units.  Again the model aimed to predict swe values using an LSTM model with mean_temperature and mean_precipitation as the feature inputs.  
 
 We examined 534 watersheds with a variety of predominant snow types - Ephemeral, Maritime, and Montane Forest. Figure 1 maps the Huc12 units by snow type. 
 

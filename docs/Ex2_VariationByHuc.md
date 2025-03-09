@@ -1,4 +1,4 @@
- # Expirement 2: Investigate Model Performance Across Varied Huc12 Sub-Watersheds
+ # Experiment 2: Investigate Model Performance Across Varied Huc12 Sub-Watersheds
 
 In the second experiment, we examined how the simple, local training LSTM model performed accross a variety of Huc12 (sub-watershed) units.  Again the model aimed to predict swe values using an LSTM model with mean_temperature and mean_precipitation as the feature inputs.  
 

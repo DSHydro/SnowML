@@ -182,8 +182,41 @@ def store_summ_metrics(metric_names, metrics_list_dict, epoch):
 
 
 def predict (model_dawgs, df_dict, selected_key, params):
-    data = df_dict[selected_key]
+    """
+    Generates predictions using the given model for a specified dataset.
 
+    Args:
+        model_dawgs (torch.nn.Module): The trained PyTorch model used for predictions.
+        df_dict (dict): Dictionary containing multiple datasets, with keys representing 
+                        dataset identifiers (e.g., `huc_id`).
+        selected_key (str or int): The key used to select the dataset from `df_dict`.
+        params (dict): Dictionary containing parameters for data preprocessing and 
+                       model input, including:
+            - "train_size_dimension" (str): Determines how the dataset is split 
+              (e.g., "time" for time-based splits).
+            - "train_size_fraction" (float): Fraction of the dataset used for training 
+              (only relevant when splitting by time).
+            - "lookback" (int): Number of past time steps used as input for predictions.
+            - "var_list" (list): List of variable names used as features.
+
+    Returns:
+        tuple:
+            - data (pd.DataFrame): The full dataset corresponding to `selected_key`.
+            - y_train_pred (numpy.ndarray or None): Model predictions on training data 
+              (if applicable, else `None`).
+            - y_test_pred (numpy.ndarray): Model predictions on test data.
+            - y_train (numpy.ndarray or None): Actual target values for training data 
+              (if applicable, else `None`).
+            - y_test (numpy.ndarray): Actual target values for test data.
+            - train_size_main (int or float): The number of training samples (or `0` if no split).
+
+    Notes:
+        - If `train_size_dimension` is `"time"`, the dataset is split into training and testing sets 
+          based on time, and predictions are made for both.
+        - Otherwise, predictions are made on the entire dataset without a train-test split.
+        - The function uses PyTorch tensors for predictions and converts outputs to NumPy arrays.
+    """
+    data = df_dict[selected_key]
     if params["train_size_dimension"] == "time":
         train_main, test_main, train_size_main, _  = pp.train_test_split_time(
                                         data, params['train_size_fraction'])
@@ -238,7 +271,9 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
     # Loop through each HUC
     for selected_key in available_keys:
         print(f"evaluating on huc {selected_key}")
-        data, y_train_pred, y_test_pred, y_train_true, y_test_true, train_size_main = predict(model_dawgs, df_dict, selected_key, params)
+        data, y_train_pred, y_test_pred, y_train_true, y_test_true, train_size_main = (
+            predict(model_dawgs, df_dict, selected_key, params)
+        )
 
         # Compute MSE
         if params["train_size_dimension"] == "time":
@@ -279,7 +314,3 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
 
     if len(available_keys) > 1:
         store_summ_metrics(metric_names, metrics_list_dict, epoch)
-
-
-
-    

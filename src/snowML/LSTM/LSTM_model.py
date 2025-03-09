@@ -21,6 +21,19 @@ class SnowModel(nn.Module):
         self.leaky_relu = nn.LeakyReLU()
 
     def forward(self, x):
+        """
+        Performs a forward pass through the LSTM model.
+
+        Args:
+            x (torch.Tensor): Input tensor of shape (batch_size, sequence_length, input_size),
+                            representing a batch of sequences.
+
+        Returns:
+            torch.Tensor: Output tensor of shape (batch_size, output_size), representing 
+                      the model's predictions after passing through the LSTM and 
+                      fully connected layers with a LeakyReLU activation.
+    """
+
         device = x.device
         hidden_states = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
         cell_states = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
@@ -53,6 +66,24 @@ class HybridLoss(nn.Module):
         self.lambda_mse = self.initial_lambda * (1 - progress) + self.final_lambda * progress
 
     def forward(self, pred, obs):
+        """
+        Computes the hybrid loss function based on the Kling-Gupta Efficiency (KGE) 
+        and Mean Squared Error (MSE).
+
+        Args:
+            pred (torch.Tensor): Predicted values tensor of shape (batch_size, ...).
+            obs (torch.Tensor): Observed (ground truth) values tensor of the same shape as `pred`.
+
+        Returns:
+            torch.Tensor: Scalar loss value combining the negative KGE and weighted MSE.
+
+        Notes:
+            - The KGE is computed using Pearson correlation, variability ratio, and bias ratio.
+            - Small epsilon values (`self.eps`) are added to prevent division by zero.
+            - The final loss is `-KGE + lambda * MSE`, where `self.lambda_mse` controls 
+            the weighting of MSE in the total loss.
+        """
+
         # Ensure tensors are at least 1D
         if pred.ndim == 0 or obs.ndim == 0:
             return torch.tensor(float("nan"), device=pred.device)

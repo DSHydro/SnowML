@@ -7,8 +7,8 @@
 - Resuts above reflect the High Creek-Naneum Creek sub-watershed near Yakima valley.
 - Not all results are quite this good, but we acheived respectable goodness of fit statistics throughout the Naches and Upper Yakima sub-basins, an import region for Washington Agriculture:
   
-**Test resuls on Ungaguged Basins**
-|       | Test MSE  | Test KGE  | Test R -squared |
+
+|  Result on Ungauged Basins:     | Test MSE  | Test KGE  | Test R -squared |
 |-------|----------|----------|----------|
 | count (e.g. number of Huc12 sub-watersheds) | 48 | 48| 48|
 | mean  | 0.007  | 0.789 | 0.888  |

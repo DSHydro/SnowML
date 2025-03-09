@@ -4,5 +4,5 @@
 
 - Our multi-huc trained LSTM model predicts ungauged basins with accuracy comparable to the locally trained model
 - The main drawback: longer training times. For predictions future SWE on gauged basins, use our lightweight local training model! 
-- Graph above shows results from the High Creek-Naneum Creek sub-watershed near Yakima valley, an important watershed for Washington Agriculture.
-- Of course, not all of our results are **quite** this good. Our goodness of fit statistics for the Naches and Upper Yakima regions:
+- Resuts above reflect the High Creek-Naneum Creek sub-watershed near Yakima valley.
+- Not all of our results are **quite** this good, but we acheived respectable goodness of fit statistics throughout the Naches and Upper Yakima sub-basins, an import region for Washington Agriculture.

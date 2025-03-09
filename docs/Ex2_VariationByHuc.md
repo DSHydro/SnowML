@@ -9,7 +9,7 @@ Each individual Huc12 unit was trained using data only from that same Huc12 unit
 
 # Observations and Results 
 
-##Variation in Model Effectiveness by Snow Type
+## Variation in Model Effectiveness by Snow Type
 
 Figure 2 visualized variation in goodness of fit measures accross different dimensions. Figure  reveals stark contrast in goodness of fit between the relevant snow classes, with Ephemral snow classes generally performing the worst in terms of KGE Efficiency. Ephemeral basins perform relatively well in terms of MSE, likley because the lower levels of snow in these basins inherently create lowere MSE as MSE is a unit dependent measure.  Montane Forest regions outperform Maritime regions with respect to both Test KGE and Tese MSE. The small number of Prairie and Boreal Forrest watersheds are excluded from Figures 2 and 3 due to the low sample size in these categories. 
 

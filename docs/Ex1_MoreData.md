@@ -1,10 +1,17 @@
 # Expirement 1: Use more Data! 
 
-** TO DO: Explain that the original prototyped model was run on 8 Huc10 watersheds within Skagit and we did same **
+**The Prototyped LSTM Model** 
+The Frosty Dawgs team did not start from scratch.  We were grateful to use as our starting point an LSTM Model that had been prototyped in Skagit Basin ("Prototyped LSTM Model") using as the target variable daily estimates of Snow Water Equivilent ("SWE") data from 1985 to 2012, and daily temperature and precipitation oer the same period data as models features.  
 
-The first adjustment we made to the proptoyped LSTM Model was to use the University of Arizona estimates of Snow Water Equivilent (SWE) [data]( https://climate.arizona.edu/data/UA_SWE/) as our target dataset for training and evaluating the model. This dataset contains a longer time series of available SWE data than used in the protoyped model. 
+**Watershed Level Training** 
+The Prototyped LSTM Model was run at watershed scale - meaning that for each locally trained watershed, the target and feature variables were aggregated into a daily mean value for the entire watershed being trained or predicted.  We also followed this watershed scale training approach. Specifically, a separate model was trained for each of 7 different "Huc10" watershed basins 
 
-We reran the protoype LSTM model with the new data, leaving all other hyperparmeters unchanged except one. We reduced the number of epochs to 10 after observing early convergence of the model -- possibly due to the increased training data available. The graphs below compare the prior data run at 200 epochs with the new data run at 10 epochs, but the observations are robust to the number of epochs used. Please refer to the [Viz10COmpare notebook](notebooks/Prototype_Model_Results/VizHuc10Compare.ipynb) for sensitivy analysis related to number of epochs used.  
+Training at watershed scale is advantageous because it reduces computation, and averages out imprecisions that arise from dataset gridding misalignment and/or methods used when large scale meteorological datasets are "downscaled" using statistical methods. Predictions at the watershed scale are also more readily interpretable for water managers and others. On the other hand, watershed scale training over large areas may obscure important differences local differences in elevation, terrain, or other variables resulting in some loss of fidelity. As one of our research questions was to determine whether waterhsedscale training is a viable approach, we continued with watershed scale training.   
+
+**New Data!**
+The first adjustment we made to the Proptoyped LSTM Model was to use the University of Arizona estimates of Snow Water Equivilent (SWE) [data]( https://climate.arizona.edu/data/UA_SWE/) as our target dataset for training and evaluating the model. This dataset contains a longer time series of available SWE data than used in the protoyped model. 
+
+We reran the Protoyped LSTM Model with the new data, leaving all other hyperparmeters unchanged except one. We reduced the number of epochs to 10 after observing early convergence of the model -- possibly due to the increased training data available. The graphs below compare the prior data run at 200 epochs with the new data run at 10 epochs, but the observations are robust to the number of epochs used. Please refer to the [Viz10COmpare notebook](notebooks/Prototype_Model_Results/VizHuc10Compare.ipynb) for sensitivy analysis related to number of epochs used.  
 
 In this Expirement 1, each Huc10 watershed was trained *only* using the data from that watershed. Train/test split was accomplished by reserving the final third of the time period as test data. 
 
@@ -22,7 +29,11 @@ The variation in model performance in different Huc10 watershed units is also no
 **Variability in "Actual" SWE Between UA and SnowTel Datasets** <br>
 [** TO BE INSERTED **] 
 
-## Figure1
+## Figure 1 - Skagit MAP 
+
+[** To Be Inserted**] 
+
+## Figure2
 **UA Data vs. SnowTel Data Prediction Plots for two Example HUC10 Units - 1711000504 and 1711000506**
 
 | ProtoTyped Model - UA Data | ProtoTyped Model - Original (SnowTel) Data |
@@ -30,7 +41,7 @@ The variation in model performance in different Huc10 watershed units is also no
 | ![UA Data](../notebooks/Ex1_MoreData/charts/UAData_SWE_Post_Predictions_for_huc_1711000504.png) | ![Original Data](../notebooks/Ex1_MoreData/charts/SWE_Post_Predictions_for_huc_1711000504.png) |
 | ![UA Data](../notebooks/Ex1_MoreData/charts/UAData_SWE_Post_Predictions_for_huc_1711000506.png) | ![Original Data](../notebooks/Ex1_MoreData/charts/SWE_Post_Predictions_for_huc_1711000506.png) |
 
-## Figure2
+## Figure3
 
 **KGE - Higher Values (Closer to 1) Represent Better Fit** 
 ![KGE_Compare](https://github.com/DSHydro/SnowML/blob/7b9d88797ac90603c03b732958c8c35ee3aa0d18/notebooks/Ex1_MoreData/charts/Klinge_Gupta_Efficiency_By_Huc_and_Type_of_Data_Used.png)

@@ -121,6 +121,17 @@ def snow_colors():
     }
     return snow_class_colors_small
 
+
+def snow_colors_2():
+    snow_class_colors_small = {
+        3: "blue", # Maritime
+        4: "#E6E6FA",  # Ephemeral (lavender)
+        5: "lightgreen", # Prairie   
+        6: "darkgreen"  # Montane Forest 
+    }
+    return snow_class_colors_small
+
+
 def calc_bounds(geos):
     merged_geom = geos.geometry.union_all()
     outer_bound = merged_geom.convex_hull
@@ -138,7 +149,7 @@ def map_snow_types(ds, geos, huc, class_colors = None, output_dir = None):
     # Add a baselayer
     
     if class_colors is None:
-        class_colors = snow_colors()
+        class_colors = snow_colors_2()
     # Create a colormap and normalization based on the dictionary
     cmap = mcolors.ListedColormap([class_colors[i] for i in sorted(class_colors.keys())])
     bounds = list(class_colors.keys()) + [max(class_colors.keys()) + 1]  # Class boundaries
@@ -217,12 +228,14 @@ def plot_dem(dem_ds, geos, huc_id):
 
 def create_vis_all(initial_huc, final_huc_lev):
     geos = gg.get_geos(initial_huc, final_huc_lev)
-    basic_map(geos, final_huc_lev, initial_huc) # create and save basic map
+    #basic_map(geos, final_huc_lev, initial_huc) # create and save basic map
     ds_snow = st.snow_class_data_from_s3(geos) 
     map_snow_types(ds_snow, geos, initial_huc) # create and save snow class map
-    dem_ds = gd.get_dem(geos)
-    plot_dem(dem_ds, geos, initial_huc) # create and save map of elevation
+    #dem_ds = gd.get_dem(geos)
+    #plot_dem(dem_ds, geos, initial_huc) # create and save map of elevation
     # for huc in geos["huc_id"].tolist(): # create and save map of actuals
         # plot_actual(huc, "mean_swe", initial_huc, bucket_dict = None)
     # swe_summary = basin_swe_summary(initial_huc, final_huc_lev) # create and save csv of median peak
     
+
+

@@ -28,6 +28,12 @@ def create_run_dict_Ex3Eval():
     run_dict["Test_Set_B"] = "148f7dddc0814c4f86bb93edbc425c4c" # bittersweet croc
     return run_dict
 
+def create_run_dict_Ex1():
+    run_dict = {}
+    run_dict["new10_rerun"] = "bfdd8164ce1f46d8a9418be41a70ffdf"
+    run_dict["orig200_rerun"] = "02a508daab8e42b2a5f1baab194cd744"
+    return run_dict
+
 
 # function to retrieve metrics from ML server
 def load_ml_metrics(

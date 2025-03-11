@@ -226,36 +226,3 @@ def create_vis_all(initial_huc, final_huc_lev):
         # plot_actual(huc, "mean_swe", initial_huc, bucket_dict = None)
     # swe_summary = basin_swe_summary(initial_huc, final_huc_lev) # create and save csv of median peak
     
-
-
-
-
-
-
-
-# def plot_actual_from_bronze(huc, var, bucket_dict = None):
-#     geos = gg.get_geos(huc, str(len(str(huc))).zfill(2))
-#     print(geos.head(2))
-    
-#     if bucket_dict is None:
-#         bucket_dict = sdc.create_bucket_dict("prod")
-#     b_name = bucket_dict.get("bronze")
-#     zarr_store_url = f's3://{b_name}/{var}_all.zarr'
-
-#     # Open the Zarr file directly with storage options
-#     ds = xr.open_zarr(zarr_store_url, consolidated=True, storage_options={'anon': False})
-#     # Process the dataset as needed
-#     if var != "swe":
-#         transform = du.calc_transform(ds)
-#         ds = ds.rio.write_transform(transform, inplace=True)
-#     else:
-#         ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace=True)
-        
-#     ds.rio.write_crs("EPSG:4326", inplace=True)
-#     ds.close()  # Close the dataset after processing
-    
-#     geo = geos.iloc[[0]].geometry
-#     crs = geos.crs
-#     ds_small = ds.rio.clip(geo, crs, drop = True, invert = False)
-    
-#     # TO DO - TAKE MEAN, CONVERT TO DF, and PLOT 

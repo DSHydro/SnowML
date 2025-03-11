@@ -1,14 +1,14 @@
 # Expirement 1: Use more Data! 
 
-**The Prototyped LSTM Model** 
+**The Prototyped LSTM Model** <br>
 The Frosty Dawgs team did not start from scratch.  We were grateful to use as our starting point an LSTM Model that had been prototyped in Skagit Basin ("Prototyped LSTM Model") using as the target variable daily estimates of Snow Water Equivilent ("SWE") data from 1985 to 2012, and daily temperature and precipitation oer the same period data as models features.  
 
-**Watershed Level Training** 
+**Watershed Level Training** <br>
 The Prototyped LSTM Model was run at watershed scale - meaning that for each locally trained watershed, the target and feature variables were aggregated into a daily mean value for the entire watershed being trained or predicted.  We also followed this watershed scale training approach. Specifically, a separate model was trained for each of 7 different "Huc10" watershed basins 
 
 Training at watershed scale is advantageous because it reduces computation, and averages out imprecisions that arise from dataset gridding misalignment and/or methods used when large scale meteorological datasets are "downscaled" using statistical methods. Predictions at the watershed scale are also more readily interpretable for water managers and others. On the other hand, watershed scale training over large areas may obscure important differences local differences in elevation, terrain, or other variables resulting in some loss of fidelity. As one of our research questions was to determine whether waterhsedscale training is a viable approach, we continued with watershed scale training.   
 
-**New Data!**
+**New Data!** <br>
 The first adjustment we made to the Proptoyped LSTM Model was to use the University of Arizona estimates of Snow Water Equivilent (SWE) [data]( https://climate.arizona.edu/data/UA_SWE/) as our target dataset for training and evaluating the model. This dataset contains a longer time series of available SWE data than used in the protoyped model. 
 
 We reran the Protoyped LSTM Model with the new data, leaving all other hyperparmeters unchanged except one. We reduced the number of epochs to 10 after observing early convergence of the model -- possibly due to the increased training data available. The graphs below compare the prior data run at 200 epochs with the new data run at 10 epochs, but the observations are robust to the number of epochs used. Please refer to the [Viz10COmpare notebook](notebooks/Prototype_Model_Results/VizHuc10Compare.ipynb) for sensitivy analysis related to number of epochs used.  

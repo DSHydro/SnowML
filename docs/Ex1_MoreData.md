@@ -27,6 +27,9 @@ These visual observations are confimed by two goodness of fit measures: Mean Squ
 The variation in model performance in different Huc10 watershed units is also notable, given that in this expirement a separate model was trained for each watershed. In Expirement 2, we investigate perforance variation acrros different huc units in more detail. 
 
 **Variability in "Actual" SWE Between UA and SnowTel Datasets** <br>
+There is a fairly large discrepency between the SWE measures among the two datasets, an important reminder that out model results are limited by the accuracy of the data used to train it.  The University of Arizona SWE Dataset we used was developed by combining ground observations and outputs of a physics based model using precipitation and temperature to extrapolate SWE to unmeasured area.  Neither the original data set used not our UofA dataset consisted of pure "measurement" data but instead themselves contained some level of modeled estimates. Any imprecisions in the SWE target variable measurements in the target data set used for training will be replicated in any predictions or forecasts obtained from our model. However, no existing data sets provide ground truth SWE measurements at the geographic and time-period scale required for our model. Several prior studies have evaluated the accuracy of the University of Arizona dataset set and determined that it is reasonable to use a reference dataset for SWE modelling. *See* Wang, Y.H., Gupta, H.V., Zeng, X. and Niu, G.Y., 2022. Exploring the potential of long short‐term memory networks for improving understanding of continental‐and regional‐scale snowpack dynamics. Water Resources Research, 58(3), p.e2021WR031033 (and sources cited therein). We follow the same appraoch. 
+
+
 [** TO BE INSERTED **] 
 
 ## Figure 1 - Skagit MAP 
@@ -59,7 +62,7 @@ KGE values range from negative infinity to 1, with a KGE value of 1 indicating p
 [** TO BE INSERTED **]
 
 # How to Reproduce The Results
-The results for this expirement were produced using jupyter notebooks: [Ex1: Notebook - Snowtel Data](https://github.com/DSHydro/SnowML/blob/a38b71732907f79f4150c4a3fa5794b1a0aafe2e/notebooks/Prototype_Model_Results/Original_Tutorial_Time_Series_Prediction_of_Snow_Water_Equivalent_(SWE)_Using_LSTM_in_PyTorch.ipynb)  and [Ex1: Notebook - UA Data](https://github.com/DSHydro/SnowML/blob/a38b71732907f79f4150c4a3fa5794b1a0aafe2e/notebooks/Prototype_Model_Results/Original_Tutorial_Time_Series_Prediction_of_Snow_Water_Equivalent_(SWE)_Using_LSTM_in_PyTorch-NewData.ipynb).  Parameters used resulting mdoel weights, and diagnostic metrics were all saved in MLFlow for later retreiveal and analysis. 
+The results for this expirement were produced using jupyter notebooks: [Ex1: Notebook - Snowtel Data](https://github.com/DSHydro/SnowML/blob/a38b71732907f79f4150c4a3fa5794b1a0aafe2e/notebooks/Prototype_Model_Results/Original_Tutorial_Time_Series_Prediction_of_Snow_Water_Equivalent_(SWE)_Using_LSTM_in_PyTorch.ipynb)  and [Ex1: Notebook - UA Data](https://github.com/DSHydro/SnowML/blob/a38b71732907f79f4150c4a3fa5794b1a0aafe2e/notebooks/Prototype_Model_Results/Original_Tutorial_Time_Series_Prediction_of_Snow_Water_Equivalent_(SWE)_Using_LSTM_in_PyTorch-NewData.ipynb).  Parameters used, resulting model weights, and diagnostic metrics were all saved in MLFlow for later retreiveal and analysis. 
 
 Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes. 
 

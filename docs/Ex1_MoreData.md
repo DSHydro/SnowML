@@ -56,7 +56,10 @@ KGE values range from negative infinity to 1, with a KGE value of 1 indicating p
 
 
 # Limitations and Questions For Further Research
-[** TO BE INSERTED **]
+- As discussed above, the target SWE dataset used for training is itself based on ground observations exptrapoloated using a physics based model. Inaccuracies in the training data will cause inaccuracies in predicted results, even if the model fit were perfect. Further reseaerch should include training the model on a basin, such as in the Tolounme valley in California, for which high accuracy LIDAR esitmates of SWE are available, to assess correspondence with ground truth.
+- At the time this expirement was run, the UofA SWE data was only available thorugh Water Years 2023. New data has since been released for Water Years 2024 and 2025 which should be included in future efforts.
+- In addition to potential inaccuracies in the SWE target dataset, there may be imperfections in the features variables precipitation and air temperature.  Consult the data pipeline documentation and links to the underlying data sources for more detail.
+- Future research should explore the optimal granualrity for training - whether that is at the "pixel" level (such as 4Km by 4KM square meters), at the "Huc10" watershed level, or at the "Huc12" sub-watershed level.  
 
 # How to Reproduce The Results
 The results for this expirement were produced using jupyter notebooks: [Ex1: Notebook - Snowtel Data](https://github.com/DSHydro/SnowML/blob/a38b71732907f79f4150c4a3fa5794b1a0aafe2e/notebooks/Prototype_Model_Results/Original_Tutorial_Time_Series_Prediction_of_Snow_Water_Equivalent_(SWE)_Using_LSTM_in_PyTorch.ipynb)  and [Ex1: Notebook - UA Data](https://github.com/DSHydro/SnowML/blob/a38b71732907f79f4150c4a3fa5794b1a0aafe2e/notebooks/Prototype_Model_Results/Original_Tutorial_Time_Series_Prediction_of_Snow_Water_Equivalent_(SWE)_Using_LSTM_in_PyTorch-NewData.ipynb).  Parameters used, resulting model weights, and diagnostic metrics were all saved in MLFlow for later retreiveal and analysis. 

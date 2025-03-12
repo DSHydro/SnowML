@@ -2,11 +2,7 @@
 "Module to create basin and watershed visualizations"
 
 import os
-import fsspec
 import pandas as pd
-import xarray as xr
-import rioxarray
-import zarr
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import matplotlib.patches as mpatches
@@ -19,12 +15,12 @@ from snowML.datapipe import get_dem as gd
 
 def plot_var(df, var, huc, initial_huc):
     plt.figure(figsize=(12,  6))
-    plt.plot(df.index, df[var], c='b', label= f"Actual {var}")  
-    
+    plt.plot(df.index, df[var], c='b', label= f"Actual {var}")
+
     # Set y-axis limits for "mean_swe"
     if var == "mean_swe":
         plt.ylim(0, 2)
-    
+
     plt.legend()
     plt.xlabel('Date')
     plt.ylabel(var)
@@ -50,7 +46,7 @@ def get_model_ready (huc, bucket_dict = None):
     df = du.s3_to_df(file_name, bucket_name)
     df['day'] = pd.to_datetime(df['day'])
     df.set_index('day', inplace=True)  # Set 'day' as the index
-    return df 
+    return df
 
 def plot_actual(huc, var, initial_huc, bucket_dict = None):
     df = get_model_ready(huc, bucket_dict= bucket_dict)
@@ -70,16 +66,16 @@ def summarize_swe(df):
     # Ensure the index is a datetime index
     df = df.copy()
     df.index = pd.to_datetime(df.index)
-    
+
     # Resample by water year (Oct 1 - Sep 30)
     summary = df.resample('YE-SEP').agg(
         annual_peak_swe=('mean_swe', 'max'),
         annual_mean_swe=('mean_swe', 'mean')
     )
-    
+
     # Adjust index to represent the water year
     summary.index = summary.index.year
-    
+
     # Calculate and print median values
     median_peak_swe = summary['annual_peak_swe'].median()
     median_ann_mean_swe = summary['annual_mean_swe'].median()
@@ -88,11 +84,11 @@ def summarize_swe(df):
 
     return median_peak_swe, median_ann_mean_swe, summary
 
-def basin_swe_summary(huc_id, final_huc_lev): 
+def basin_swe_summary(huc_id, final_huc_lev):
     geos = gg.get_geos(huc_id, final_huc_lev)
     hucs = geos["huc_id"]
     medians = []
-    for huc in hucs: 
+    for huc in hucs:
         df = get_model_ready(huc)
         median_peak_swe, _, _, = summarize_swe(df)
         medians.append(median_peak_swe)
@@ -102,7 +98,7 @@ def basin_swe_summary(huc_id, final_huc_lev):
     results.to_csv(f_out)
     return results
 
-    
+
 def basic_map(geos, final_huc_lev, initial_huc):
     map_object = geos.explore()
     output_dir = os.path.join("docs", "basic_maps")
@@ -126,8 +122,8 @@ def snow_colors_2():
     snow_class_colors_small = {
         3: "blue", # Maritime
         4: "#E6E6FA",  # Ephemeral (lavender)
-        5: "lightgreen", # Prairie   
-        6: "darkgreen"  # Montane Forest 
+        5: "lightgreen", # Prairie
+        6: "darkgreen"  # Montane Forest
     }
     return snow_class_colors_small
 
@@ -138,7 +134,7 @@ def calc_bounds(geos):
     return outer_bound
 
 
-def map_snow_types(ds, geos, huc, class_colors = None, output_dir = None):
+def map_snow_types(ds, geos, huc, huc_lev = '12', class_colors = None, output_dir = None):
 
     # Set up the Cartopy projection
     fig, ax = plt.subplots(
@@ -147,7 +143,7 @@ def map_snow_types(ds, geos, huc, class_colors = None, output_dir = None):
     )
 
     # Add a baselayer
-    
+
     if class_colors is None:
         class_colors = snow_colors_2()
     # Create a colormap and normalization based on the dictionary
@@ -204,11 +200,13 @@ def map_snow_types(ds, geos, huc, class_colors = None, output_dir = None):
     plt.tight_layout()
 
     # Save the plot
-    
-    file_name = f"Snow_classes_in_{huc}.png"
+    if huc_lev != '12':
+        file_name = f"Snow_classes_for_huc{huc_lev}in_{huc}.png"
+    else:
+        file_name = f"Snow_classes_in_{huc}.png"
     if output_dir is not None:
         os.makedirs(output_dir, exist_ok=True)
-    else: 
+    else:
         output_dir = os.path.join("docs", "basic_maps")
     file_path = os.path.join(output_dir, file_name)
     plt.savefig(file_path)
@@ -216,10 +214,10 @@ def map_snow_types(ds, geos, huc, class_colors = None, output_dir = None):
     print(f"Map saved to {file_path}")
 
 def plot_dem(dem_ds, geos, huc_id):
-    f, ax = plt.subplots(figsize=(10, 6))
+    _, ax = plt.subplots(figsize=(10, 6))
     dem_ds.plot(ax=ax, cmap='terrain')
     # Plot geometries in black outline
-    geos.plot(ax=ax, edgecolor='black', facecolor='none', linewidth=2, zorder=5)  # Higher zorder to ensure geos are above DEM
+    geos.plot(ax=ax, edgecolor='black', facecolor='none', linewidth=2, zorder=5)
     ax.set_title(f"Digital Elevation Model (DEM) for huc {huc_id}")
     f_out = f"docs/basic_maps/dem_huc{huc_id}" # TO DO: Fix path to be dynamic
     plt.savefig(f_out, dpi=300, bbox_inches="tight")
@@ -228,14 +226,12 @@ def plot_dem(dem_ds, geos, huc_id):
 
 def create_vis_all(initial_huc, final_huc_lev):
     geos = gg.get_geos(initial_huc, final_huc_lev)
-    #basic_map(geos, final_huc_lev, initial_huc) # create and save basic map
-    ds_snow = st.snow_class_data_from_s3(geos) 
-    map_snow_types(ds_snow, geos, initial_huc) # create and save snow class map
-    #dem_ds = gd.get_dem(geos)
-    #plot_dem(dem_ds, geos, initial_huc) # create and save map of elevation
+    basic_map(geos, final_huc_lev, initial_huc) # create and save basic map
+    ds_snow = st.snow_class_data_from_s3(geos)
+    map_snow_types(ds_snow, geos, initial_huc, final_huc_lev) # create and save snow class map
+    dem_ds = gd.get_dem(geos)
+    plot_dem(dem_ds, geos, initial_huc) # create and save map of elevation
     # for huc in geos["huc_id"].tolist(): # create and save map of actuals
         # plot_actual(huc, "mean_swe", initial_huc, bucket_dict = None)
-    # swe_summary = basin_swe_summary(initial_huc, final_huc_lev) # create and save csv of median peak
+    # swe_summary = basin_swe_summary(initial_huc, final_huc_lev) # create & save csv of median peak
     
-
-

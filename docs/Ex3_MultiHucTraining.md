@@ -122,7 +122,7 @@ The results for this expirement were produced using the snowML package in this r
 
 
 
-1. ***Set Up Your Run-Time Environment** You will need an IDE that can execute python scripts and a terminal for bash commands, as well as an mlflow tracking server.  We recommend Sagemaker Studio which enables you to insantiate both an mlflow server and a Code Spaces IDE from within the Studio.  Take note of the tracking_uri for the mlflow server that you set up, as you'll need it in step 3. If working from Sagemaker Studio, the mlflow tracking_uri should look something like this: "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML."
+1. **Set Up Your Run-Time Environment** You will need an IDE that can execute python scripts and a terminal for bash commands, as well as an mlflow tracking server.  We recommend Sagemaker Studio which enables you to insantiate both an mlflow server and a Code Spaces IDE from within the Studio.  Take note of the tracking_uri for the mlflow server that you set up, as you'll need it in step 3. If working from Sagemaker Studio, the mlflow tracking_uri should look something like this: "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML."
 
 1.  **Clone the SnowML Repo and Install SnowML package.**
 ```

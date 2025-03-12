@@ -3,7 +3,7 @@
 
 **Name:**             Wenatchee <br>
 **Huc No:**           17020011 <br> 
-**Predominant Snow:** Maritime 
+**Predominant Snow:** Maritime <br>
 **Huc 12 Sub Units By Predominant Snow Classification:**
 - Maritme: 28
 - Montane Foreest: 8

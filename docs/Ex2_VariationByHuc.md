@@ -70,7 +70,7 @@ Results from pair-wise Welch's t-test of null hypothesis of equality of mean_kge
 
 | ![All Snow Types](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20HUCs.png) | ![Maritime Only](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20Hucs%2C%20Maritime%20Only.png) |
 |:---:|:---:|
-| ![Montane Forest](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20Hucs%2C%20Montaine%20Forest%20Only.png) | ![Ephemeral](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20Hucs%2C%20Ephemeral%20Only.png) |
+| ![Montane Forest](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20Hucs%2C%20Montane%20Forest%20Only.png) | ![Ephemeral](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20Hucs%2C%20Ephemeral%20Only.png) |
 
 The R-squared value for each chart represents the proportion of the variance in Test KGE observed between different Hucs that can be attributed to differences in mean basin elvation. 
 

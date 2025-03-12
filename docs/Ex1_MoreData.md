@@ -69,7 +69,7 @@ Note that during training, data is split into batches and shuffled for randomnes
 | Parameter          | Value (UA Data)         | Value (SnowTel Data)       |
 |--------------------|----------------------|----------------------|
 | Training From     | Prototype Notebook    | Prototype Notebook  |
-| Data Source       | UA SWE Data           | SnowTel Data        |
+| Data Source       | **UA SWE Data **          | **SnowTel Data **       |
 | Variables         | "mean_pr", "mean_tair" | "mean_pr", "mean_tair" |
 | input_size        | 2                      | 2                    |
 | hidden_size       | 64                     | 64                   |
@@ -81,7 +81,7 @@ Note that during training, data is split into batches and shuffled for randomnes
 | lookback_values  | [180]                  | [180]                |
 | epochs          | **10**                      | **200**            |
 | MLFlow Expirement Name | Prototype-Results | Prototype-Results |
-| MLFlow run name       | bittersweet-bug-588       | clumsy-ray-666       |
-| MLFLow run id    | f0bde540d8184f7e8ea057456ec56f38 | 41f1a7b318f94b2bb2c4fdfbf892a018 |
+| MLFlow run name       |    |     |
+| MLFLow run id    | bfdd8164ce1f46d8a9418be41a70ffdf | 02a508daab8e42b2a5f1baab194cd744 |
 
 

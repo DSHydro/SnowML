@@ -32,13 +32,13 @@ Figure 5 plots [Test KGE](https://github.com/DSHydro/SnowML/blob/main/docs/Ex2_V
 
 
 **Legend** <br>
- - Yellow - Maritime Snow Predominates (155)
- - Orange - Montane Forest Snow Predominates (187)
- - Blue - Ephemeral Snow Predominates (180)
--  Red - Prairie Snow Predominates (11)
+ - Blue- Maritime Snow Predominates (155)
+ - Green - Montane Forest Snow Predominates (187)
+ - Lilac - Ephemeral Snow Predominates (180)
+-  Light Green - Prairie Snow Predominates (11)
 -  White - Boreal Forest (1)
 
-![Map of Huc12 Units Tested - by Snow Type](https://github.com/DSHydro/SnowML/blob/252b8399f385c7bb212a1f9f3c0dd62b57d67174/notebooks/Ex2_VarianceByHuc/charts/TrainingHucMapBySnowType.png)
+![Map of Huc12 Units Tested - by Snow Type](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Expirement2Map.png)
 
 
 ## Figure2 - Goodness of Fit Measures By Snow Type

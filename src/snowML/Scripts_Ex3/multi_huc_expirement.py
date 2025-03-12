@@ -24,9 +24,7 @@ def set_ML_server(params):
         None
     """
     # Set our tracking server uri for logging
-    #tracking_uri = "https://t-izowcn0gky2o.us-west-2.experiments.sagemaker.aws"
-    tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
-    mlflow.set_tracking_uri(tracking_uri)
+    mlflow.set_tracking_uri(params["mlflow_tracking_uri"])
 
     # Define the expirement
     mlflow.set_experiment(params["expirement_name"])
@@ -70,13 +68,13 @@ def initialize_model(params):
     return model_dawgs, optimizer_dawgs, loss_fn_dawgs
 
 
-def run_expirement(train_hucs, val_hucs, test_hucs, params = None):
+def run_expirement(train_hucs, val_hucs, params = None):
     if params is None:
         params = sh.create_hyper_dict()
-    tr_and_val_hucs = train_hucs + val_hucs  
+    tr_and_val_hucs = train_hucs + val_hucs
     #print("finished finding tr and val hucs")
-    df_dict, global_means, global_stds = pp.pre_process(tr_and_val_hucs, params["var_list"])  
-    df_dict_tr = {huc: df_dict[huc] for huc in train_hucs if huc in df_dict}  
+    df_dict, global_means, global_stds = pp.pre_process(tr_and_val_hucs, params["var_list"])
+    df_dict_tr = {huc: df_dict[huc] for huc in train_hucs if huc in df_dict}
     df_dict_val = {huc: df_dict[huc] for huc in val_hucs if huc in df_dict}
 
 
@@ -90,7 +88,7 @@ def run_expirement(train_hucs, val_hucs, test_hucs, params = None):
         mlflow.log_param("train_hucs", train_hucs)
         mlflow.log_param("val_hucs", val_hucs)
         mlflow.log_param("val_hucs", val_hucs)
-        # log the normalization values 
+        # log the normalization values
         mlflow.log_param("global_means", global_means)
         mlflow.log_param("global_stds", global_stds)
 

@@ -39,7 +39,7 @@ def create_run_dict_Ex1():
 def load_ml_metrics(
     run_id,
     save_local=True,
-    folder = "data/",
+    folder = "mlflow_data/",
     tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"):
 
     """ Function that retreives all the logged ML metrics for a give run_id"""

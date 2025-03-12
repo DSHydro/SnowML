@@ -19,7 +19,7 @@ In this Expirement 1, each Huc10 watershed was trained *only* using the data fro
 # Observations and Results 
 
 **More Data = Better Results** <br>
-Not surprisingly, including longer time series of data generally increased model fit. Figure 2 below graphs actual and predicted levels of SWE for two example Huc10 units within the [Skagit Basin] (https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/Skagit(17110005).md), 1711000504 and 171100506, using both data sets. From visual inspection, using the longer time series from the UA data set appears to decrease overfitting and aid model performance. 
+Not surprisingly, including longer time series of data generally increased model fit. Figure 2 below graphs actual and predicted levels of SWE for two example Huc10 units within the [Skagit Basin](https://github.com/DSHydro/SnowML/blob/main/docs/basin_fact_sheets/Skagit(17110005).md), 1711000504 and 171100506, using both data sets. From visual inspection, using the longer time series from the UA data set appears to decrease overfitting and aid model performance. 
 
 These visual observations are confimed by two goodness of fit measures: Mean Squared Error ("MSE"), and  [Klinge-Gupta Efficiency](https://github.com/DSHydro/SnowML/blob/main/docs/Ex1_MoreData.md#figure1--ua-data-vs-original-data-prediction-plots-for-two-example-huc12-units---1711000504-and-1711000506) "KGE". As shown in Figure 2, the longer time series data showed test KGE improvements for each of the seven watersheds tested. Mean Squared Error results were more mixed. In the majority of watersheds, MSE improved when running the model with the longer time series of data, but in two watersheds, MSE deteriorated with the increased time series of data.
 

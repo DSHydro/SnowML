@@ -147,8 +147,8 @@ def create_hyper_dict():
 2. **Define the hucs that will be used in the training, validation, and huc sets.**  To resuse the same hucs as discussed here:
 
 ```
-from snowmL.Scripts_Ex3 import load_huc_splits as lh
-fron snowmL.Scripts_Ex3 import create_test_set_B as cb
+from snowML.Scripts_Ex3 import load_huc_splits as lh
+fron snowML.Scripts_Ex3 import create_test_set_B as cb
 tr, val, test_A = lh.huc_splits()
 test_B = cb.huc_split()
 ```

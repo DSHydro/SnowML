@@ -29,6 +29,7 @@ The variation in model performance in different Huc10 watershed units is also no
 **Variability in "Actual" SWE Between UA and Prior Dataset** <br>
 There is a fairly large discrepency between the SWE measures among the two datasets, an important reminder that out model results are limited by the accuracy of the data used to train it.  The University of Arizona SWE Dataset we used was developed by combining ground observations and outputs of a physics based model using precipitation and temperature to extrapolate SWE to unmeasured area.  Neither the original data set used not our UofA dataset consisted of pure "measurement" data but instead themselves contained some level of modeled estimates. Any imprecisions in the SWE target variable measurements in the target data set used for training will be replicated in any predictions or forecasts obtained from our model. However, no existing data sets provide ground truth SWE measurements at the geographic and time-period scale required for our model. Several prior studies have evaluated the accuracy of the University of Arizona dataset set and determined that it is reasonable to use a reference dataset for SWE modelling. *See* Wang, Y.H., Gupta, H.V., Zeng, X. and Niu, G.Y., 2022. **Exploring the potential of long short‐term memory networks for improving understanding of continental‐and regional‐scale snowpack dynamics.** Water Resources Research, 58(3), p.e2021WR031033 (and sources cited therein). We follow the same appraoch. 
 
+# Figures and Tables
 
 ## Figure 1 - Skagit MAP 
 

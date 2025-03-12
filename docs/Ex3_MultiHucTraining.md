@@ -124,7 +124,7 @@ The results for this expirement were produced using the snowML package in this r
 bash
 git clone https://github.com/DSHydro/SnowML.git 
 cd SnowML # make sure to switch into the snowML directory and run all code below from there
-pip install . #installs the Snow ML package
+pip install . #installs the SnowML package
 ```
 
 2. **Open Python in your preferred IDE, running from the SnowML directory.**
@@ -169,7 +169,7 @@ test_B = cb.get_testB_huc_list()
 
 ```
 from snowML.Scripts_Ex3 import multi_huc_expirement as mhe
-mhe.run_expirement(tr, val, params)  # pass in the list of training and validation hucs from above, as well as the hyperparameter dictionary
+mhe.run_expirement(tr, val, params)  # pass in the list of training and validation hucs from above & the hyperparameter dictionary
 ```
 
 6.**Evaluate the results on the Test Sets**

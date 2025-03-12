@@ -155,7 +155,7 @@ def create_hyper_dict():
     return param_dict
 ```
 
-4. **Define the hucs that will be used in the training, validation, and huc sets.**  To resuse the same hucs as discussed here:
+4. **Define the hucs that will be used in the training, validation, and huc sets.**  To resuse the same hucs as discussed here, run the code below.  This code results in four lists of huc numbers, corresponding to the train, validation, and test sets A and B.  If you run this code from within an AWS enviornment, you may see warning messages about unclosed aiohttp connectors.  These are harmless.  (But annoying!  Please, help us out with a pull request if you know how to suppress, we've tried everything . . . )
 
 ```
 from snowML.Scripts_Ex3 import load_huc_splits as lh
@@ -164,13 +164,13 @@ tr, val, test_A = lh.huc_split()
 test_B = cb.get_testB_huc_list()
 ```
 
-This code results in four lists of huc numbers, corresponding to the train, validation, and test sets A and B.  If you run this code from within an AWS enviornment, you may see warning messages about unclosed aiohttp connectors.  These are harmless.  (But annoying!  Please, help us out with a pull request if you know how to suppress, we've tried everything . . . )
 
 5. **Train the model**  Train the model, evaluating the results on the validation test set at the end of each epoch.   This will take a while!  The runs described in this expirement each took between 20-30 hours.
 
 ```
 from snowML.Scripts_Ex3 import multi_huc_expirement as mhe
-mhe.run_expirement(tr, val)  # pass in the list of training and validation hucs from above 
+mhe.run_expirement(tr, val)  # pass in the list of training and validation hucs from above
+```
 
 
 

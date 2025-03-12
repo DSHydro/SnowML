@@ -121,7 +121,7 @@ The results for this expirement were produced using the snowML.LSTM package in t
 
 1. Create a dictionary called "params" with desired values of the relevant hyperparamenters (the values used in each run are shown in the table below). This can be acheived by updating the module `snowML.LSTM.set_hyperparams' in the snow.LSTM package or manually such as with the function below and updating the desired values. 
 
-\`\`\`python
+```
 def create_hyper_dict():
     param_dict = {
         "hidden_size": 2**6,
@@ -142,7 +142,7 @@ def create_hyper_dict():
         "train_size_fraction": 1  
     }
     return param_dict
-\`\`\`
+```
 
 The hyperparameters were set as shown in the section below in the module snowML.LSTM.set_hyperparams. The training/validation/huc splits are also recorded below. The expirement was then run by importing the module multi-huc-expirement.py and by calling the function run_expirement(train_hucs, val_hucs, test_hucs) 
 

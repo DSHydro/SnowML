@@ -3,10 +3,10 @@
 In Expirement 3, we considered whether model results could be generalized for use in ungauged basins.  We also expiremented with different variable combinations and training rates. 
 
 For training, we focused on Huc08 sub-Basins where Maritime or Montane Forest snow predominated, including:  <br>
- - Maritme Basins: [Chelan](basin_fact_sheets/Chelan(17020009).md) (17020009), [Sauk](basin_fact_sheets/Sauk(17110006).md) (17110006), [Skagit](basin_fact_sheets/Skagit(17110005).md) (17110005), [Skykomish](basin_fact_sheets/Skykomish(1711009).md) (17110009), and [Wenatche](basin_fact_sheets/Wenatche(17020011).md) (17020011)
+ - Maritme Basins: [Chelan](basin_fact_sheets/Chelan(17020009).md) (17020009), [Sauk](basin_fact_sheets/Sauk(17110006).md) (17110006), [Skagit](basin_fact_sheets/Skagit(17110005).md) (17110005), [Skykomish](basin_fact_sheets/Skykomish(1711009).md) (17110009), and [Wenatchee](basin_fact_sheets/Wenatche(17020011).md) (17020011)
  - Montane Forest Basins: [Middle Salmon Chamberlain](basin_fact_sheets/Middle_Salmon-Chamberlain(17060207).md)(17060207), [St.Joe](basin_fact_sheets/St._Joe(17010304).md) (17010304), [South Fork Coeur d'ALene](basin_fact_sheets/South_Fork_Coeur_d'Alene(17010302).md) (17010302), [South Fork Salmon River](basin_fact_sheets/South_Fork_Salmon_River(17060208).md)(17060208) and [Upper Couer d'Alene](basin_fact_sheets/Upper_Coeur_d'Alene(17010301).md) (17010301)
 
-Within these regions, we treated each Huc12 sub-unit as a  separate time series of data.  We excluded Huc12 sub-watersheds dominated by ephemral snow as we are primiarly interested in modelling persistent snow pack, and we learned from expirement 2 that ephemeral snow is less well modelled by our LSTM model.  This selection process reulted in 270 Huc12 units available for training.
+Within these regions, we treated each Huc12 sub-unit as a  separate time series of data.  We excluded Huc12 sub-watersheds dominated by ephemeral snow as we are primiarly interested in modelling persistent snow pack, and we learned from expirement 2 that ephemeral snow is less well modelled by our LSTM model.  This selection process reulted in 270 Huc12 units available for training.
 
 We randomly split these 270 Huc12 sub-watersheds into training, validaton, and test groups using a 
 60/20/20 split, resulting in 162 Huc12 sub-watersheds used in model training, 54 in validation, and 54 in Test Set A. Its worth noting that train/validation/test splits resulting from random selection resulted in a validation set that was somewhat overweighted in Motane Forest sub-watersheds (65%) compared to the training (52%) and test sets(56%).
@@ -117,10 +117,73 @@ Example prediction plots for Huc12 Units demonstrating s range of Test_KGE Value
 
 
 # How to Reproduce The Results
-The results for this expirement were produced using the snowML.LSTM package in this repo. The hyperparameters were set as shown in the section below in the module snowML.LSTM.set_hyperparams. The training/validation/huc splits are also recorded below. The expirement was then run by importing the module multi-huc-expirement.py and by calling the function run_expirement(train_hucs, val_hucs, test_hucs) Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes.
+The results for this expirement were produced using the snowML package in this repo, using the steps below.  Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes.
 
 
-[** TO BE INSERTED **]
+
+
+1. **Set Up Your Run-Time Environment.** You will need an IDE that can execute python scripts and a terminal for bash commands, as well as an mlflow tracking server.  We recommend Sagemaker Studio which enables you to insantiate both an mlflow server and a Code Spaces IDE from within the Studio.  Take note of the tracking_uri for the mlflow server that you set up, as you'll need it in step 3. If working from Sagemaker Studio, the mlflow tracking_uri should look something like this: "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML."
+
+1.  **Clone the SnowML Repo and Install SnowML package.**
+```
+bash
+git clone https://github.com/DSHydro/SnowML.git 
+cd SnowML # make sure to switch into the snowML directory and run all subsequent code from there
+pip install . #installs the SnowML package
+```
+
+3. **Create a dictionary called "params".** From within python, create a dictionary of "params" with the desired values of the relevant hyperparamenters (the values used in each run are shown in the table below). This can be acheived by updating the module `snowML.LSTM.set_hyperparams' in the snow.LSTM package or manually such as with the function below and updating the desired values. 
+
+```
+# python
+def create_hyper_dict():
+    param_dict = {
+        "hidden_size": 2**6,
+        "num_class": 1,
+        "num_layers": 1,
+        "dropout": 0.5,
+        "learning_rate": 3e-4,  # 3e-3
+        "n_epochs": 30,
+        "lookback": 180,
+        "batch_size": 32,
+        "n_steps": 1,
+        "num_workers": 8,
+        "var_list": ["mean_pr", "mean_tair", "mean_hum", "Mean Elevation"],
+        "expirement_name": "Multi_All-2",
+        "loss_type": "mse",
+        "mse_lambda": 1, 
+        "train_size_dimension": "huc",
+        "train_size_fraction": 1, 
+        "mlflow_tracking_uri": "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
+    }
+    return param_dict
+
+params = create_hyper_dict()
+```
+
+4. **Define the hucs that will be used in the training, validation, and huc sets.**  To resuse the same hucs as discussed here, run the code below.  This code results in four lists of huc numbers, corresponding to the train, validation, and test sets A and B.  If you run this code from within an AWS enviornment, you may see warning messages about unclosed aiohttp connectors.  These are harmless.  (But annoying!  Please, help us out with a pull request if you know how to suppress, we've tried everything . . . )
+
+```
+from snowML.Scripts_Ex3 import load_huc_splits as lh
+from snowML.Scripts_Ex3 import create_test_set_B as cb
+tr, val, test_A = lh.huc_split()
+test_B = cb.get_testB_huc_list()
+```
+
+
+5. **Train the model**  Train the model, evaluating the results on the validation test set at the end of each epoch.   This will take a while!  The runs described in this expirement each took between 20-30 hours.
+
+```
+from snowML.Scripts_Ex3 import multi_huc_expirement as mhe
+mhe.run_expirement(tr, val, params)  
+```
+
+6.**Evaluate the results on the Test Sets**
+
+
+
+
+
 # HyperParameters
 | Parameter              | Base Model 1e-3 | Base Model 3e-4 | Base Plus Wind Speed ('vs') 1e-3 | Base Plus Wind Speed ('vs') 3e-4 | Base Plus Solar Radiation ('srad') 1e-3 | Base Plus Solar Radiation ('srad') 3e-4 | Base Plus Humidity 1e-3 | Base Plus Humidity 3e-4 |
 |------------------------|----------------|----------------|--------------------------------|--------------------------------|--------------------------------------|--------------------------------------|----------------------|----------------------|

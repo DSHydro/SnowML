@@ -171,7 +171,7 @@ test_B = cb.get_testB_huc_list()
 
 ```
 from snowML.Scripts_Ex3 import multi_huc_expirement as mhe
-mhe.run_expirement(tr, val, params)  # pass in the training and validation huc lists from above & the hyperparameter dictionary
+mhe.run_expirement(tr, val, params)  
 ```
 
 6.**Evaluate the results on the Test Sets**

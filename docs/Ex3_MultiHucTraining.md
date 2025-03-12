@@ -156,6 +156,7 @@ def create_hyper_dict():
         "train_size_fraction": 1, 
         "mlflow_ tracking_uri": "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
     }
+    return param_dict
 
 params = create_hyper_dict()
 ```

@@ -3,14 +3,14 @@
 import json
 
 
-def huc_split(f="hucs_data.json"):
+def huc_split(f="src/snowML/Scripts_Ex3/hucs_data.json"):
     with open(f, 'r') as file:
         data = json.load(file)
     tr = data["train_hucs"]
-    print(tr[0:4])
+    #print(tr[0:4])
     val = data["val_hucs"]
-    print(val[0:4])
+    #print(val[0:4])
     te = data["test_hucs"]
-    print(te[0:4])
+    #print(te[0:4])
     return tr, val, te
     

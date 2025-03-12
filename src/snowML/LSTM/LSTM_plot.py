@@ -55,7 +55,6 @@ def plot(data, y_train_pred, y_test_pred, train_size, huc_id, params, mlflow_on=
     plt.title(ttle)
 
     # Display metrics in the upper-right corner if metrics_dict is not None
-       # Display metrics in the upper-left corner with a background for visibility
     if metrics_dict is not None:
         ax = plt.gca()
         metric_text = "\n".join([f"{key}: {value:.3f}" for key, value in metrics_dict.items()])

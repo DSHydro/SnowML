@@ -1,4 +1,4 @@
-# Module to set the hyperparams for the LSTM model
+"""Module to set the hyperparams for the LSTM model"""
 
 
 
@@ -19,6 +19,7 @@ def create_hyper_dict():
         "loss_type": "mse",
         "mse_lambda": 1, 
         "train_size_dimension": "huc",
-        "train_size_fraction": 1  
+        "train_size_fraction": 1, 
+        "mlflow_tracking_uri": "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
     }
     return param_dict

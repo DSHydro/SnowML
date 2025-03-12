@@ -119,9 +119,10 @@ Example prediction plots for Huc12 Units demonstrating s range of Test_KGE Value
 # How to Reproduce The Results
 The results for this expirement were produced using the snowML.LSTM package in this repo, using hte steps below.  Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes.
 
-1. Create a dictionary called "params" with desired values of the relevant hyperparamenters (the values used in each run are shown in the table below). This can be acheived by updating the module `snowML.LSTM.set_hyperparams' in the snow.LSTM package or manually such as by using a function such as the below: 
+1. Create a dictionary called "params" with desired values of the relevant hyperparamenters (the values used in each run are shown in the table below). This can be acheived by updating the module `snowML.LSTM.set_hyperparams' in the snow.LSTM package or manually such as with the function below and updating the desired values. 
 
-```def create_hyper_dict():
+\`\`\`python
+def create_hyper_dict():
     param_dict = {
         "hidden_size": 2**6,
         "num_class": 1,
@@ -140,7 +141,8 @@ The results for this expirement were produced using the snowML.LSTM package in t
         "train_size_dimension": "huc",
         "train_size_fraction": 1  
     }
-    return param_dict```
+    return param_dict
+\`\`\`
 
 The hyperparameters were set as shown in the section below in the module snowML.LSTM.set_hyperparams. The training/validation/huc splits are also recorded below. The expirement was then run by importing the module multi-huc-expirement.py and by calling the function run_expirement(train_hucs, val_hucs, test_hucs) 
 

@@ -11,7 +11,7 @@ Training at watershed scale is advantageous because it reduces computation. It a
 **New Data!** <br>
 The first adjustment we made to the Proptoyped LSTM Model was to use the University of Arizona estimates of Snow Water Equivilent (SWE) [data]( https://climate.arizona.edu/data/UA_SWE/) as our target dataset for training and evaluating the model. This dataset contains a longer time series of available SWE data than used in the protoyped model. 
 
-We reran the Protoyped LSTM Model with the new data, leaving all other hyperparmeters unchanged except one. We reduced the number of epochs to 10 after observing early convergence of the model -- possibly due to the increased training data available. The graphs below compare the prior data run at 200 epochs with the new data run at 10 epochs, but the observations are robust to the number of epochs used. Please refer to the [Viz10COmpare notebook](notebooks/Prototype_Model_Results/VizHuc10Compare.ipynb) for sensitivy analysis related to number of epochs used.  
+We reran the Protoyped LSTM Model with the new data, leaving all other hyperparmeters unchanged except one. We reduced the number of epochs to 10 after observing early convergence of the model -- possibly due to the increased training data available. The graphs below compare the prior data run at 200 epochs with the new data run at 10 epochs, but the observations are robust to the number of epochs used. Please refer to the [Viz10COmpare notebook](../notebooks/Ex1_MoreData/VizHuc10Compare.ipynb) for sensitivy analysis related to number of epochs used.  
 
 In this Expirement 1, each Huc10 watershed was trained *only* using the data from that watershed. Train/test split was accomplished by reserving the final third of the time period as test data. 
 

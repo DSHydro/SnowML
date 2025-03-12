@@ -127,8 +127,7 @@ cd SnowML # make sure to switch into the snowML directory and run all code below
 pip install . #installs the SnowML package
 ```
 
-2. **Open Python in your preferred IDE, running from the SnowML directory.**
-
+2. ***Set Up Your Run-Time Enviornmnet** You will need both an IDE for running python, and an MLFLOW tracking server.  We recommend Sagemaker Studio which enables you to insantiate both an MLFLOW server and a Code Spaces IDE from within the Studio.  Take note of the tracking_uri for the MLFLOW server that you set up, as you'll need it in the next step. If working from Sagemaker Studio, it should look something like this: "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML."
 
 3. **Create a dictionary called "params"** with desired values of the relevant hyperparamenters (the values used in each run are shown in the table below). This can be acheived by updating the module `snowML.LSTM.set_hyperparams' in the snow.LSTM package or manually such as with the function below and updating the desired values. 
 
@@ -150,9 +149,9 @@ def create_hyper_dict():
         "loss_type": "mse",
         "mse_lambda": 1, 
         "train_size_dimension": "huc",
-        "train_size_fraction": 1  
+        "train_size_fraction": 1, 
+        "mlflow_ tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
     }
-    return param_dict
 
 params = create_hyper_dict()
 ```

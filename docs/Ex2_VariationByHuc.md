@@ -78,16 +78,16 @@ The R-squared value for each chart represents the proportion of the variance in 
 ## Figure 4- Goodness of Fit Measures By Basin
 | Test KGE By Huc08 SubBasin | Test MSE By Huc08 SubBasin |
 |--------------|--------------|
-| ![KGE By Basin](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20KGE%20by%20Basins%20-%20Locally%20Trained%20Sub-Watersheds%20_Excludes%20Ephemeral_.png) | ![MSE By Basin](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20MSE%20by%20Basins%20-%20Locally%20Trained%20Sub-Watersheds%20_Excludes%20Ephemeral%20Sub-Watersheds_.png)|
+| ![KGE By Basin](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_Test%20MSE_by_Snow_Type.png)| ![MSE By Basin](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20MSE%20by%20Basins%20-%20Locally%20Trained%20Sub-Watersheds%20_Excludes%20Ephemeral%20Sub-Watersheds_.png)|
 
 
 ## Figure5 
 | TEst KGE vs. Test MSE - All Snow Types | Test KGE vs. Test MSE - Maritime and Montane Forest |
 |------------------------------|------------------------------------------|
-| ![KGE vs. MSE - All Snow Types](https://github.com/DSHydro/SnowML/blob/9b099ff3cf6c3d787694b100911481a9cdb9f3a1/notebooks/Ex2_VarianceByHuc/charts/Scatter_Plot_of_Test_KGE_vs_Test_MSE_(Colored_by_Predominant_Snow_Type).png) | ![KGE vs. MSE - Maritime and Montane Forest](https://github.com/DSHydro/SnowML/blob/9b099ff3cf6c3d787694b100911481a9cdb9f3a1/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE%20vs.%20Test%20MSE%2C%20Excluding%20Hucs%20where%20Ephemeral%20Snow%20Predominates.png) |
+| ![KGE vs. MSE - All Snow Types](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_Test%20MSE_by_Snow_Type%2C%20Excluding%20Hucs%20where%20Ephemeral%20Snow%20Predominates.png)| ![KGE vs. MSE - Maritime and Montane Forest](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_Test%20MSE_by_Snow_Type%2C%20Excluding%20Hucs%20where%20Ephemeral%20Snow%20Predominates.png)|
 
 
-[**TO DO** - Insert example plots of mismatched MSE/KGE]
+
 
 
 

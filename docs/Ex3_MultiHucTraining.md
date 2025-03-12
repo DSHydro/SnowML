@@ -153,6 +153,8 @@ def create_hyper_dict():
         "train_size_fraction": 1  
     }
     return param_dict
+
+params = create_hyper_dict()
 ```
 
 4. **Define the hucs that will be used in the training, validation, and huc sets.**  To resuse the same hucs as discussed here, run the code below.  This code results in four lists of huc numbers, corresponding to the train, validation, and test sets A and B.  If you run this code from within an AWS enviornment, you may see warning messages about unclosed aiohttp connectors.  These are harmless.  (But annoying!  Please, help us out with a pull request if you know how to suppress, we've tried everything . . . )
@@ -169,7 +171,7 @@ test_B = cb.get_testB_huc_list()
 
 ```
 from snowML.Scripts_Ex3 import multi_huc_expirement as mhe
-mhe.run_expirement(tr, val, params)  # pass in the list of training and validation hucs from above & the hyperparameter dictionary
+mhe.run_expirement(tr, val, params)  # pass in the training and validation huc lists from above & the hyperparameter dictionary
 ```
 
 6.**Evaluate the results on the Test Sets**

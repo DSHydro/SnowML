@@ -35,8 +35,7 @@ There is a fairly large discrepency between the SWE measures among the two datas
 
 ![Skagit Huc10 Map](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex1_MoreData/charts/Expirement1Map.png)
 
-## Figure 2 - UA Data vs. SnowTel Data Prediction Plots for two Example HUC10 Units - 1711000504 and 1711000506
-
+## Figure 2 - UA Data vs. SnowTel Data Prediction Plots for two Example HUC10 Watersheds in Skagit 
 | ProtoTyped Model - UA Data | ProtoTyped Model - Original (SnowTel) Data |
 |----------------------------|---------------------------------|
 | ![UA Data](../notebooks/Ex1_MoreData/charts/UAData_SWE_Post_Predictions_for_huc_1711000504.png) | ![Original Data](../notebooks/Ex1_MoreData/charts/SWE_Post_Predictions_for_huc_1711000504.png) |

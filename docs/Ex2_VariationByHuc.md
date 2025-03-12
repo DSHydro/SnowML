@@ -84,7 +84,7 @@ The R-squared value for each chart represents the proportion of the variance in 
 ## Figure5 
 | TEst KGE vs. Test MSE - All Snow Types | Test KGE vs. Test MSE - Maritime and Montane Forest |
 |------------------------------|------------------------------------------|
-| ![KGE vs. MSE - All Snow Types](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_Test%20MSE_by_Snow_Type%2C%20Excluding%20Hucs%20where%20Ephemeral%20Snow%20Predominates.png)| ![KGE vs. MSE - Maritime and Montane Forest](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_Test%20MSE_by_Snow_Type%2C%20Excluding%20Hucs%20where%20Ephemeral%20Snow%20Predominates.png)|
+| ![KGE vs. MSE - All Snow Types](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_Test%20MSE_by_Snow_Type.png)| ![KGE vs. MSE - Maritime and Montane Forest](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_Test%20MSE_by_Snow_Type%2C%20Excluding%20Hucs%20where%20Ephemeral%20Snow%20Predominates.png)|
 
 
 

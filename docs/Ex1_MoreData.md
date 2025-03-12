@@ -82,8 +82,8 @@ Note that during training, data is split into batches and shuffled for randomnes
 | train_size_fraction | 0.67                | 0.67                 |
 | lookback_values  | [180]                  | [180]                |
 | epochs          | **10**                      | **200**            |
-| MLFlow Expirement Name | Prototype-Results | Prototype-Results |
-| MLFlow run name       |    |     |
+| MLFlow Expirement Name | Prototype-Results_Rerun | Prototype-Results |
+| MLFlow run name       |   auspicious-cub-452  |   nebulous-snipe-346   |
 | MLFLow run id    | bfdd8164ce1f46d8a9418be41a70ffdf | 02a508daab8e42b2a5f1baab194cd744 |
 
 

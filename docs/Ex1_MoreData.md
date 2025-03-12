@@ -68,7 +68,7 @@ Note that during training, data is split into batches and shuffled for randomnes
 | Parameter          | Value (UA Data)         | Value (SnowTel Data)       |
 |--------------------|----------------------|----------------------|
 | Training From     | Prototype Notebook    | Prototype Notebook  |
-| Data Source       | **UA SWE Data **          | **SnowTel Data **       |
+| Data Source       | **UA SWE Data**          | **SnowTel Data**       |
 | Variables         | "mean_pr", "mean_tair" | "mean_pr", "mean_tair" |
 | input_size        | 2                      | 2                    |
 | hidden_size       | 64                     | 64                   |

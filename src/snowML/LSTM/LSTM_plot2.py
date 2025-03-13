@@ -38,14 +38,14 @@ def plot(data, y_train_pred, y_test_pred, train_size, huc_id, params, mlflow_on=
     # Plot
     plt.figure(figsize=(12, 6))
     #plt.ylim(0, 2)
-    plt.plot(data.index, data['mean_swe'], c='b', label='Actual')
+    plt.plot(data.index, data['mean_swe'], c='b', label='SWE Estimates From Physics Based Model')
     if params["train_size_dimension"] == "time":
-        plt.plot(data.index, train_plot, c='#E6E6FA', label='Train Predictions')
+        plt.plot(data.index, train_plot, c='#E6E6FA', label='LSTM Predictions Training Phase')
     plt.plot(
         data.index[train_size + params["lookback"]:],
         test_plot[train_size + params["lookback"]:],
         c='g',
-        label='Test Predictions'
+        label='LSTM Predictions Forecasting Phase'
     )
     plt.legend()
     plt.xlabel('Date')
@@ -55,7 +55,6 @@ def plot(data, y_train_pred, y_test_pred, train_size, huc_id, params, mlflow_on=
     plt.title(ttle)
 
     # Display metrics in the upper-right corner if metrics_dict is not None
-       # Display metrics in the upper-left corner with a background for visibility
     if metrics_dict is not None:
         ax = plt.gca()
         metric_text = "\n".join([f"{key}: {value:.3f}" for key, value in metrics_dict.items()])

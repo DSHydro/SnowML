@@ -1,6 +1,6 @@
 # Module to evaluate model results from a saved model and save locally (no MLFlow)
 # Uses plot2 function (warm colors and flexible y scale)
-# pylint: disable=C0103, R0913, R0914, R0917
+# pylint: disable=C0103
 
 import ast
 import mlflow
@@ -20,12 +20,31 @@ importlib.reload(LSTM_plot2)
 
 
 def load_model(model_uri):
+    """
+    Load a PyTorch model from the given URI using MLflow.
+
+    Args:
+        model_uri (str): The URI of the model to load.
+
+    Returns:
+        torch.nn.Module: The loaded PyTorch model.
+    """
     print(model_uri)
     model = mlflow.pytorch.load_model(model_uri)
     print(model)
     return model
 
 def get_params(tracking_uri, run_id):
+    """
+    Retrieve parameters from an MLflow run.
+
+    Args:
+        tracking_uri (str): The URI of the MLflow tracking server.
+        run_id (str): The ID of the MLflow run.
+
+    Returns:
+        dict: A dictionary containing the parameters of the specified MLflow run.
+    """
     mlflow.set_tracking_uri(tracking_uri)
     run = mlflow.get_run(run_id)
     params = run.data.params
@@ -33,6 +52,19 @@ def get_params(tracking_uri, run_id):
 
 
 def assemble_df_dict(huc_list, var_list, bucket_dict=None):
+    """
+    Assembles a dictionary of DataFrames for given HUCs (Hydrologic Unit Codes) and variables.
+
+    Parameters:
+    huc_list (list): List of HUCs for which to assemble DataFrames.
+    var_list (list): List of variables to include in the DataFrames.
+    bucket_dict (dict, optional): Dictionary containing bucket information. 
+        If None, a default bucket dictionary is created.
+
+    Returns:
+    dict: A dictionary where keys are HUCs and values are DataFrames containing
+         the specified variables and 'mean_swe'.
+    """
     df_dict = {}  # Initialize dictionary
     if bucket_dict is None:
         bucket_dict = sdc.create_bucket_dict("prod")
@@ -57,6 +89,19 @@ def assemble_df_dict(huc_list, var_list, bucket_dict=None):
 
 
 def renorm(train_hucs, val_hucs, test_hucs, var_list):
+    """
+    Renormalizes the test HUCs (Hydrologic Unit Codes) using the global means
+    and standard deviations computed from the training and validation HUCs.
+
+    Parameters:
+    train_hucs (list): List of training HUCs.
+    val_hucs (list): List of validation HUCs.
+    test_hucs (list): List of test HUCs to be renormalized.
+    var_list (list): List of variables to be considered for normalization.
+
+    Returns:
+    dict: A dictionary where keys are HUCs and values are the renormalized DataFrames.
+    """
     # compute global_means and std used in training
     huc_list_all_tr = train_hucs + val_hucs
     _, global_means, global_stds = pp.pre_process(huc_list_all_tr, var_list)
@@ -103,8 +148,8 @@ def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri, mlf
     # convert some strings back to int that we need for predict and plotting
     for key in ['lookback', 'train_size_fraction']:
         params[key] = int(params[key])
-    
-    # assemble test data 
+
+    # assemble test data
     df_dict_test = assemble_df_dict(test_hucs, params["var_list"])
     df_dict_test = renorm(params["train_hucs"],  params["val_hucs"], test_hucs, params["var_list"])
 

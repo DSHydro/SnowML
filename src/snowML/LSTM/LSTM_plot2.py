@@ -64,8 +64,9 @@ def plot(data, y_train_pred, y_test_pred, train_size, huc_id, params, mlflow_on=
             fontsize=10, color='black', bbox=dict(facecolor='white', alpha=0.7, edgecolor='black')
         )
 
-
-  
-    plt.savefig(f"docs/model_results/{ttle}.png")
+    if mlflow_on:
+        mlflow.log_figure(plt.gcf(), ttle + ".png")
+    else:
+        plt.savefig(f"docs/swe_prediction_plots/{ttle}.png")
     plt.close()
     

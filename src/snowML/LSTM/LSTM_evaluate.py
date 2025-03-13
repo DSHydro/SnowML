@@ -1,16 +1,22 @@
-# Module to evaluate model results from a saved model
+# Module to evaluate model results from a saved model and save locally (no MLFlow)
+# Uses plot2 function (warm colors and flexible y scale)
 # pylint: disable=C0103, R0913, R0914, R0917
 
+import ast
 import mlflow
 import mlflow.pytorch
 import pandas as pd
 from sklearn.metrics import r2_score
 from snowML.LSTM import LSTM_pre_process as pp
 from snowML.LSTM import LSTM_train
-from snowML.LSTM import set_hyperparams as sh
-from snowML.LSTM import LSTM_plot
+from snowML.LSTM import LSTM_plot2
 from snowML.datapipe import data_utils as du
 from snowML.datapipe import set_data_constants as sdc
+
+import importlib
+importlib.reload(LSTM_plot2)
+
+#model_uri = "s3://sues-test/298/51884b406ec545ec96763d9eefd38c36/artifacts/epoch27_model"
 
 
 def load_model(model_uri):
@@ -19,34 +25,10 @@ def load_model(model_uri):
     print(model)
     return model
 
-def set_ML_server(expirement_name):
-    """
-    Configures the MLflow tracking server and sets the experiment.
-
-    Returns:
-        None
-    """
-    tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
+def get_params(tracking_uri, run_id):
     mlflow.set_tracking_uri(tracking_uri)
-    # Define the expirement
-    mlflow.set_experiment(expirement_name)
-
-
-def reset_params(var_list,
-                learning_rate,
-                batch_size,
-                expirement_name =  "Predict From PreTrained",
-                train_size_dimension = "huc",
-                train_size_fraction = 0,
-                epochs = -500):
-    params = sh.create_hyper_dict()
-    params["batch_size"] = batch_size
-    params["var_list"] = var_list
-    params["learning_rate"] = learning_rate
-    params["expirement_name"] = expirement_name
-    params["train_size_dimension"] = train_size_dimension
-    params["train_size_fraction"] = train_size_fraction
-    params["epochs"] = epochs
+    run = mlflow.get_run(run_id)
+    params = run.data.params
     return params
 
 
@@ -74,12 +56,10 @@ def assemble_df_dict(huc_list, var_list, bucket_dict=None):
     return df_dict
 
 
-# TO DO: add option to load in global_means and std from MLflow instead of recalc
 def renorm(train_hucs, val_hucs, test_hucs, var_list):
     # compute global_means and std used in training
     huc_list_all_tr = train_hucs + val_hucs
     _, global_means, global_stds = pp.pre_process(huc_list_all_tr, var_list)
-    #print(f"global means were {global_means}, global_stds were {global_stds}")
     # create dictionary of of hucs to test
     df_dict = assemble_df_dict(test_hucs, var_list, bucket_dict=None)
     # renormalize with the global_means and global_std used in training
@@ -96,12 +76,14 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
     if params["train_size_dimension"] == "huc":
         # all data is "test" data
         params["train_size_fraction"] = 0
-        data, y_train_pred, y_test_pred, _, y_test_true, train_size_main = LSTM_train.predict(model_dawgs, df_dict, huc, params)
+        data, y_train_pred, y_test_pred, _, y_test_true, train_size_main = LSTM_train.predict(
+            model_dawgs, df_dict, huc, params)
         test_mse = LSTM_train.mean_squared_error(y_test_true, y_test_pred)
         test_kge, _, _, _ = LSTM_train.kling_gupta_efficiency(y_test_true, y_test_pred)
         test_r2 = r2_score(y_test_true, y_test_pred)
         metric_dict = dict(zip(["test_mse", "test_kge", "test_r2"], [test_mse, test_kge, test_r2]))
-        LSTM_plot.plot2(data, y_train_pred, y_test_pred, train_size_main, huc, params, metrics_dict = metric_dict)
+        LSTM_plot2.plot(data, y_train_pred, y_test_pred, train_size_main,
+            huc, params, metrics_dict = metric_dict)
         return metric_dict
 
     # else train/test split is time
@@ -109,35 +91,37 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
     return -500, -500
 
 
-def predict_from_pretrain (train_hucs,
-                        val_hucs,
-                        test_hucs,
-                        model_uri,
-                        var_list,
-                        learning_rate,
-                        batch_size,
-                        ):
+def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri, mlflow_log_now = True):
 
-    params = reset_params(var_list, learning_rate,
-                    batch_size)
-
+    # retrieve model details from mlflow
     model_dawgs = load_model(model_uri)
+    params = get_params(mlflow_tracking_uri, run_id)
 
+    # reformat some lists that got converted to string literals
+    for key in ["var_list", "train_hucs", "val_hucs"]:
+        params[key] = ast.literal_eval(params[key])
+    # convert some strings back to int that we need for predict and plotting
+    for key in ['lookback', 'train_size_fraction']:
+        params[key] = int(params[key])
+    
+    # assemble test data 
     df_dict_test = assemble_df_dict(test_hucs, params["var_list"])
-    df_dict_test = renorm(train_hucs, val_hucs, test_hucs, var_list)
-    print(df_dict_test)
+    df_dict_test = renorm(params["train_hucs"],  params["val_hucs"], test_hucs, params["var_list"])
 
-    # initialize ML server
-    set_ML_server(params["expirement_name"])
-
-    with mlflow.start_run():
-        mlflow.log_params(params)
-        mlflow.log_param("test_hucs", test_hucs)
-        mlflow.log_param("model_uri", model_uri)
+    if mlflow_log_now:
+        mlflow.set_experiment("Predict_From_Pretrain")
+        with mlflow.start_run():
+            mlflow.log_params(params)
+            mlflow.log_param("test_hucs", test_hucs)
+            mlflow.log_param("model_uri", model_uri)
 
         for huc in test_hucs:
             metric_dict = eval_from_saved_model(model_dawgs, df_dict_test, huc, params)
             for met_nm, met in metric_dict.items():
                 mlflow.log_metric(f"{met_nm}_{str(huc)}", met)
                 print(f"{met_nm}: {met}")
-               
+    else:
+        for huc in test_hucs:
+            metric_dict = eval_from_saved_model(model_dawgs, df_dict_test, huc, params)
+            for met_nm, met in metric_dict.items():
+                print(f"{met_nm}: {met}")

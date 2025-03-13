@@ -32,7 +32,7 @@ For each of 8 different variable and learning rate combinations, we trained the 
 Figure 2 plots the results of each of the eight models by epoch, in terms of the "Median Test_Kge" observed accross the validation set of 54 Huc12 units for that epoch.  The results are relatively noisy. The main impact of variable selection and learning rate appears to be on the stability of the model over epochs.  All eight models reach a maximum value of median kge within a relatively tight range, from .78 (Solar Radiation, .0001 learning rate, epoch 9) to .82 (Humidity, .0003 learning rate, epoch 27). All models, except one, spend several epochs oscilatting up and down, before dropping precipitously in later epochs, likely due to overfitting in later epochs.  The exception is the Base Model plus Humidity, at the .0003 learning rate, which remains relatively stable throughout all 30 epochs. More generally, the modele using the lower .0003 learning rate appear noisier during early epohcs than the models run at the larger, .001 learning rate, contrary to what might be expected.  
 
 ## Model Generalization  
-The LSTM model generalized reasonably well to ungauged basins when trained on multiple Huc12 subunits.  Figure 3 plots the Test KGE values for each of the Huc12 subunits in both Test Set A and Test Set B, as well as providing summary statistics for several goodness of fit measures incuding Test KGE, Test MSE, and Test R2.  For Test Set A, the median Test KGE value was .85 with an interquartile range of (0.63 to 0.90). Test Set B had a median Test KGE value of .82 with an interquartile range of (.70, .88). These distributions are slightly below the Test KGE values obtained in Expirement 2 for locally trained Huc12 subunits dominated by Maritime and Montane Forest snow.  In Expirement 2 we observed a median KGE of (.85) and interquartile range of (.76, .91) among Maritime HUc12 subunits and a median KGE of .91 and interquartile range of (.85, .95). As discussed below, however, results from Expirement 2 and 3 are not directly comprable.     
+The LSTM model generalized reasonably well to untrained basins.  Figure 3 plots the Test KGE values for each of the Huc12 subunits in both Test Set A and Test Set B, as well as providing summary statistics for several goodness of fit measures incuding Test KGE, Test MSE, and Test R2.  For Test Set A, the median Test KGE value was .85 with an interquartile range of (0.63 to 0.90). Test Set B had a median Test KGE value of .82 with an interquartile range of (.70, .88). These distributions are slightly below the Test KGE values obtained in Expirement 2 for locally trained Huc12 subunits dominated by Maritime and Montane Forest snow.  In Expirement 2 we observed a median KGE of (.85) and interquartile range of (.76, .91) among Maritime HUc12 subunits and a median KGE of .91 and interquartile range of (.85, .95). As discussed below, however, results from Expirement 2 and 3 are not directly comprable.     
 
 Figure 4 plots actual and predicted SWE from selected Huc12 regions in Test Set B spanning some of the worst results (Test KGE of .61, or 10% percentile) to some of the best (Test KGE of .94, or 90% percentile).  
 
@@ -63,7 +63,7 @@ With training on multiple Huc12 units and the explicite inclusion of mean elevat
 
 
 
-## Figure 3- Results on Ungauged Huc Units 
+## Figure 3- Results on Independent HUc12 Sub-Watersheds
 | Test Set A | Naches and Upper Yakima |
 |------------|-------------------------|
 | ![Test Set A](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/Historgram%20of%20Test%20KGE%20Values%20Among%20Test%20SetA.png) | ![Naches and Upper Yakima](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/Historgram%20of%20Test%20KGE%20For%20HUC12%20Sub-Watersheds%20In%20Test%20Set%20B.png) |
@@ -132,7 +132,7 @@ cd SnowML # make sure to switch into the snowML directory and run all subsequent
 pip install . #installs the SnowML package
 ```
 
-3. **Create a dictionary called "params".** From within python, create a dictionary of "params" with the desired values of the relevant hyperparamenters (the values used in each run are shown in the table below). This can be acheived by updating the module `snowML.LSTM.set_hyperparams' in the snow.LSTM package or manually such as with the function below and updating the desired values. 
+3. **Create a dictionary called "params".** From within python, create a dictionary of "params" with the desired values of the relevant hyperparamenters (the values used in each run are shown in the table below). This can be acheived by updating the module ```snowML.LSTM.set_hyperparams``` in the snow.LSTM package or manually such as with the function below and updating the desired values. 
 
 ```
 # python

@@ -48,11 +48,11 @@ With training on multiple Huc12 units and the explicite inclusion of mean elevat
 
 | Training Data | Validation Data |
 |--------------|----------------|
-| ![MapOfTrainingData](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TrainSet.png) | ![MapOfValidationData](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/ValSet.png) |
+| ![MapOfTrainingData](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/TrainSet.png) | ![MapOfValidationData](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/ValSet.png) |
 
 | Test Set A | Test Set B (Naches and Upper Yakima) |
 |------------|------------|
-| ![MapOfTestSetA](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TestSetA.png) | ![MapOfTestSetB](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TestSetB.png) |
+| ![MapOfTestSetA](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/TestSetA.png) | ![MapOfTestSetB](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/TestSetB.png) |
 
 
 
@@ -178,7 +178,11 @@ from snowML.Scripts_Ex3 import multi_huc_expirement as mhe
 mhe.run_expirement(tr, val, params)  
 ```
 
-6.**Evaluate the results on the Test Sets**
+6.**Select Model To Use For Test Evaluatioon** Select the model on which you want to evaluate results on the test sets. Locate the model uri from the MLflow server.   The model used for the metrics on this page was from epoch 27 using a learning rate of 3e-4 and feature variables temperature, precipitation, humidity, anbasin elevation. 
+
+```
+model_uri = "s3://sues-test/298/51884b406ec545ec96763d9eefd38c36/artifacts/epoch27_model"
+```
 
 
 

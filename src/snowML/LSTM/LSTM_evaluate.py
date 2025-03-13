@@ -1,4 +1,4 @@
-# Module to evaluate model results from a saved model and save locally (no MLFlow)
+# Module to evaluate model results from a saved model 
 # Uses plot2 function (warm colors and flexible y scale)
 # pylint: disable=C0103
 
@@ -160,13 +160,15 @@ def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri, mlf
             mlflow.log_param("test_hucs", test_hucs)
             mlflow.log_param("model_uri", model_uri)
 
-        for huc in test_hucs:
-            metric_dict = eval_from_saved_model(model_dawgs, df_dict_test, huc, params)
-            for met_nm, met in metric_dict.items():
-                mlflow.log_metric(f"{met_nm}_{str(huc)}", met)
-                print(f"{met_nm}: {met}")
+            for huc in test_hucs:
+                metric_dict = eval_from_saved_model(model_dawgs, df_dict_test, huc, params)
+                for met_nm, met in metric_dict.items():
+                    mlflow.log_metric(f"{met_nm}_{str(huc)}", met)
+                    print(f"{met_nm}: {met}")
     else:
         for huc in test_hucs:
             metric_dict = eval_from_saved_model(model_dawgs, df_dict_test, huc, params)
             for met_nm, met in metric_dict.items():
                 print(f"{met_nm}: {met}")
+
+    print("all done") 

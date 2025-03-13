@@ -169,7 +169,7 @@ from snowML.Scripts import create_test_set_B as cb
 tr, val, test_A = lh.huc_split()
 test_B = cb.get_testB_huc_list()
 ```
-
+**Repeat this step 4 for every combination of hyperparameters you wish to examine**
 
 5. **Train the model.**  Train the model, evaluating the results on the validation test set at the end of each epoch.   This will take a while!  The runs described in this expirement each took between 20-30 hours.
 

@@ -102,7 +102,14 @@ Example prediction plots for Huc12 Units demonstrating s range of Test_KGE Value
 ![Plot of Predicted vs. Actual SWE - Example of Low Test KGE Value (10% percentile)](https://github.com/DSHydro/SnowML/blob/cdbdff61a60b5cb9df9935d9a1b0de16823d940e/docs/model_results/SWE_Predictions_for_huc170300010701.png) 
 
 ## Figure 5 
-[** TO BE INSERTED **]
+| KGE By Snow Type | MSE By Snow Type |
+|----------------|----------------|
+| ![KGE By Snow Type](https://github.com/DSHydro/SnowML/blob/f3751557a3b76c1f557363d3196ce197c533b243/notebooks/Ex3_MultiHucTraining/charts/Boxplot%20of%20Test%20KGE%20by%20Predominant%20Snow%20Type%20-%20MultiHucModel-CombinedTestSets.png) | ![MSE By Snow Type](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/Boxplot%20of%20Test%20MSE%20by%20Predominant%20Snow%20Type%20-%20MultiHucModel%20-%20CombinedTestSets.png) |
+
+
+
+
+
 
 ## Figure 6 - Model Performance By Mean Elevation  
 ![Model Performance By Mean Elevation](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/Test%20KGE_vs_mean_elevation_MultiHucModel_CombinedTestSets.png)

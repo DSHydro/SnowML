@@ -37,7 +37,7 @@ The LSTM model generalized reasonably well to untrained basins.  Figure 3 plots 
 Figure 4 plots actual and predicted SWE from selected Huc12 regions in Test Set B spanning some of the worst results (Test KGE of .61, or 10% percentile) to some of the best (Test KGE of .94, or 90% percentile).  
 
 ## Differences In Model Performance By Snow Type 
-[**To Be Inserted**]
+In this Expiriment 3, there were not statistically significant differences in Test KGE performance between Maritime and Montane Forest Snow Classes, but significant differences in Test MSE were observed between the two classes. Figure 5 plots the results when Test Sets A and B are evaluated as combined test set.  Similar relationships hold when Test Set A and Test Set B are evaluated individually.  
 
 ## Difference in Model Perfrmance By Elevation 
 With training on multiple Huc12 units and the explicite inclusion of mean elevation in the feature set, we no longer see a significant correlation bewteen model perforamance and mean elevation. Figure 6 plots Test KGE agains Mean Elevation for the combined Test Sets A and B.  Similar results were observed when examining the relationship between mean elevation and Test KGE on the individual Test Sets A and B.  

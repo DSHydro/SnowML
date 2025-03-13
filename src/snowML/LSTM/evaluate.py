@@ -101,7 +101,7 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
         test_kge, _, _, _ = LSTM_train.kling_gupta_efficiency(y_test_true, y_test_pred)
         test_r2 = r2_score(y_test_true, y_test_pred)
         metric_dict = dict(zip(["test_mse", "test_kge", "test_r2"], [test_mse, test_kge, test_r2]))
-        LSTM_plot.plot(data, y_train_pred, y_test_pred, train_size_main, huc, params, metrics_dict = metric_dict)
+        LSTM_plot.plot2(data, y_train_pred, y_test_pred, train_size_main, huc, params, metrics_dict = metric_dict)
         return metric_dict
 
     # else train/test split is time

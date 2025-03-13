@@ -1,15 +1,26 @@
 
 # pylint: disable=C0103
-# module to assemble the test, validation, and training data for the LSTM module
+""" 
+This module provides functions to preprocess data for training, validation, 
+and testing of an LSTM model. It includes functions for z-score normalization,
+data preprocessing, tensor creation, and time-based train-test splitting.
+
+Functions:
+- z_score_normalize(df, global_means, global_stds): Normalize specified 
+    columns of a DataFrame using global z-score normalization.
+- pre_process(huc_list, var_list, bucket_dict=None): Preprocess data by 
+    loading, normalizing, and organizing it into a dictionary.
+- create_tensor(dataset, lookback, var_list): Transform time series 
+    data into tensor objects for LSTM input.
+- train_test_split_time(data, train_size_fraction): Split time series data 
+    into training and testing sets based on time dimension.
+"""
 
 import pandas as pd
 import numpy as np
 import torch
 from snowML.datapipe import data_utils as du
-from snowML.datapipe import get_geos as gg
 from snowML.datapipe import set_data_constants as sdc
-from snowML.datapipe import snow_types as st
-
 
 
 def z_score_normalize(df, global_means, global_stds):
@@ -28,7 +39,8 @@ def z_score_normalize(df, global_means, global_stds):
     normalized_df = df.copy()
     df_cols = df.columns
 
-    columns_to_normalize = ["mean_pr", "mean_tair", "mean_vs", "mean_srad", "mean_hum", "Mean Elevation"]
+    columns_to_normalize = ["mean_pr", "mean_tair", "mean_vs",
+            "mean_srad", "mean_hum", "Mean Elevation"]
 
     for column in columns_to_normalize:
         if column in df_cols:
@@ -37,6 +49,25 @@ def z_score_normalize(df, global_means, global_stds):
     return normalized_df
 
 def pre_process(huc_list, var_list, bucket_dict=None):
+    """
+    Pre-processes data for LSTM model training by loading, normalizing, and 
+    organizing data from multiple HUCs.
+
+    Args:
+        huc_list (list): List of Hydrologic Unit Codes (HUCs) to process.
+        var_list (list): List of variable names to keep in the DataFrames.
+        bucket_dict (dict, optional): Dictionary containing bucket information.
+          If None, a default bucket dictionary is created.
+
+    Returns:
+        tuple: A tuple containing:
+            - df_dict (dict): Dictionary where keys are HUCs and values are 
+                normalized DataFrames.
+            - global_means (pd.Series): Series containing the global mean 
+                of each variable.
+            - global_stds (pd.Series): Series containing the global standard 
+                deviation of each variable.
+    """
     df_dict = {}  # Initialize dictionary
     if bucket_dict is None:
         bucket_dict = sdc.create_bucket_dict("prod")
@@ -71,7 +102,8 @@ def pre_process(huc_list, var_list, bucket_dict=None):
 
     # Step 3: Normalize each DataFrame using the global mean and std
     for huc, df in df_dict.items():
-        df = z_score_normalize(df, global_means, global_stds)  # Pass global mean and std for normalization
+        # Pass global mean and std for normalization
+        df = z_score_normalize(df, global_means, global_stds)
         df_dict[huc] = df  # Store normalized DataFrame
 
     print(f"number of sub units for training is {len(df_dict)}")
@@ -105,7 +137,8 @@ def create_tensor(dataset, lookback, var_list):
 
     #du.elapsed(time_start)
     return X_tensor, y_tensor
-    
+
+
 def train_test_split_time(data, train_size_fraction):
     """
     Splits the given time series data into training and testing sets along the 

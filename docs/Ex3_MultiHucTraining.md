@@ -208,8 +208,10 @@ eval.predict_from_pretrain(test_B, run_id, model_uri, mlflow_tracking_uri)
 ```
 from snowML.Scripts import download_metrics as dm
 run_dict = <new_run_id>  # insert the run_id for the run created in step 8 here 
-dm.download_all(run_dict, folder ="mflow_data/")  # update folder to your desired loca location
+dm.download_all(run_dict, folder ="mlflow_data/run_id_data")  # update folder to your desired loca location
 ```
+This will create a file called "metrics_from_{run_id}.csv" into the designated folder.  
+
 10.  **Analyze Away!**  From here, we performed analytics in Jupyter Notebooks, with some helper scripts from the SnowML package.  Please refer to the notebooks [Assemble Metrics](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/LSTM_By_Huc_Metric_Download_TestMetrics.ipynb), [Test Set A](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetA.ipynb), [Test Set B](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetB.ipynb) and [Combined Test Set](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetA_and_B.ipynb) for details.  
 
 

@@ -203,6 +203,8 @@ dm.download_all(run_dict, folder ="data/")  # update folder to your desired loca
 
 
 
+
+
 # HyperParameters
 | Parameter              | Base Model 1e-3 | Base Model 3e-4 | Base Plus Wind Speed ('vs') 1e-3 | Base Plus Wind Speed ('vs') 3e-4 | Base Plus Solar Radiation ('srad') 1e-3 | Base Plus Solar Radiation ('srad') 3e-4 | Base Plus Humidity 1e-3 | Base Plus Humidity 3e-4 |
 |------------------------|----------------|----------------|--------------------------------|--------------------------------|--------------------------------------|--------------------------------------|----------------------|----------------------|

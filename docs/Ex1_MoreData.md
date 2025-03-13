@@ -4,7 +4,7 @@
 The Frosty Dawgs team did not start from scratch.  We were grateful to use as our starting point an LSTM Model that had been prototyped in Skagit Basin ("Prototyped LSTM Model") using as the target variable daily estimates of Snow Water Equivilent ("SWE") data from 1985 to 2012, and daily temperature and precipitation data over the same period data as model features.  
 
 **Watershed Level Training** <br>
-The Prototyped LSTM Model was run at watershed scale - meaning that for each locally trained watershed, the target and feature variables were aggregated into a daily mean value for the entire watershed being trained or predicted.  We also followed this watershed scale training approach. Specifically, a separate model was trained for each of 7 different "Huc10" watershed basins as depicted in Figure 1 below.  
+The Prototyped LSTM Model was run at watershed scale - meaning that for each locally trained watershed, the target and feature variables were aggregated into a daily mean value for the entire watershed being trained or predicted.  We also followed this watershed scale training approach. Specifically, a separate model was trained for each of 7 different "Huc10" watershed basins depicted in Figure 1 below.  These 7 watersheds were utilized because they were contained wholly or mainly in the United States and are dominated by Maritime snow.  
 
 Training at watershed scale is advantageous because it reduces computation. It also averages out imprecisions that arise from dataset gridding misalignment and/or imprecisions introduces when large scale meteorological datasets are "downscaled" to estimate more local results using statistical methods. Predictions at the watershed scale are also more readily interpretable for water managers and others. On the other hand, watershed scale training over large areas may obscure important local differences in elevation, terrain, or other variables resulting in some loss of fidelity. As one of our research questions was to determine whether watershed scale training is a viable approach, we continued with watershed scale training.   
 
@@ -14,6 +14,8 @@ The first adjustment we made to the Proptoyped LSTM Model was to use the Univers
 We reran the Protoyped LSTM Model with the new data, leaving all other hyperparmeters unchanged except one. We reduced the number of epochs to 10 after observing early convergence of the model -- possibly due to the increased training data available. The graphs below compare the prior data run at 200 epochs with the new data run at 10 epochs, but the observations are robust to the number of epochs used. Please refer to the [Viz10COmpare notebook](../notebooks/Ex1_MoreData/VizHuc10Compare.ipynb) for sensitivy analysis related to number of epochs used.  
 
 In this Expirement 1, each Huc10 watershed was trained *only* using the data from that watershed. Train/test split was accomplished by reserving the final third of the time period as test data. 
+
+Final note: Although Skagit Basin (17110005) contains 11 Huc10 watersehds, three Huc10 watersheds (1711000501, 1711000502, and 1711000503) located in Canada were exclded for lack of data. One additional Huc10 watershed, 1711000510,  was excluded (from this expirement only) because ephemeral snow predominates in that watershed. Expirement 2 will further investigate differnt snow types in additonal regions.  
 
 
 # Observations and Results 

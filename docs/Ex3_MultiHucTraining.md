@@ -105,7 +105,7 @@ Example prediction plots for Huc12 Units demonstrating s range of Test_KGE Value
 | KGE By Snow Type | MSE By Snow Type |
 |----------------|----------------|
 | ![KGE By Snow Type](https://github.com/DSHydro/SnowML/blob/f3751557a3b76c1f557363d3196ce197c533b243/notebooks/Ex3_MultiHucTraining/charts/Boxplot%20of%20Test%20KGE%20by%20Predominant%20Snow%20Type%20-%20MultiHucModel-CombinedTestSets.png) | ![MSE By Snow Type](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/Boxplot%20of%20Test%20MSE%20by%20Predominant%20Snow%20Type%20-%20MultiHucModel%20-%20CombinedTestSets.png) |
-| Testing for Inequality of Mean Test KGE By Snow Type (Welch Test), p-value = .356 | Testing for Inequality of Mean Test MSE by Snow Type (Welch Test), p-value = .013 |
+| Testing for Inequality of Mean Test KGE By Snow Type (Welch Test), p-value = .356 | Testing for Inequality of Mean Test MSE by Snow Type (Welch Test), p-value <.001 |
 
 
 

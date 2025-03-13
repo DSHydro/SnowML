@@ -178,7 +178,9 @@ from snowML.Scripts import multi_huc_expirement as mhe
 mhe.run_expirement(tr, val, params)  
 ```
 
-6. **Select Model To Use For Test Evaluation.** Select the model on which you want to evaluate results on the test sets.Locate the model run_id from the MLflow server, and the model_uri for the model that corresponds to the epoch you want to use from that run. The model used for the metrics on this page was from epoch 27 using a learning rate of 3e-4 and feature variables temperature, precipitation, humidity, anbasin elevation. You'll also need your mlflow_tracking_uri again.  
+6. **Select Model To Use For Test Evaluation.**  To determine which model you want to use for testing, you'll want to examine the metrics logged in mlflow for each model run.  This can be done directly in mlflow using mlflow ui and graphing functions, or you can download metrics and analyze them offline as we did in this notebook [Choose Best Model]((https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/Choose_Best_Model.ipynb).
+  
+7. **Get the identifiers for the chosen model.**  Once you have identified the model you want to test against, locate the model run_id from the MLflow server, and the model_uri for the model that corresponds to the epoch you want to use from that run. The model used for the metrics on this page was from epoch 27 using a learning rate of 3e-4 and feature variables temperature, precipitation, humidity, anbasin elevation. You'll also need your mlflow_tracking_uri again.  
 
 ```
 model_uri = "s3://sues-test/298/51884b406ec545ec96763d9eefd38c36/artifacts/epoch27_model"
@@ -186,19 +188,19 @@ run_id = "d71b47a8db534a059578162b9a8808b7"
 mlflow_tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
 ```
 
-7. **Run a new mlflow expirement to log the test metrics.**
+8. **Run a new mlflow expirement to log the test metrics.**
 ```
 from snowML.LSTM import LSTM_evaluate as eval
 eval.predict_from_pretrain(test_B, run_id, model_uri, mlflow_tracking_uri)
 ```
 
-8. **Download the metrics from the mlflow server**
+9. **Download the test metrics from the mlflow server**
 ```
 from snowML.Scripts import download_metrics as dm
 run_dict = dm.create_run_dict_Ex3() # so you don't have to manually type in run_ids
 dm.download_all(run_dict, folder ="data/")  # update folder to your desired loca location
 ```
-9.  **Analyze Away!**  From here, we performed analytics in Jupyter Notebooks, with some helper scripts from the SnowML package.  Please refer to the notebooks [Assemble Metrics](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/LSTM_By_Huc_Metric_Download_TestMetrics.ipynb), [Choose Best Model](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/Choose_Best_Model.ipynb), [Test Set A](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetA.ipynb), [Test Set B](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetB.ipynb) and [Combined Test Set](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetA_and_B.ipynb) for details.  
+10.  **Analyze Away!**  From here, we performed analytics in Jupyter Notebooks, with some helper scripts from the SnowML package.  Please refer to the notebooks [Assemble Metrics](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/LSTM_By_Huc_Metric_Download_TestMetrics.ipynb), [Test Set A](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetA.ipynb), [Test Set B](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetB.ipynb) and [Combined Test Set](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetA_and_B.ipynb) for details.  
 
 
 

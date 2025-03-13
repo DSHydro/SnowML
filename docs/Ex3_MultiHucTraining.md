@@ -178,7 +178,7 @@ from snowML.Scripts import multi_huc_expirement as mhe
 mhe.run_expirement(tr, val, params)  
 ```
 
-6. **Select Model To Use For Test Evaluation.**  To determine which model you want to use for testing, you'll want to examine the metrics logged in mlflow for each model run.  This can be done directly the mlflow ui, or you can download metrics using the ```download_metrics``` module (discussed below) from the ```snowML.Scripts package``` and analyze the metrics offline as we did in this notebook [Choose Best Model](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/Choose_Best_Model.ipynb).
+6. **Select Model To Use For Test Evaluation.**  To determine which model you want to use for testing, you'll want to examine the metrics logged in mlflow for each model run.  This can be done directly the mlflow ui, or you can download metrics using the ```download_metrics``` module (discussed below) from the ```snowML.Scripts``` package and analyze the metrics offline as we did in this notebook [Choose Best Model](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/Choose_Best_Model.ipynb).
   
 7. **Get the identifiers for the chosen model.**  Once you have identified the model you want to test against, locate the model run_id from the MLflow server, and the model_uri for the model that corresponds to the epoch you want to use from that run. The model used for the metrics on this page was from epoch 27 using a learning rate of 3e-4 and feature variables temperature, precipitation, humidity, anbasin elevation. You'll also need your mlflow_tracking_uri again.  
 

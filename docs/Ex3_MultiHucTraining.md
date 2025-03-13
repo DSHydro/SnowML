@@ -178,7 +178,7 @@ from snowML.Scripts_Ex3 import multi_huc_expirement as mhe
 mhe.run_expirement(tr, val, params)  
 ```
 
-6.**Select Model To Use For Test Evaluatioon** Select the model on which you want to evaluate results on the test sets. Locate the model run_id from the MLflow server, and the model_uri for the model that corresponds to the epoch you want to use from that run. The model used for the metrics on this page was from epoch 27 using a learning rate of 3e-4 and feature variables temperature, precipitation, humidity, anbasin elevation. You'll also need your mlflow_tracking_uri again.  
+6. **Select Model To Use For Test Evaluation** Select the model on which you want to evaluate results on the test sets. Locate the model run_id from the MLflow server, and the model_uri for the model that corresponds to the epoch you want to use from that run. The model used for the metrics on this page was from epoch 27 using a learning rate of 3e-4 and feature variables temperature, precipitation, humidity, anbasin elevation. You'll also need your mlflow_tracking_uri again.  
 
 ```
 model_uri = "s3://sues-test/298/51884b406ec545ec96763d9eefd38c36/artifacts/epoch27_model"

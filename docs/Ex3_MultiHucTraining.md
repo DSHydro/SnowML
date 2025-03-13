@@ -164,8 +164,8 @@ params = create_hyper_dict()
 4. **Define the hucs that will be used in the training, validation, and huc sets.**  To resuse the same hucs as discussed here, run the code below.  This code results in four lists of huc numbers, corresponding to the train, validation, and test sets A and B.  If you run this code from within an AWS enviornment, you may see warning messages about unclosed aiohttp connectors.  These are harmless.  (But annoying!  Please, help us out with a pull request if you know how to suppress, we've tried everything . . . )
 
 ```
-from snowML.Scripts_Ex3 import load_huc_splits as lh
-from snowML.Scripts_Ex3 import create_test_set_B as cb
+from snowML.Scripts import load_huc_splits as lh
+from snowML.Scripts import create_test_set_B as cb
 tr, val, test_A = lh.huc_split()
 test_B = cb.get_testB_huc_list()
 ```
@@ -174,7 +174,7 @@ test_B = cb.get_testB_huc_list()
 5. **Train the model.**  Train the model, evaluating the results on the validation test set at the end of each epoch.   This will take a while!  The runs described in this expirement each took between 20-30 hours.
 
 ```
-from snowML.Scripts_Ex3 import multi_huc_expirement as mhe
+from snowML.Scripts import multi_huc_expirement as mhe
 mhe.run_expirement(tr, val, params)  
 ```
 
@@ -185,6 +185,23 @@ model_uri = "s3://sues-test/298/51884b406ec545ec96763d9eefd38c36/artifacts/epoch
 run_id = "d71b47a8db534a059578162b9a8808b7"
 mlflow_tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
 ```
+
+7. **Run a new mlflow expirement to log the test metrics.**
+```
+from snowML.LSTM import LSTM_evaluate as eval
+eval.predict_from_pretrain(test_B, run_id, model_uri, mlflow_tracking_uri)
+```
+
+8. **Download the metrics from the mlflow server**
+```
+from snowML.Scripts import download_metrics as dm
+run_dict = dm.create_run_dict_Ex3() # so you don't have to manually type in run_ids
+dm.download_all(run_dict, folder ="data/")  # update folder to your desired loca location
+```
+9.  **Analyze Away!**  From here, we performed analytics in Jupyter Notebooks, with some helper scripts from the SnowML package.  Please refer to the notebooks [Assemble Metrics](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/LSTM_By_Huc_Metric_Download_TestMetrics.ipynb), [Choose Best Model](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/Choose_Best_Model.ipynb), [Test Set A](*https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetA.ipynb), [Test Set B](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetB.ipynb) and [Combined Test Set](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetA_and_B.ipynb) for details.  
+
+
+
 
 # HyperParameters
 | Parameter              | Base Model 1e-3 | Base Model 3e-4 | Base Plus Wind Speed ('vs') 1e-3 | Base Plus Wind Speed ('vs') 3e-4 | Base Plus Solar Radiation ('srad') 1e-3 | Base Plus Solar Radiation ('srad') 3e-4 | Base Plus Humidity 1e-3 | Base Plus Humidity 3e-4 |

@@ -48,11 +48,11 @@ With training on multiple Huc12 units and the explicite inclusion of mean elevat
 
 | Training Data | Validation Data |
 |--------------|----------------|
-| ![MapOfTrainingData](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TrainSet.png) | ![MapOfValidationData](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/ValSet.png) |
+| ![MapOfTrainingData](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/TrainSet.png) | ![MapOfValidationData](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/ValSet.png) |
 
 | Test Set A | Test Set B (Naches and Upper Yakima) |
 |------------|------------|
-| ![MapOfTestSetA](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TestSetA.png) | ![MapOfTestSetB](https://github.com/DSHydro/SnowML/blob/408f037565594e8bddcce673dc55bb12909509ed/notebooks/Ex3_MultiHucTraining/charts/TestSetB.png) |
+| ![MapOfTestSetA](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/TestSetA.png) | ![MapOfTestSetB](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/TestSetB.png) |
 
 
 

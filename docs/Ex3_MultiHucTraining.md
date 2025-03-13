@@ -111,8 +111,8 @@ Example prediction plots for Huc12 Units demonstrating s range of Test_KGE Value
 
 
 # Limitations and Questions for Further Research
-- The eight model variations explored in this expirement barely scratch the surface in terms of the potential for tuning hyperparameters and investigating variable selection. - Future researchers may wish to pursue further tuning.  However, given lengthy training tiems for each model run, computational intensive methods, such as grid search among hyperparameters may not be practical.
-- Results between Expirement 2 and Expirement 3 are not directly comprable.  The second expirement introduced the enw variables of mean_humidity and mean_elevation (although mean elevation would not be relevant for a locally trained huc since it would always be a constant). Expirement 3 also used a smaller batch size as the introduction of new variables required smaller batches to stay within the limits of the computing power available to us.  An interesting area for future research will be to compare the performacne of particular Huc12 sub-watersheds using (a) a locally trained model; (b) a multi-huc model model with local fine tuning, and (c) a multi-huc model with no local fine tuning, using a stable set of variables and hyperparameters. An interesting area for future research will be to compare the performacne of particular Huc12 sub-watersheds using (a) a locally trained model; (b) a multi-huc model model with local fine tuning, and (c) a multi-huc model with no local fine tuning, using a stable set of variables and hyperparameters.
+- The eight model variations explored in this expirement barely scratch the surface in terms of the potential for tuning hyperparameters and investigating variable selection. Future researchers may wish to pursue further tuning.  However, given lengthy training tiems for each model run, computational intensive methods, such as grid search among hyperparameters may not be practical.
+- Results between Expirement 2 and Expirement 3 are not directly comprable.  The second expirement introduced the enw variables of mean_humidity and mean_elevation (although mean elevation would not be relevant for a locally trained huc since it would always be a constant). Expirement 3 also used a smaller batch size as the introduction of new variables required smaller batches to stay within the limits of the computing power available to us.  An interesting area for future research will be to compare the performance of particular Huc12 sub-watersheds using (a) a locally trained model; (b) a multi-huc model model with local fine tuning, and (c) a multi-huc model with no local fine tuning, using a stable set of variables and hyperparameters. 
 - The issues discussed with respect to Expirements 1 and 2 related to choosing the appropriate loss function, and potential errors in the training SWE set, remain relevant to Expirement 3.  
 
 
@@ -171,24 +171,20 @@ test_B = cb.get_testB_huc_list()
 ```
 
 
-5. **Train the model**  Train the model, evaluating the results on the validation test set at the end of each epoch.   This will take a while!  The runs described in this expirement each took between 20-30 hours.
+5. **Train the model.**  Train the model, evaluating the results on the validation test set at the end of each epoch.   This will take a while!  The runs described in this expirement each took between 20-30 hours.
 
 ```
 from snowML.Scripts_Ex3 import multi_huc_expirement as mhe
 mhe.run_expirement(tr, val, params)  
 ```
 
-6. **Select Model To Use For Test Evaluation** Select the model on which you want to evaluate results on the test sets. Locate the model run_id from the MLflow server, and the model_uri for the model that corresponds to the epoch you want to use from that run. The model used for the metrics on this page was from epoch 27 using a learning rate of 3e-4 and feature variables temperature, precipitation, humidity, anbasin elevation. You'll also need your mlflow_tracking_uri again.  
+6. **Select Model To Use For Test Evaluation.** Select the model on which you want to evaluate results on the test sets.Locate the model run_id from the MLflow server, and the model_uri for the model that corresponds to the epoch you want to use from that run. The model used for the metrics on this page was from epoch 27 using a learning rate of 3e-4 and feature variables temperature, precipitation, humidity, anbasin elevation. You'll also need your mlflow_tracking_uri again.  
 
 ```
 model_uri = "s3://sues-test/298/51884b406ec545ec96763d9eefd38c36/artifacts/epoch27_model"
 run_id = "d71b47a8db534a059578162b9a8808b7"
 mlflow_tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
 ```
-
-run_id for Base Plus Humidity 1e-3 d71b47a8db534a059578162b9a8808b7
-
-
 
 # HyperParameters
 | Parameter              | Base Model 1e-3 | Base Model 3e-4 | Base Plus Wind Speed ('vs') 1e-3 | Base Plus Wind Speed ('vs') 3e-4 | Base Plus Solar Radiation ('srad') 1e-3 | Base Plus Solar Radiation ('srad') 3e-4 | Base Plus Humidity 1e-3 | Base Plus Humidity 3e-4 |
@@ -209,4 +205,7 @@ run_id for Base Plus Humidity 1e-3 d71b47a8db534a059578162b9a8808b7
 | mse_lambda          | 1              | 1              | 1                              | 1                              | 1                                    | 1                                    | 1                    | 1                    |
 | train_size_dimension | huc            | huc            | huc                            | huc                            | huc                                  | huc                                  | huc                  | huc                  |
 | train_size_fraction | 1              | 1              | 1                              | 1                              | 1                                    | 1                                    | 1                    | 1                    |
+| **run_id** | **a6c611d4c4cf410e9666796e3a8892b7** | **e989030c272d4de59c84aff739d8063c** | **4653005687094d9ba54c295b943a4667** | **bc031cafad7445adb73173adc43b63c6** | **deed782fda71472fb47cf8670b668473** | **2b49d6cce3844ede8a66821ae9aec27b** | **d71b47a8db534a059578162b9a8808b7** | **51884b406ec545ec96763d9eefd38c36** |
+| **run_name** | **debonair_dove** | **spiffy whale** | **puzzled cow** | **placid-croc** | **enchanting-roo** | **judicious_mare** | **peaceful stork** | **capricious snipe** |
+
 

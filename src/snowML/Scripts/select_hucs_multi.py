@@ -1,4 +1,4 @@
-""" Module to select hucs for train, test, validate for multi-huc expirement"""
+""" Module to select hucs for train, test, validate for multi-huc training expirement"""
 
 import random
 import json

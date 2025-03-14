@@ -1,4 +1,4 @@
-# Module to evaluate model results from a saved model 
+# Module to evaluate model results from a saved model
 # Uses plot2 function (warm colors and flexible y scale)
 # pylint: disable=C0103
 
@@ -121,19 +121,20 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
     if params["train_size_dimension"] == "huc":
         # all data is "test" data
         params["train_size_fraction"] = 0
-        data, y_train_pred, y_test_pred, _, y_test_true, train_size_main = LSTM_train.predict(
+        data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size_main = LSTM_train.predict(
             model_dawgs, df_dict, huc, params)
         test_mse = LSTM_train.mean_squared_error(y_test_true, y_test_pred)
         test_kge, _, _, _ = LSTM_train.kling_gupta_efficiency(y_test_true, y_test_pred)
         test_r2 = r2_score(y_test_true, y_test_pred)
         metric_dict = dict(zip(["test_mse", "test_kge", "test_r2"], [test_mse, test_kge, test_r2]))
-        LSTM_plot2.plot(data, y_train_pred, y_test_pred, train_size_main,
+        LSTM_plot2.plot(data, y_tr_pred, y_te_pred, train_size_main,
             huc, params, metrics_dict = metric_dict)
-        return metric_dict
+        return metric_dict, data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size_main
 
     # else train/test split is time
     print("still working on this branch")
-    return -500, -500
+    return -500, data, y_train_pred, y_test_pred, y_train_true, y_test_true, train_size_main
+
 
 
 def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri, mlflow_log_now = True):
@@ -167,8 +168,9 @@ def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri, mlf
                     print(f"{met_nm}: {met}")
     else:
         for huc in test_hucs:
-            metric_dict = eval_from_saved_model(model_dawgs, df_dict_test, huc, params)
+            metric_dict, _, _, _, _, _, _ = eval_from_saved_model(model_dawgs,
+                                                df_dict_test, huc, params)
             for met_nm, met in metric_dict.items():
                 print(f"{met_nm}: {met}")
 
-    print("all done") 
+    print("all done")

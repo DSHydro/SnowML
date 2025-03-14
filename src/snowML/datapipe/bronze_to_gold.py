@@ -124,7 +124,6 @@ def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite):
     # process to silver
     small_ds = prep_bronze(var, bucket_dict=bucket_dict)
     df_silver = create_mask(small_ds, row, crs)
-    print(f"Processing huc {idx+1}, huc_id: {huc_id} to silver completed")
 
     # process to gold
     f_gold = f"mean_{var}_in_{huc_id}"

@@ -26,21 +26,24 @@ Bronze data includes the raw SWE, metorological, and snowtype data acquired dire
 
 The naming convention is "{var_short_name}_all.zarr". 
 
-| Variable                     | Shortname        | Temporal Granularity | Temporal Scope    | Geographic Scope |
-|---------------------------|----------------|---------------------|----------------|-------------------|
-| SWE                            | swe                  | Daily                         | WY83 – WY23      | CONUS                |
-| Precipitation               | pr                     | Daily                         | 1/1/83-12/31/23 | CONUS+            |
-| Air Temperature Daily Min | tmmn              | Daily                         | 1/1/83-12/31/23 | CONUS+            |
-| Air Temperature Daily Max | tmmax            | Daily                         | 1/1/83-12/31/23 | CONUS+            |
-| Relative Humidity – Daily Min | rmax              | Daily                         | 1/1/83-12/31/23 | CONUS+            |
-| Relative Humidity Daily Max | rmin              | Daily                         | 1/1/83-12/31/23 | CONUS+            |
-| Solar Radiation             | srad                 | Daily                         | 1/1/83-12/31/23 | CONUS+            |
-| Wind Speed                  | vs                     | Daily                         | 1/1/83-12/31/23 | CONUS+            |
-| Snow Type Data            | snow_class_data | Fixed                          | n/a                        | CONUS                |
+| Variable                     | Shortname        | Temporal Granularity | Temporal Scope    | Geographic Scope | Geographic Granularity |
+|---------------------------|----------------|---------------------|----------------|-------------------|--------------------------|
+| SWE                            | swe                  | Daily                         | WY83 – WY23      | CONUS                | 4km grid                       |
+| Precipitation               | pr                     | Daily                         | 1/1/83-12/31/23 | CONUS+            | 4km grid                       |
+| Air Temperature Daily Min | tmmn              | Daily                         | 1/1/83-12/31/23 | CONUS+            | 4km grid                       |
+| Air Temperature Daily Max | tmmax            | Daily                         | 1/1/83-12/31/23 | CONUS+            | 4km grid                       |
+| Relative Humidity – Daily Min | rmax              | Daily                         | 1/1/83-12/31/23 | CONUS+            | 4km grid                       |
+| Relative Humidity Daily Max | rmin              | Daily                         | 1/1/83-12/31/23 | CONUS+            | 4km grid                       |
+| Solar Radiation             | srad                 | Daily                         | 1/1/83-12/31/23 | CONUS+            | 4km grid                       |
+| Wind Speed                  | vs                     | Daily                         | 1/1/83-12/31/23 | CONUS+            | 4km grid                       |
+| Snow Type Data            | snow_class_data | Fixed                          | n/a                        | CONUS                | 5km grid                       |
+
+---
+
+*Note1: WY stands for Water Year, which runs from Oct. 1 – Sept. 30.  
+Note2: Elevation data was processed dynamically using the `easysnowdata` python module so was not separately saved as Zarr files in the bronze bucket. Note 3: the 4km grids used for the SWE data and the meteorological data are not fully aligned, but this discrepency is mitigated by the regional aggregation steps below. 
 
 
-*Note1: WY stands for Water Year, which runs from Oct. 1 – Sept. 30.*
-*Note2: Elevation data was processed dynamically using the `easysnowdata` python module so was not separately saved as Zarr files in the bronze bucket.*
 
 
 ## Gold Data - Data Aggregated by Region (e.g. Huc12) 

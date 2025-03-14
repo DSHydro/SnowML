@@ -1,9 +1,9 @@
 This Document Describes the Data used in Training the Frosty Dawgs SnowML Model. <br>
 Sections include  
--   [Raw Data](#raw-data)
+-   [Raw Data](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#raw-data-)
 -   [Data Pipeline Repo Steps](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#data-pipeline---repo-steps-)
--   [Model Ready Data](#Model-Ready-Data)
--   [Regions Available for Analysis](#Regions-Available-for-Analysis)
+-   [Model Ready Data](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#model-ready-data-)
+-   [Regions Available for Analysis](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#regions-available-for-analysis-)
 
   If you are most interested in understanding the final data used in the model, jump straight to [Model Ready Data](#Model-Ready-Data)!
 

@@ -9,30 +9,30 @@ Sections include
   If you are most interested in understanding the final data used in the model, jump straight to [Model Ready Data](#Model-Ready-Data)!
 
 # Raw Data <br>
-SWE (Target Data)
+**SWE (Target Data)**
 - Data related to Snow Water Equivilent ("SWE") was obtained from the University of Arizona https://climate.arizona.edu/data/UA_SWE/
 - Data is available on a daily time scale, for water years 1983 through 2023 (10/1/1982 - 9/30/2024) and partial data for WY 2024. However, water years 2023 and 2024 (partial) were not yet available at the time of our data acquisition and expirimentation, and are not yet included in our datapipeline.
 - This data set combines data from in-situ measurements at thousands of ground sites (including both SNOWTEL and community based monitoring sites) and extrapoloates using a physcis based model and PRISM precipitation air temperature data.
 - Data is available for the continental United States (CONUS). <br>
 
-Meterological Data (GRIDMET) 
+**Meterological Data (GRIDMET)**
 - Data for meteorological variables was obtaind from the University of Idaho https://www.climatologylab.org/gridmet.html.
 - The GRIDMET data is available for a variety of variables and time scales.  We used 4km gridded data, and data related to the seven variables discussed below in the Bronze Data section. <br>
 
-HUC Geometries
+**HUC Geometries**
 - In order to select data for a given watershed(Huc10) or sub-watershed(Huc12), we used the HUC geometries available from the [USGS Water Data Boundary Data Set](https://www.usgs.gov/national-hydrography/watershed-boundary-dataset) 2017, accessed via Google Earth Engine.  See [here](https://developers.google.com/earth-engine/datasets/catalog/USGS_WBD_2017_HUC12) <br>
 
-Snow Classification
+**Snow Classification**
 - Snow type classification data was obtained from Liston, G. E., and M. Sturm, 2021: Global Seasonal-Snow Classification, Version 1. National Snow and Ice Data Center, https://doi.org/10.5067/99FTCYYYLAQ0. <br>
 
-Watershed Elevation
+**Watershed Elevation**
 - Elevation data was obtained from the Copernicus DEM, a Digital Surface Model (DSM) derived from the WorldDEM, with additional editing applied to water bodies, coastlines, and other special features. European Space Agency (2024).  <i>Copernicus Global Digital Elevation Model</i>.  Distributed by OpenTopography.
 - The data was accessed using the easysnowdata open source python module.  
 
 # Data Pipleline - A Modular, Scalable Approach
 The Frosty Dawgs datapipeline uses a medallion inspired datalake architecture with the tiers described below. The modular architecture is designed to provide future researchers with flexibiliy to update the data pipeline and approach at any stage of the pipeline, as desired.  Data is stored in S3 buckets corresponding to the Bronze, Gold, and Model Ready Tiers described below.  
 
-The Pipeline is also scaleable. The Frosty Dawgs team used the pipeline to preprocss data for over 500 Huc12 sub-watershed in the Pacfic Northwest, spanning 15 different region sub-Basins (Huc08 sub-Basins) listed below in the [Regions Available for Analysis](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#regions-available-for-analysis-) Sections. The code provided in this repo can be easily used to process data from any hydrological unit in the United States, as any level of granularity (e.g. Huc02, Huc04, . . . Huc12). Please consult the [DataPipe Notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/DataPipe.ipynb) for instructions on how to do so. 
+The Pipeline is also scaleable. The Frosty Dawgs team used the pipeline to preprocss data for over 500 Huc12 sub-watershed in the Pacfic Northwest, spanning 15 different regional sub-Basins (Huc08 sub-Basins) listed below in the [Regions Available for Analysis](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#regions-available-for-analysis-) ections The code provided in this repo can be easily used to process data from any hydrological unit in the United States, at any level of granularity (e.g. Huc02, Huc04, . . . Huc12). Please consult the [DataPipe Notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/DataPipe.ipynb) for instructions on how to do so. 
 
 
 ## Bronze Data - Raw Data in Zarr Files 
@@ -55,15 +55,22 @@ The naming convention is "{var_short_name}_all.zarr".
 ---
 
 *Note1: WY stands for Water Year, which runs from Oct. 1 – Sept. 30.* <br>
-*Note2: Elevation data was processed dynamically using the `easysnowdata` python module so was not separately saved as Zarr files in the bronze bucket.* <br>
+*Note2: Elevation data was processed dynamically using the `easysnowdata` python module so was not separately saved as Zarr files in the bronze or gold bucket.* <br>
 *Note 3: The 4km grids used for the SWE data and the meteorological data are not fully aligned, but this discrepency is mitigated by the regional aggregation steps below.* 
 
 
-
-
 ## Gold Data - Data Aggregated by Region (e.g. Huc12) 
+Once the raw data has been retrieved and converted to zarr files otimized for region-based queries, the next step is to extract data for the regions(s) of interest.  For each region of interest -- for example 170300010402, the High Creek-Naneum Creek sub-watershed in the Naches Basin near Yakima -- we created "gold" data" for each of the SWE and Meteorological variables, as follows: <br>
+1. Dynamically create a geopandas dataframe containing the geometry for the desired region, using ```snowML.datapipe get_geos``` module. <br>
+2. Apply a geographical mask, using rioxarray, to extract from the bronze files filtered only the region of interest as specified by the geopandas df in step 1.  This step required some further processing of hte raw data, including renaming spacial dimensions, updating crs (coordinate systems), and/or calculating missing coordinate transform information for some of the data sets.  Please refer to the ```snowML.datapipe bronze_to_gold``` module for details. <br>
+3. Aggregate the relevant variable into the regional mean for the selected region. <br>
+4. Save results to a csv file.  
 
 
+Processed gold files were saved in to the S3 bucket "snowml-gold" with the naming convention "mean_{var_short_name}_in_{huc_no}.csv."  For example "mean_swe_in 170300010402." 
+
+*Note1: Elevation data was processed dynamically using the `easysnowdata` python module so was not separately saved as Zarr files in the bronze or gold bucket.* <br>
+*Note2: As the Snow Type data is static over time, processing the data into regional mean is much less computationally intensive than for the SWE and meterological variables which must be separately aggregated for each day over 40 years.  As such, we did not separately save the interim calculations as gold files for snow type data.* <br>
 
 
 

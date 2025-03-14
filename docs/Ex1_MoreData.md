@@ -37,6 +37,8 @@ There is a fairly large discrepency between the SWE measures among the two datas
 
 ![Skagit Huc10 Map](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex1_MoreData/charts/Expirement1Map.png)
 
+Map of the seven Huc10 units in Skagit River Basin used in Expirement 1.  
+
 ## Figure 2 - UA Data vs. SnowTel Data Prediction Plots for two Example HUC10 Watersheds in Skagit 
 | ProtoTyped Model - UA Data | ProtoTyped Model - Original (SnowTel) Data |
 |----------------------------|---------------------------------|

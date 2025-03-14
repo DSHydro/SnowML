@@ -1,7 +1,7 @@
 This Document Describes the Data used in Training the Frosty Dawgs SnowML Model. <br>
 Sections include  
 -   [Raw Data](#raw-data)
--   [Data Pipeline Repo Steps](#data-pipeline---repo-steps)
+-   [Data Pipeline Repo Steps](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#data-pipeline---repo-steps-)
 -   [Model Ready Data](#Model-Ready-Data)
 -   [Regions Available for Analysis](#Regions-Available-for-Analysis)
 
@@ -50,7 +50,7 @@ Each variable is measured daily for the period "1983-10-01" through "2022-09-30"
 | Montane Forest    | Percent of the region with snow type Montane Forest.            | %     |
 | Ice              | Percent of the region with snow type Ice.                        | %     |
 | Ocean            | Percent of the region with snow type Ocean.                      | %     |
-| Mean Elevation   | Mean Elevation for the region                                    | kilometers |
+| Mean Elevation   | Mean Elevation for the region                                    | meters |
 
 
 

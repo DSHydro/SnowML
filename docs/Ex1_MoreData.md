@@ -37,7 +37,7 @@ There is a fairly large discrepency between the SWE measures among the two datas
 
 ![Skagit Huc10 Map](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex1_MoreData/charts/Expirement1Map.png)
 
-Map of the seven Huc10 units in Skagit River Basin used in Expirement 1.  
+*Map of the seven Huc10 units in Skagit River Basin used in Expirement 1.*
 
 ## Figure 2 - UA Data vs. SnowTel Data Prediction Plots for two Example HUC10 Watersheds in Skagit 
 | ProtoTyped Model - UA Data | ProtoTyped Model - Original (SnowTel) Data |
@@ -53,9 +53,9 @@ Map of the seven Huc10 units in Skagit River Basin used in Expirement 1.
 **MSE - Lower Values (Closer to 0) Represent Better Fit**
 ![MSE_Compare](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex1_MoreData/charts/Mean_Square_Error_By_Huc_and_Type_of_Data_Used.png)
 
-Figure 3 Top:  Bar chart of Test KGE values for each Huc10 watershed, using both the original Prototyped Model, and the same model with the longer time series data from University of Arizona. In both approaches, and for each Huc10 watershed, the first 2/3 of the time series data is used to train the LSTM model, and that model is used to predict the final 1/3.  In all Huc10 watersheds Test KGE was better (closer to 1) using the longer time series data. 
+*Figure 3 Top:  Bar chart of Test KGE values for each Huc10 watershed, using both the original Prototyped Model, and the same model with the longer time series data from University of Arizona. In both approaches, and for each Huc10 watershed, the first 2/3 of the time series data is used to train the LSTM model, and that model is used to predict the final 1/3.  In all Huc10 watersheds Test KGE was better (closer to 1) using the longer time series data.*
 
-Figure 3 Bottom:   Bar chart of Test KGE values for each Huc10 watershed, using both the original Prototyped Model, and the same model with the longer time series data from University of Arizona, and again using a 2/3 train/test split of the time series data in that watershed.  Most Huc10 watersheds have a better (lower) MSE using the longer time series data, but results are somewhat mied.   
+*Figure 3 Bottom:   Bar chart of Test MSE values for each Huc10 watershed, using both the original Prototyped Model, and the same model with the longer time series data from University of Arizona, and again using a 2/3 train/test split of the time series data in that watershed.  Most Huc10 watersheds have a better (lower) MSE using the longer time series data, but results are somewhat mixed.*   
 
 # What is KGE? 
 [Klinge-Gupta Efficiency](https://en.wikipedia.org/wiki/Kling%E2%80%93Gupta_efficiency), is a metric is commonly used to assess the performance of hydrological models. KGE is a composite measure that considers (i) Correlation (r) between observed and simulated data, (ii) the Bias (β) assesaws S the ratio of the mean of simulated data to the mean of observed data, and (iii) Variability (y), which compares the standard deviations of simulated and observed data to evaluate the model's ability to reproduce the variability in the observed data.  It is calculated as KGE=1− sqrt((r−1)^2+(β−1)^2+(γ−1)^2).  

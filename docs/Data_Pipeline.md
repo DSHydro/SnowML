@@ -1,12 +1,11 @@
-This Document Describes the Data used in Training the Frosty Dawgs SnowML Model. <br>
-Sections include  
+This document describes the data used in training the Frosty Dawgs SnowML Model. Sections include:
 -   [Raw Data](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#raw-data-)
--   [Data Pipeline - A modular, scalabel approach](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#data-pipleline---a-modular-scalable-approach)
+-   [Data Pipeline - A Modular, Scalabel Approach](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#data-pipleline---a-modular-scalable-approach)
 -   [Data Pipeline Repo Steps](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#data-pipeline---repo-steps-)
 -   [Model Ready Data](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#model-ready-data-)
 -   [Regions Available for Analysis](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#regions-available-for-analysis-)
 
-  If you are most interested in understanding the final data used in the model, jump straight to [Model Ready Data](#Model-Ready-Data)!
+  If you are most interested in understanding the final data used in the model, jump straight to [Model Ready Data](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#model-ready-data-)!
 
 # Raw Data <br>
 **SWE (Target Data)**
@@ -27,16 +26,18 @@ Sections include
 
 **Watershed Elevation**
 - Elevation data was obtained from the Copernicus DEM, a Digital Surface Model (DSM) derived from the WorldDEM, with additional editing applied to water bodies, coastlines, and other special features. European Space Agency (2024).  <i>Copernicus Global Digital Elevation Model</i>.  Distributed by OpenTopography.
-- The data was accessed using the easysnowdata open source python module.  
+- The data was accessed using the [easysnowdata](https://egagli.github.io/easysnowdata/examples/hydroclimatology_examples/) open source python module.  
 
 # Data Pipleline - A Modular, Scalable Approach
 The Frosty Dawgs datapipeline uses a medallion inspired datalake architecture with the tiers described below. The modular architecture is designed to provide future researchers with flexibiliy to update the data pipeline and approach at any stage of the pipeline, as desired.  Data is stored in S3 buckets corresponding to the Bronze, Gold, and Model Ready Tiers described below.  
 
-The Pipeline is also scaleable. The Frosty Dawgs team used the pipeline to preprocss data for over 500 Huc12 sub-watershed in the Pacfic Northwest, spanning 15 different regional sub-Basins (Huc08 sub-Basins) listed below in the [Regions Available for Analysis](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#regions-available-for-analysis-) section. The code provided in this repo can be easily used to process data from any hydrological unit in the United States, at any level of granularity (e.g. Huc02, Huc04, . . . Huc12). Please consult the [DataPipe Notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/DataPipe.ipynb) for instructions on how to do so. 
+The Pipeline is also scaleable. The Frosty Dawgs team used the pipeline to preprocess data for over 500 Huc12 sub-watershed in the Pacfic Northwest, spanning 15 different regional sub-Basins (Huc08 sub-Basins) listed below in the [Regions Available for Analysis](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#regions-available-for-analysis-) section. The code provided in this repo can be easily used to process data from any hydrological unit in the United States, at any level of granularity (e.g. Huc02, Huc04, . . . Huc12). Please consult the [DataPipe Notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/DataPipe.ipynb) for instructions on how to do so. 
 
 
 ## Bronze Data - Raw Data in Zarr Files 
-Bronze data includes the raw SWE, metorological, and snowtype data acquired directly from data sources. Data acquisition is challenging and time consuming, given the amount of data and the fact that several sources make data available via separate files organized by year. Since our data acquistion pattern is most typically by region accross all years, the first step was to download the raw data and reconfigure it into zarr files with storage chuncks more suited to our access patterns. This raw data is then saved as zarr files in the S3 bucket "snowml-bronze."
+Bronze data includes the raw SWE, metorological, and snowtype data acquired directly from the raw data sources. Data acquisition is challenging and time consuming given the amount of data and the fact that several sources make data available via separate files organized by year. Since our data acquistion pattern is most typically by region accross all years, the first step was to download the raw data and reconfigure it into zarr files with storage chuncks more suited to our access patterns. 
+
+These zarr files are then saved in the S3 bucket "snowml-bronze."
 
 The naming convention is "{var_short_name}_all.zarr". 
 
@@ -86,7 +87,7 @@ Each file contains data for one discrete HUC unit (watershed/subwatershed).
 
 **Naming convention**
 - Each file is named "model_ready_{huc_id}.csv"
-- For example, "model_ready_huc170300010402.csv" contains data for huc_id 170300010402, a HUC 12 (sub-watershed) huc unit that is part of the Naches sub-basin near Yakima.
+- For example, "model_ready_huc170300010402.csv" contains data for huc_id 170300010402, a HUC 12 (sub-watershed) that is part of the Naches sub-basin near Yakima.
 
 **Time Period** <br>
 Each file contains data for the water years 1984 through 2022. <br>

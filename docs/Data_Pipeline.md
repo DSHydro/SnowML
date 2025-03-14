@@ -75,7 +75,8 @@ Processed gold files were saved in to the S3 bucket "snowml-gold" with the namin
 ## Model Ready Data - All Variables For a Given Region
 As the final step, for each region of interest, the gold files were aggregated into a single csv file containing all relevant variables, including SWE, meteorological variables, snow_type information, and basin elevation. Additional calculations were performed to update units to the value shown below in the [Model Ready Data](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#model-ready-data-) section. In addition, daily max and min airtemperature were averaged into a single daily average temperature variable; likewise daily max and min humidity was aggegated into a single daily relative humidity variable. Finally, data was filtered to the period 1983-10-01 through 2022-09-30 for all variables.  Please consult the module ```snowML.datapipe bronze_to_gold``` module for further details.  
 
-*Note: The Model Ready data is not yet normalized.  Normalization was performed dynamically with each expirement, normalizing data with reference to the training (and, where applicable, validation) sets relevant to that expirement.*
+*Note1: The Model Ready data is not yet normalized.  Normalization was performed dynamically with each expirement, normalizing data with reference to the training (and, where applicable, validation) sets relevant to that expirement.*<br>
+* Note2: The snow type information was not used as a feature variable in training, but was used to calculate the predominant snow type for each huc for purposes of post-training analytics on the model.*
 
 
 # Data Pipeline - Repo Steps <br>

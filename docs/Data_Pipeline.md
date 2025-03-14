@@ -15,6 +15,43 @@ Sections include
 - Elevation data was obtained from the Copernicus DEM, a Digital Surface Model (DSM) derived from the WorldDEM, with additional
     editing applied to water bodies, coastlines, and other special features. European Space Agency (2024).  <i>Copernicus Global Digital Elevation Model</i>.  Distributed by OpenTopography.  The data was accessed using the easysnowdata open source python module.  
 
+# Data Pipleline - A Modular, Scalable Approach
+The Frosty Dawgs datapipeline uses a medallion inspired datalake architecture with the tiers described below. The modular architecture is designed to provide future researchers with flexibiliy to update the data pipeline and approach at any stage of the pipeline, as desired.  Data is stored in S3 buckets corresponding to the Bronze, Gold, and Model Ready Tiers described below.  
+
+The Pipeline is also scaleable. The Frosty Dawgs team used the pipeline to preprocss data for over 500 Huc12 sub-watershed in the Pacfic Northwest, spanning 15 different region sub-Basins (Huc08 sub-Basins) listed below in the [Regions Available for Analysis](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#regions-available-for-analysis-) Sections. The code provided in this repo can be easily used to process data from any hydrological unit in the United States, as any level of granularity (e.g. Huc02, Huc04, . . . Huc12). Please consult the [DataPipe Notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/DataPipe.ipynb) for instructions on how to do so. 
+
+
+## Bronze Data - Raw Data in Zarr Files 
+Bronze data includes the raw SWE, metorological, and snowtype data acquired directly from data sources. Data acquisition is challenging and time consuming, given the amount of data and the fact that several sources make data available via separate files organized by year. Since our data acquistion pattern is most typically by region accross all years, the first step was to download the raw data and reconfigure it into zarr files with storage chuncks more suited to our access patterns. This raw data is then saved as zarr files in the S3 bucket "snowml-bronze."
+
+The naming convention is "{var_short_name}_all.zarr". 
+
+| Variable                     | Shortname        | Temporal Granularity | Temporal Scope    | Geographic Scope |
+|---------------------------|----------------|---------------------|----------------|-------------------|
+| SWE                            | swe                  | Daily                         | WY83 – WY23      | CONUS                |
+| Precipitation               | pr                     | Daily                         | 1/1/83-12/31/23 | CONUS+            |
+| Air Temperature Daily Min | tmmn              | Daily                         | 1/1/83-12/31/23 | CONUS+            |
+| Air Temperature Daily Max | tmmax            | Daily                         | 1/1/83-12/31/23 | CONUS+            |
+| Relative Humidity – Daily Min | rmax              | Daily                         | 1/1/83-12/31/23 | CONUS+            |
+| Relative Humidity Daily Max | rmin              | Daily                         | 1/1/83-12/31/23 | CONUS+            |
+| Solar Radiation             | srad                 | Daily                         | 1/1/83-12/31/23 | CONUS+            |
+| Wind Speed                  | vs                     | Daily                         | 1/1/83-12/31/23 | CONUS+            |
+| Snow Type Data            | snow_class_data | Fixed                          | n/a                        | CONUS                |
+
+
+*Note1: WY stands for Water Year, which runs from Oct. 1 – Sept. 30.*
+*Note2: Elevation data was processed dynamically using the `easysnowdata` python module so was not separately saved as Zarr files in the bronze bucket.*
+
+
+## Gold Data - Data Aggregated by Region (e.g. Huc12) 
+
+
+
+
+
+
+
+
 
 # Data Pipeline - Repo Steps <br>
 For instructions on how to reproduce the data pipeline, or create model-ready data for additional huc units, please refer to our [DataPipe Notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/DataPipe.ipynb)

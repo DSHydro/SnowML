@@ -32,7 +32,7 @@ Sections include
 # Data Pipleline - A Modular, Scalable Approach
 The Frosty Dawgs datapipeline uses a medallion inspired datalake architecture with the tiers described below. The modular architecture is designed to provide future researchers with flexibiliy to update the data pipeline and approach at any stage of the pipeline, as desired.  Data is stored in S3 buckets corresponding to the Bronze, Gold, and Model Ready Tiers described below.  
 
-The Pipeline is also scaleable. The Frosty Dawgs team used the pipeline to preprocss data for over 500 Huc12 sub-watershed in the Pacfic Northwest, spanning 15 different regional sub-Basins (Huc08 sub-Basins) listed below in the [Regions Available for Analysis](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#regions-available-for-analysis-) ections The code provided in this repo can be easily used to process data from any hydrological unit in the United States, at any level of granularity (e.g. Huc02, Huc04, . . . Huc12). Please consult the [DataPipe Notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/DataPipe.ipynb) for instructions on how to do so. 
+The Pipeline is also scaleable. The Frosty Dawgs team used the pipeline to preprocss data for over 500 Huc12 sub-watershed in the Pacfic Northwest, spanning 15 different regional sub-Basins (Huc08 sub-Basins) listed below in the [Regions Available for Analysis](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#regions-available-for-analysis-) section. The code provided in this repo can be easily used to process data from any hydrological unit in the United States, at any level of granularity (e.g. Huc02, Huc04, . . . Huc12). Please consult the [DataPipe Notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/DataPipe.ipynb) for instructions on how to do so. 
 
 
 ## Bronze Data - Raw Data in Zarr Files 
@@ -59,23 +59,22 @@ The naming convention is "{var_short_name}_all.zarr".
 *Note 3: The 4km grids used for the SWE data and the meteorological data are not fully aligned, but this discrepency is mitigated by the regional aggregation steps below.* 
 
 
-## Gold Data - Data Aggregated by Region (e.g. Huc12) 
+## Gold Data - Data Aggregated by Variable, by Region (e.g. Huc12) 
 Once the raw data has been retrieved and converted to zarr files otimized for region-based queries, the next step is to extract data for the regions(s) of interest.  For each region of interest -- for example 170300010402, the High Creek-Naneum Creek sub-watershed in the Naches Basin near Yakima -- we created "gold" data" for each of the SWE and Meteorological variables, as follows: <br>
 1. Dynamically create a geopandas dataframe containing the geometry for the desired region, using ```snowML.datapipe get_geos``` module. <br>
 2. Apply a geographical mask, using rioxarray, to extract from the bronze files filtered only the region of interest as specified by the geopandas df in step 1.  This step required some further processing of hte raw data, including renaming spacial dimensions, updating crs (coordinate systems), and/or calculating missing coordinate transform information for some of the data sets.  Please refer to the ```snowML.datapipe bronze_to_gold``` module for details. <br>
 3. Aggregate the relevant variable into the regional mean for the selected region. <br>
-4. Save results to a csv file.  
-
+4. Save results to a csv file.
 
 Processed gold files were saved in to the S3 bucket "snowml-gold" with the naming convention "mean_{var_short_name}_in_{huc_no}.csv."  For example "mean_swe_in 170300010402." 
 
 *Note1: Elevation data was processed dynamically using the `easysnowdata` python module so was not separately saved as Zarr files in the bronze or gold bucket.* <br>
 *Note2: As the Snow Type data is static over time, processing the data into regional mean is much less computationally intensive than for the SWE and meterological variables which must be separately aggregated for each day over 40 years.  As such, we did not separately save the interim calculations as gold files for snow type data.* <br>
 
+## Model Ready Data - All Variables For a Given Region
+As the final step, for each region of interest, the gold files were aggregated into a single csv file containing all relevant variables, including SWE, meteorological variables, snow_type information, and basin elevation. Additional calculations were performed to update units to the value shown below in the [Model Ready Data](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#model-ready-data-) section. In addition, daily max and min airtemperature were averaged into a single daily average temperature variable; likewise daily max and min humidity was aggegated into a single daily relative humidity variable. Finally, data was filtered to the period 1983-10-01 through 2022-09-30 for all variables.  Please consult the module ```snowML.datapipe bronze_to_gold``` module for further details.  
 
-
-
-
+*Note: The Model Ready data is not yet normalized.  Normalization was performed dynamically with each expirement, normalizing data with reference to the training (and, where applicable, validation) sets relevant to that expirement.*
 
 
 # Data Pipeline - Repo Steps <br>
@@ -87,7 +86,7 @@ Each file contains data for one discrete HUC unit (watershed/subwatershed).
 
 **Naming convention**
 - Each file is named "model_ready_{huc_id}.csv"
-- For example, "model_ready_huc170200090302.csv" contains data for huc_id 170200090302, a HUC 12 (sub-watershed) huc unit that is part of the Chelan basin.
+- For example, "model_ready_huc170300010402.csv" contains data for huc_id 170300010402, a HUC 12 (sub-watershed) huc unit that is part of the Naches sub-basin near Yakima.
 
 **Time Period** <br>
 Each file contains data for the water years 1984 through 2022. <br>

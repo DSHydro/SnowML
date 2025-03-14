@@ -1,5 +1,34 @@
 # pylint: disable=C0103
 
+"""
+This module provides functions for fetching, processing, and analyzing snow 
+classification data. The data is sourced from a remote NetCDF file and can be 
+clipped to specific geographic regions. 
+
+The module includes functionality to save the processed data to an S3 bucket in 
+Zarr format, retrieve it from S3, and calculate snow class statistics. 
+Additionally, it provides utilities to map snow class values to their 
+corresponding names and classify hydrologic unit codes (HUCs) based on 
+predominant snow type.
+
+Functions:
+    get_snow_class_data(geos=None): Fetches and processes snow classification 
+        data from a remote NetCDF file.
+    save_snow_class_data(ds, bucket_dict=None): Saves the snow class data to 
+        an S3 bucket in Zarr format.
+    snow_class_data_from_s3(geos=None, bucket_dict=None): Fetches snow 
+        classification data from an S3 bucket and optionally clips it to a 
+        specified geographic region.
+    map_snow_class_names(): Maps snow class values to their corresponding names.
+    calc_snow_class(ds, snow_class_names): Calculates the percentage of each 
+        snow class in the dataset.
+    snow_class(geos): Classifies snow data for given geographical regions.
+    display_df(df): Appends an average row to the DataFrame and reorders columns.
+    classify_hucs(df): Classifies HUCs based on predominant snow type.
+    save_snow_types(df, huc_id): Saves a DataFrame as a markdown table to a file.
+    process_all(huc_id, huc_lev, save=False): Processes snow types for a given 
+        hydrologic unit code (HUC) and level.
+"""
 
 import io
 import requests
@@ -36,7 +65,7 @@ def get_snow_class_data(geos = None):
 
     url = "https://daacdata.apps.nsidc.org/pub/DATASETS/nsidc0768_global_seasonal_snow_classification_v01/SnowClass_NA_05km_2.50arcmin_2021_v01.0.nc"
 
-    response = requests.get(url)
+    response = requests.get(url, timeout=10)
     ds = xr.open_dataset(io.BytesIO(response.content), engine="h5netcdf")
     if geos is None: # return the data for CONUS
         lat_min, lat_max = 24.396308, 49.384358
@@ -133,6 +162,18 @@ def map_snow_class_names():
     return snow_class_names
 
 def calc_snow_class(ds, snow_class_names):
+    """
+    Calculate the percentage of each snow class in the dataset.
+
+    Parameters:
+        ds (xarray.Dataset): The dataset containing the "SnowClass" array.
+         snow_class_names (dict): A dictionary mapping snow class integer values 
+         to their corresponding names.
+
+    Returns:
+        pd.DataFrame: A DataFrame with snow class names as columns and their 
+            corresponding percentages as values.
+    """
 
     # Flatten the SnowClass array and remove NaN values if any
     valid_pixels = ds["SnowClass"].values.flatten()
@@ -154,6 +195,25 @@ def calc_snow_class(ds, snow_class_names):
     return df_snow_classes
 
 def snow_class(geos):
+    """
+    Classifies snow data for given geographical regions.
+
+    This function processes geographical data to classify snow types within 
+    specified regions.It retrieves snow classification data, clips it to the 
+    provided geographical regions, and calculates snow class statistics.
+
+    Args:
+        geos (GeoDataFrame): A GeoDataFrame containing geographical regions 
+            with a 'huc_id' column.
+
+    Returns:
+        DataFrame: A DataFrame containing snow class statistics for each 
+            region, including the 'huc_id'.
+
+    Raises:
+        Exception: If there is an error processing a specific region, it will 
+            be omitted from the dataset and an error message will be printed.
+    """
     results = pd.DataFrame()
     snow_class_names = map_snow_class_names()
     #ds_conus = get_snow_class_data(geos = None)
@@ -197,6 +257,27 @@ def display_df(df):
 
 
 def classify_hucs(df):
+    """
+    Classifies HUCs (Hydrologic Unit Codes) based on predominant snow type.
+
+    This function takes a DataFrame containing snow data for various HUCs and 
+    determines the predominant snow type for each HUC. It excludes the last row 
+    (assumed to be an average row) from the classification process. The function 
+    returns an updated DataFrame with the predominant snow type for each HUC and 
+    a dictionary containing the count of each snow class.
+
+    Parameters:
+    df (pandas.DataFrame): A DataFrame where each row represents a HUC and each 
+                           column (except the first) represents a snow class.
+
+    Returns:
+    tuple: A tuple containing:
+        - pandas.DataFrame: The updated DataFrame with an additional column 
+                            "Predominant_Snow" indicating the predominant snow 
+                            type for each HUC.
+        - dict: A dictionary with snow classes as keys and their respective 
+                counts as values.
+    """
     # Exclude the last row (average row)
     df_without_avg = df.iloc[:-1].copy()
 
@@ -227,11 +308,29 @@ def save_snow_types(df, huc_id):
     message indicating the location of the saved file.
     """
     markdown_table = df.to_markdown(index=False)
-    with open(f'../../docs/tables/snow_types{huc_id}.md', 'w') as f:
+    with open(f'../../docs/tables/snow_types{huc_id}.md', 'w',
+              encoding='utf-8') as f:
         f.write(markdown_table)
     print(f"Markdown table saved to ../../docs/tables/snow_types{huc_id}.md")
 
 def process_all(huc_id, huc_lev, save = False):
+    """
+    Processes snow types for a given hydrologic unit code (HUC) and level.
+
+    Args:
+        huc_id (str): The hydrologic unit code identifier.
+        huc_lev (int): The level of the hydrologic unit code.
+        save (bool, optional): If True, saves the predominant snow types. 
+            Defaults to False.
+
+    Returns:
+        tuple: A tuple containing:
+            - df_snow_types (DataFrame): DataFrame containing snow types.
+            - snow_class_counts (DataFrame): DataFrame containing counts of 
+                each snow class.
+            - df_predominant (DataFrame): DataFrame containing predominant 
+                snow types.
+    """
     #geos = du.get_basin_geos(f"Huc{huc_lev}", huc_id)
     geos = gg.get_geos(huc_id, huc_lev)
     df_snow_types = snow_class(geos)

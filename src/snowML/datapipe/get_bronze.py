@@ -153,10 +153,9 @@ def download_multiple_years(
 
     # Check if the S3 Zarr path already exists
     if fs.exists(f"s3://{s3_bucket}/{s3_path}") and not append_to:
-        raise ValueError(
-            f"Warning: The path s3://{s3_bucket}/{s3_path} already exists "
-            "in the S3 bucket."
-        )
+        print(f"Warning: The path s3://{s3_bucket}/{s3_path} already exists.")
+        print("Skipping file. Set append_to = True if you intended to append.")
+        return "no path created"
 
     # define some data-specific attributes
     dim_to_concat = "day"
@@ -191,7 +190,8 @@ def download_multiple_years(
                 completed_years.add(year)
             else:
                 # Append data to the existing Zarr file
-                ds.to_zarr(f"s3://{s3_bucket}/{s3_path}", mode="a", append_dim=dim_to_concat, consolidated=True)
+                ds.to_zarr(f"s3://{s3_bucket}/{s3_path}", mode="a",
+                           append_dim=dim_to_concat, consolidated=True)
                 print(f"Appended year {year} to s3://{s3_bucket}/{s3_path}")
                 completed_years.add(year)
                 with open(progress_file, "w", encoding="utf-8") as f:

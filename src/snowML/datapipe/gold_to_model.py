@@ -1,5 +1,24 @@
 # pylint: disable=C0103
+""" 
+This module provides functions to gather, clean, and process hydrologic data 
+for modeling purposes. 
 
+Functions:
+    gather_gold_files(huc_id, var_list=None, bucket_dict=None)
+        Generates a list of file paths for gold data files based 
+        on the provided HUC ID and variable list.
+
+    clean_and_filter(df, start_date="1983-10-01", end_date="2022-09-30")
+        Cleans and filters the input DataFrame based on the 
+        specified date range.
+
+     huc_model_wrf(huc_id, bucket_dict, var_list=None):
+            Generates a DataFrame for a given HUC by merging and processing data 
+            from multiple sources related to meteorological data.
+
+    huc_model(huc_id, var_list=None, bucket_dict=None, overwrite_mod=False):
+            Processes data for a given HUC and prepares it for modeling.
+"""
 
 import s3fs
 import pandas as pd
@@ -126,6 +145,22 @@ def huc_model_wrf(huc_id, bucket_dict, var_list = None):
     return model_df
 
 def huc_model(huc_id, var_list = None, bucket_dict = None, overwrite_mod = False):
+    """
+    Processes data for a given HUC (Hydrologic Unit Code) and prepares it 
+        for modeling.
+
+    Parameters:
+        huc_id (int): The Hydrologic Unit Code identifier.
+        var_list (list, optional): List of variables to include in the model. 
+            Defaults to None.
+        bucket_dict (dict, optional): Dictionary containing S3 bucket information. Defaults to None.
+        overwrite_mod (bool, optional): Flag to overwrite existing model data. 
+            Defaults to False.
+
+    Returns:
+        pd.DataFrame: The final DataFrame ready for modeling, or None if the 
+            data already exists and overwrite_mod is False.
+     """
     # some set up
     if bucket_dict  is None:
         bucket_dict = sdc.create_bucket_dict("prod")
@@ -146,7 +181,8 @@ def huc_model(huc_id, var_list = None, bucket_dict = None, overwrite_mod = False
     snow_types, _, _ = st.process_all(huc_id, huc_lev)
     snow_types = snow_types.loc[[0]].copy()
     # Broadcasting the values from snow_types to model_df
-    snow_types_broadcasted = pd.DataFrame([snow_types.iloc[0]] * len(snow_types), columns=snow_types.columns, index=model_df.index)
+    snow_types_broadcasted = pd.DataFrame([snow_types.iloc[0]] * len(snow_types),
+            columns=snow_types.columns, index=model_df.index)
     df_final = pd.concat([model_df, snow_types_broadcasted], axis=1)
     du.dat_to_s3(df_final, bucket_dict.get("model-ready"), f_out, file_type = "csv")
     return df_final

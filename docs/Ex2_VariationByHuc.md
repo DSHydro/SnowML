@@ -112,6 +112,54 @@ KGE values range from negative infinity to 1, with a KGE value of 1 indicating p
 
 
 # How to Reproduce The Results
+# How to Reproduce The Results
+The results for this expirement were produced using the snowML package in this repo, using the steps below.  Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes.
+
+
+
+
+1. **Set Up Your Run-Time Environment.** You will need an IDE that can execute python scripts and a terminal for bash commands, as well as an mlflow tracking server.  We recommend Sagemaker Studio which enables you to insantiate both an mlflow server and a Code Spaces IDE from within the Studio.  Take note of the tracking_uri for the mlflow server that you set up, as you'll need it in step 3. If working from Sagemaker Studio, the mlflow tracking_uri should look something like this: "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML."
+
+2.  **Clone the SnowML Repo and Install SnowML package.**
+```
+bash
+git clone https://github.com/DSHydro/SnowML.git 
+cd SnowML # make sure to switch into the snowML directory and run all subsequent code from there
+pip install . #installs the SnowML package
+```
+
+3. **Create a dictionary called "params".** From within python, create a dictionary of "params" with the desired values of the relevant hyperparamenters (the values used in each run are shown in the table below). This can be acheived by updating the module ```snowML.LSTM.set_hyperparams``` in the snow.LSTM package or manually such as with the function below and updating the desired values. 
+
+```
+# python
+def create_hyper_dict():
+    param_dict = {
+        "hidden_size": 2**6,
+        "num_class": 1,
+        "num_layers": 1,
+        "dropout": 0.5,
+        "learning_rate": 3e-4,  
+        "n_epochs": 10,
+        "lookback": 180,
+        "batch_size": 64,
+        "n_steps": 1,
+        "num_workers": 8,
+        "var_list": ["mean_pr", "mean_tair"]
+        "expirement_name": "Single All"
+        "loss_type": "mse",
+        "mse_lambda": 1, 
+        "train_size_dimension": "time",
+        "train_size_fraction": .67, 
+        "mlflow_tracking_uri": "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
+    }
+    return param_dict
+
+params = create_hyper_dict()
+```
+
+
+
+
 The results for this expirement were produced using the `snowML.LSTM` package in this repo.  The hyperparameters were set as shown in the section below. The expirement was then run by importing the module `local-training-expirement.py` and by calling the function
 `run_expirement()` Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes. 
 

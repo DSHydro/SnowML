@@ -159,9 +159,9 @@ from snowML.Scripts import select_hucs_local_training as shl
 hucs = shl.assemble_huc_list()
 ```
 
-5. **Run the expirement.**  The code below will run the expirement, logging Train_KGE, Test_KGE, Train_MSE, and Test_MSE values in mlflow for each Huc12 unit after each epoch.  In the final epoch, the trained model and a swe predictoin plot based on the train/test split will also be logged for each huc.
+5. **Run the expirement.**  The code below will run the expirement, logging Train_KGE, Test_KGE, Train_MSE, and Test_MSE values in mlflow for each Huc12 unit after each epoch. In the final epoch, the trained model and a swe prediction plot based on the train/test split will also be logged for each huc.
 ```
-from snowML.Scripts import local-training-expirement as lt
+from snowML.Scripts import local_training_expirement as lt
 lt.run_expirement(hucs, params)
 ``` 
 

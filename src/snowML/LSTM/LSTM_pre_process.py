@@ -125,7 +125,7 @@ def pre_process_separate(huc_list, var_list, bucket_dict=None):
         - df_dict (dict): Dictionary where keys are HUCs and values are 
             normalized DataFrames.
     """
-            
+
     df_dict = {}  # Initialize dictionary
     if bucket_dict is None:
         bucket_dict = sdc.create_bucket_dict("prod")
@@ -133,8 +133,8 @@ def pre_process_separate(huc_list, var_list, bucket_dict=None):
 
     # Initialize an empty list to collect all DataFrames for global statistics calculation
     all_dfs = []
-    
-    # Step 1: Load all dataframes 
+
+    # Step 1: Load all dataframes
     for huc in huc_list:
         file_name = f"model_ready_huc{huc}.csv"
         df = du.s3_to_df(file_name, bucket_name)
@@ -151,8 +151,8 @@ def pre_process_separate(huc_list, var_list, bucket_dict=None):
         all_dfs.append(df)  # Collect DataFrames for global normalization
         df_dict[huc] = df  # Store DataFrame in dictionary
 
-    
-    # Step 2: Normalzie each df individually 
+
+    # Step 2: Normalzie each df individually
     for huc, df in df_dict.items():
         mean = df.mean()
         std = df.std()

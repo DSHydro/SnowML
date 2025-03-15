@@ -1,4 +1,5 @@
-""" Module to plot actual and predicted model values"""
+""" Module to plot actual and predicted model values."""
+
 # pylint: disable=C0103
 
 import matplotlib.pyplot as plt

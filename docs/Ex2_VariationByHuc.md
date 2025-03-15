@@ -72,7 +72,7 @@ Results from pair-wise Welch's t-test of null hypothesis of equality of mean_kge
 |:---:|:---:|
 | ![Montane Forest](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20Hucs%2C%20Montane%20Forest%20Only.png) | ![Ephemeral](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_mean_elevation_Locally%20Trained%20Hucs%2C%20Ephemeral%20Only.png) |
 
-The R-squared value for each chart represents the proportion of the variance in Test KGE observed between different Hucs that can be attributed to differences in mean basin elvation. 
+*Graph of Test KGE for each Huc12 subwatershed versus the mean elevation of that watershed for (clockwise from top left) all snow types, just maritime, just ephemral, and just Montane Forest. For all snow types, ~33% of the variance in Test KGE can be explained by elevation.*
 
 
 ## Figure 4- Goodness of Fit Measures By Basin

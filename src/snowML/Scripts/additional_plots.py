@@ -1,86 +1,115 @@
 """ Module to make poster-ready plots"""
 # pylint: disable=C0103
 
-from snowML.LSTM import LSTM_evaluate as eval
-from snowML.Scripts import additional_plots as plots
-import matplotlib.pyplot as plt
+import ast
 import mlflow
 import numpy as np
+from snowML.LSTM import LSTM_evaluate as eval
+from snowML.LSTM import LSTM_pre_process as pp
+import matplotlib.pyplot as plt
 
 
-def load_model(model_uri):
-    """
-    Load a PyTorch model from the given URI using MLflow.
-
-    Args:
-        model_uri (str): The URI of the model to load.
-
-    Returns:
-        torch.nn.Module: The loaded PyTorch model.
-    """
-    print(model_uri)
-    model = mlflow.pytorch.load_model(model_uri)
-    print(model)
-    return model
 
 def plot_basic(data, y_train_pred, y_test_pred, train_size, huc_id, 
-         lookback= 180, train_size_dim = 'huc', mlflow_on=False, metrics_dict=None):
+         params, mlflow_on=False, metrics_dict=None):
     """
     Plots the actual and predicted SWE (Snow Water Equivalent) values for 
     training and testing datasets.
+
+    Args:
+        data (pd.DataFrame): DataFrame containing the actual SWE values 
+            with a datetime index.
+        y_train_pred (np.ndarray): Array of predicted SWE for the training set.
+        y_test_pred (np.ndarray): Array of predicted SWE for the testing set.
+        train_size (int): The size of the training dataset.
+        huc_id (str): Hydrologic Unit Code identifier for the dataset.
+        params (dict): Dictionary containing parameters for the plot, including:
+            - "train_size_dimension" (str): Training size dim, e.g., "time".
+            - "lookback" (int): Number of time steps to consider for predictions.
+            - "expirement_name" (str): Name of experiment for labeling the plot.
+        metrics_dict (dict, optional): Dictionary of metrics to display on the plot. Defaults to None.
+
+    Returns:
+        None
     """
+
     train_plot = np.full_like(data['mean_swe'].values, np.nan, dtype=float)
     test_plot = np.full_like(data['mean_swe'].values, np.nan, dtype=float)
 
     # Convert tensor to numpy safely
-    if train_size_dim == "time":
-        train_plot[lookback:train_size] = y_train_pred.flatten()
-    test_plot[train_size + lookback : len(data)] = y_test_pred.flatten()
+    if params["train_size_dimension"] == "time":
+        train_plot[params["lookback"]:train_size] = y_train_pred.flatten()
+    test_plot[train_size + params["lookback"] : len(data)] = y_test_pred.flatten()
 
     # Plot
     plt.figure(figsize=(12, 6))
     #plt.ylim(0, 2)
-    plt.plot(data.index, data['mean_swe'], c='black', label='SWE Estimates From Physics Based Model')
+    plt.plot(data.index, data['mean_swe'], c='b', label='SWE Estimates From Physics Based Model')
     if params["train_size_dimension"] == "time":
-        plt.plot(data.index, train_plot, c='#E6E6FA', label='LSTM Estimates Training Phase')
+        plt.plot(data.index, train_plot, c='#E6E6FA', label='LSTM Predictions Training Phase')
+    plt.subplots_adjust(right=0.8)
     plt.plot(
-        data.index[train_size + lookback],
-        test_plot[train_size + lookback:],
+        data.index[train_size + params["lookback"]:],
+        test_plot[train_size + params["lookback"]:],
         c='g',
-        label='LSTM Predictions - Forecasting'
+        label='LSTM Predictions Forecasting Phase'
     )
     plt.legend()
     plt.xlabel('Date')
-    plt.ylabel('SWE')
-    ttle = f"SWE_Predictions_for_huc{huc_id}"
+    plt.ylabel('SWE (meters)')
+    mdl_name = params["expirement_name"]
+    ttle = f"SWE_Predictions_for_huc_{huc_id}"
     plt.title(ttle)
 
-    # Display metrics in the upper-right corner if metrics_dict is not None
     if metrics_dict is not None:
-        ax = plt.gca()
         metric_text = "\n".join([f"{key}: {value:.3f}" for key, value in metrics_dict.items()])
-    
-        ax.text(
-            0.02, 0.98, metric_text, transform=ax.transAxes, ha='left', va='top',
-            fontsize=10, color='black', bbox=dict(facecolor='white', alpha=0.7, edgecolor='black')
+        plt.gcf().text(
+            1.02, 0.5, metric_text, fontsize=10, color='black',
+            ha='left', va='center', weight='bold', transform=plt.gca().transAxes
         )
 
     if mlflow_on:
         mlflow.log_figure(plt.gcf(), ttle + ".png")
     else:
-        plt.savefig(f"docs/swe_prediction_plots/{ttle}.png")
+        plt.savefig(f"docs/swe_prediction_plots/{ttle}.png", bbox_inches="tight")
     plt.close()
 
 
-huc_to_plot = '170300010701'
-test_hucs = [huc_to_plot]
+def plot_last_n_years(n, data, y_train_pred, y_test_pred, train_size, huc_id, 
+         params, mlflow_on=False):
 
-model_uri = "s3://sues-test/298/51884b406ec545ec96763d9eefd38c36/artifacts/epoch27_model" 
-run_id = "d71b47a8db534a059578162b9a8808b7" 
-mlflow_tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML" 
+    train_plot = np.full_like(data['mean_swe'].values, np.nan, dtype=float)
+    test_plot = np.full_like(data['mean_swe'].values, np.nan, dtype=float)
 
-model_dawgs = load_model(model_uri)
+    # Convert tensor to numpy safely
+    if params["train_size_dimension"] == "time":
+        train_plot[params["lookback"]:train_size] = y_train_pred.flatten()
+    test_plot[train_size + params["lookback"] : len(data)] = y_test_pred.flatten()
 
-metric_dict, data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size_main= eval.eval_from_saved_model(model_dawgs,
-         df_dict_test, huc_to_plot)
-plot.plot_basic()
+    # Plot
+    plt.figure(figsize=(12, 6))
+    #plt.ylim(0, 2)
+    plt.plot(data.index[-n*365:], data['mean_swe'][-n*365:], c='b', label='SWE Estimates From Physics Based Model')
+    if params["train_size_dimension"] == "time":
+        plt.plot(data.index, train_plot, c='#E6E6FA', label='LSTM Predictions Training Phase')
+    plt.subplots_adjust(right=0.8)
+    plt.plot(
+        data.index[-n*365:],
+        test_plot[-n*365:],
+        c='g',
+        label='LSTM Predictions Forecasting Phase'
+    )
+    plt.legend()
+    plt.xlabel('Date')
+    plt.ylabel('SWE (meters)')
+    mdl_name = params["expirement_name"]
+    ttle = f"SWE_Predictions_for_huc_{huc_id}_last_{n}_years"
+    plt.title(ttle)
+
+   
+
+    if mlflow_on:
+        mlflow.log_figure(plt.gcf(), ttle + ".png")
+    else:
+        plt.savefig(f"docs/swe_prediction_plots/{ttle}.png", bbox_inches="tight")
+    plt.close()

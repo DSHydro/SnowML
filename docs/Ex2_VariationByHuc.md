@@ -90,6 +90,8 @@ Results from pair-wise Welch's t-test of null hypothesis of equality of mean_kge
 |------------------------------|------------------------------------------|
 | ![KGE vs. MSE - All Snow Types](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_Test%20MSE_by_Snow_Type.png)| ![KGE vs. MSE - Maritime and Montane Forest](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_Test%20MSE_by_Snow_Type%2C%20Excluding%20Hucs%20where%20Ephemeral%20Snow%20Predominates.png)|
 
+*Scatterplot showing Test KGE vs. Test MSE for each of the HUC12 sub-watersheds included in Expirement 2 for all snow types (left) and for Maritime and Montane Forest only (right).  Higher KGE (closer to 1) represents a better fit, and lower MSE (closer to 0) represents a better fit. The goodness of fit measusures diverge significantly in some Huc12 sub-watersheds, especially for ephemeral snow.  This divergense suggests opportunities for improved results with more nuanced loss-function training strategies.*
+
 
 
 

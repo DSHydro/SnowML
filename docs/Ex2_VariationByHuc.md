@@ -140,8 +140,8 @@ def create_hyper_dict():
         "batch_size": 64,
         "n_steps": 1,
         "num_workers": 8,
-        "var_list": ["mean_pr", "mean_tair"]
-        "expirement_name": "Single All"
+        "var_list": ["mean_pr", "mean_tair"],
+        "expirement_name": "Single All",
         "loss_type": "mse",
         "mse_lambda": 1, 
         "train_size_dimension": "time",

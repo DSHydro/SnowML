@@ -4,7 +4,7 @@
 # # pylint: disable=C0103
 
 
-import importlib
+
 import torch
 from torch import optim
 import mlflow
@@ -12,9 +12,6 @@ from snowML.LSTM import LSTM_train as LSTM_tr
 from snowML.LSTM import LSTM_model as LSTM_mod
 from snowML.LSTM import set_hyperparams as sh
 from snowML.LSTM import LSTM_pre_process as pp
-
-importlib.reload(LSTM_tr)
-importlib.reload(sh)
 
 
 def set_ML_server(params):
@@ -25,8 +22,8 @@ def set_ML_server(params):
         None
     """
     # Set our tracking server uri for logging
-    #tracking_uri = "https://t-izowcn0gky2o.us-west-2.experiments.sagemaker.aws"
-    tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
+    tracking_uri = params["mlflow_tracking_uri"]
+    #tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
     mlflow.set_tracking_uri(tracking_uri)
 
     # Define the expirement
@@ -71,10 +68,14 @@ def initialize_model(params):
     return model_dawgs, optimizer_dawgs, loss_fn_dawgs
 
 
-def run_local_exp(hucs, train_size_frac, params = None):
+def run_local_exp(hucs, params = None):
     if params is None:
         params = sh.create_hyper_dict()
-    df_dict, _, _ = pp.pre_process(hucs, params["var_list"])
+
+    # normalize each df separately when local training 
+    df_dict = pp.pre_process_separate(hucs, params["var_list"])
+    print("df_dict is", df_dict)
+    train_size_frac = params["train_size_fraction"]
 
     set_ML_server(params)
     model_dawgs, optimizer_dawgs, loss_fn_dawgs = initialize_model(params)
@@ -83,14 +84,13 @@ def run_local_exp(hucs, train_size_frac, params = None):
         # log all the params
         mlflow.log_params(params)
         # log the hucs & train size fraction
-        mlflow.log_param("train_size_fraction", train_size_frac)
         mlflow.log_param("hucs", hucs)
 
         for huc in df_dict.keys():
             print(f"Training on HUC {huc}")
             df = df_dict[huc]
             df_dict_small = {huc: df}
-            df_train, df_test, _, _ = pp.train_test_split_time(df, train_size_frac)
+            df_train, _, _, _ = pp.train_test_split_time(df, train_size_frac)
 
             for epoch in range(params["n_epochs"]):
                 print(f"Epoch {epoch}")
@@ -113,5 +113,4 @@ def run_local_exp(hucs, train_size_frac, params = None):
                     epoch)
 
             # log the model
-            mlflow.pytorch.log_model(model_dawgs,
-                                     artifact_path=f"model_{huc}")
+            mlflow.pytorch.log_model(model_dawgs,artifact_path=f"model_{huc}")

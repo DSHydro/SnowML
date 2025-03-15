@@ -2,7 +2,7 @@
 
 In the second experiment, we examined how the simple, local training LSTM model performed accross a variety of Huc12 (sub-watershed) units. We determined to use the smaller, Huc12 sub-watershed scale, rather than the Huc12 watershed scale used in the ProtoType Model and Expirement 1, in order to increase the data available for training. Again the model aimed to predict swe values using an LSTM model with mean_temperature and mean_precipitation as the feature inputs.  
 
-We examined 534 sub-watersheds with a variety of predominant snow types - Ephemeral, Maritime, and Montane Forest. Figure 1 maps the Huc12 units by snow type. 
+We examined 533 sub-watersheds with a variety of predominant snow types - Ephemeral, Maritime, and Montane Forest. Figure 1 maps the Huc12 units by snow type. 
 
 Each individual Huc12 unit was trained using data only from that same Huc12 unit, and tested on later years of data using a train/test split of .67.  
 
@@ -82,11 +82,15 @@ Results from pair-wise Welch's t-test of null hypothesis of equality of mean_kge
 |--------------|--------------|
 | ![KGE By Basin](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20KGE%20by%20Basins%20-%20Locally%20Trained%20Sub-Watersheds%20_Excludes%20Ephemeral_.png)| ![MSE By Basin](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20MSE%20by%20Basins%20-%20Locally%20Trained%20Sub-Watersheds%20_Excludes%20Ephemeral%20Sub-Watersheds_.png)|
 
+*Boxplot of Test KGE values (left) and Test MSE value (right) for the Huc12, locally trained models, grouped by the Huc08 sub-Basin in which they reside.  Huc12 sub-watersheds predominated by Ephemeral Snow were excluded from these boxplots.  All sub-Basins are from the Pacific Northwest, as depicted in Figure 1, above. Water managers in basins with high Test KGE and low Test MSE values could consider using the locally trained models as an interim, real-time forecasting tool based on precipitation data and temperature forecasts.*
+
 
 ## Figure5 
 | TEst KGE vs. Test MSE - All Snow Types | Test KGE vs. Test MSE - Maritime and Montane Forest |
 |------------------------------|------------------------------------------|
 | ![KGE vs. MSE - All Snow Types](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_Test%20MSE_by_Snow_Type.png)| ![KGE vs. MSE - Maritime and Montane Forest](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Test%20KGE_vs_Test%20MSE_by_Snow_Type%2C%20Excluding%20Hucs%20where%20Ephemeral%20Snow%20Predominates.png)|
+
+*Scatterplot showing Test KGE vs. Test MSE for each of the HUC12 sub-watersheds included in Expirement 2 for all snow types (left) and for Maritime and Montane Forest only (right).  Higher KGE (closer to 1) represents a better fit, and lower MSE (closer to 0) represents a better fit. The goodness of fit measusures diverge significantly in some Huc12 sub-watersheds, especially for ephemeral snow.  This divergense suggests opportunities for improved results with more nuanced loss-function training strategies.*
 
 
 
@@ -108,11 +112,60 @@ KGE values range from negative infinity to 1, with a KGE value of 1 indicating p
 
 
 # How to Reproduce The Results
-The results for this expirement were produced using the `snowML.LSTM` package in this repo.  The hyperparameters were set as shown in the section below. The expirement was then run by importing the module `local-training-expirement.py` and by calling the function
-`run_expirement()` Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes. 
+The results for this expirement were produced using the snowML package in this repo, using the steps below.  Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes.
 
+1. **Set Up Your Run-Time Environment.** You will need an IDE that can execute python scripts and a terminal for bash commands, as well as an mlflow tracking server.  We recommend Sagemaker Studio which enables you to insantiate both an mlflow server and a Code Spaces IDE from within the Studio.  Take note of the tracking_uri for the mlflow server that you set up, as you'll need it in step 3. If working from Sagemaker Studio, the mlflow tracking_uri should look something like this: "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML."
 
-The metrics discussed above were downloaded from ML flow using [this notebook](https://github.com/DSHydro/SnowML/blob/d1653c0b190fa6e54b4473dc1d4808fe5c590e81/notebooks/Ex2_VarianceByHuc/DownloadMetrics.ipynb) and analyzed using [this notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/LSTM_By_Huc_with_warm_colors.ipynb)). 
+2.  **Clone the SnowML Repo and Install SnowML package.**
+```
+bash
+git clone https://github.com/DSHydro/SnowML.git 
+cd SnowML # make sure to switch into the snowML directory and run all subsequent code from there
+pip install . #installs the SnowML package
+```
+
+3. **Create a dictionary called "params".** From within python, create a dictionary of "params" with the desired values of the relevant hyperparamenters (the values used in each run are shown in the table below). This can be acheived by updating the module ```snowML.LSTM.set_hyperparams``` in the snow.LSTM package or manually such as with the function below and updating the desired values. 
+
+```
+# python
+def create_hyper_dict():
+    param_dict = {
+        "hidden_size": 2**6,
+        "num_class": 1,
+        "num_layers": 1,
+        "dropout": 0.5,
+        "learning_rate": 1e-3,  
+        "n_epochs": 10,
+        "lookback": 180,
+        "batch_size": 64,
+        "n_steps": 1,
+        "num_workers": 8,
+        "var_list": ["mean_pr", "mean_tair"],
+        "expirement_name": "Single All",
+        "loss_type": "mse",
+        "mse_lambda": 1, 
+        "train_size_dimension": "time",
+        "train_size_fraction": .67, 
+        "mlflow_tracking_uri": "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
+    }
+    return param_dict
+
+params = create_hyper_dict()
+```
+
+4. **Define the hucs that will be used in this expirement.**  To resuse the same hucs as discussed here, run the code below, which will create a list of 533 huc12 sub-watersheds. (This may take a minute or two.)  
+```
+from snowML.Scripts import select_hucs_local_training as shl
+hucs = shl.assemble_huc_list()
+```
+
+5. **Run the expirement.**  The code below will run the expirement, logging Train_KGE, Test_KGE, Train_MSE, and Test_MSE values in mlflow for each Huc12 unit after each epoch. In the final epoch, the trained model and a swe prediction plot based on the train/test split will also be logged for each huc.
+```
+from snowML.Scripts import local_training_expirement as lt
+lt.run_local_exp(hucs, params)
+``` 
+
+6.  **Download metrics and analyze.**  The metrics discussed above were downloaded from ML flow using [this notebook](https://github.com/DSHydro/SnowML/blob/d1653c0b190fa6e54b4473dc1d4808fe5c590e81/notebooks/Ex2_VarianceByHuc/DownloadMetrics.ipynb) and analyzed using [this notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/LSTM_By_Huc_with_warm_colors.ipynb)). 
 
 # Model Parameters
 

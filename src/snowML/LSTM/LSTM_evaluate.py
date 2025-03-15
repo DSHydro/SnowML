@@ -48,6 +48,12 @@ def get_params(tracking_uri, run_id):
     mlflow.set_tracking_uri(tracking_uri)
     run = mlflow.get_run(run_id)
     params = run.data.params
+      # reformat some lists that got converted to string literals
+    for key in ["var_list", "train_hucs", "val_hucs"]:
+        params[key] = ast.literal_eval(params[key])
+    # convert some strings back to int that we need for predict and plotting
+    for key in ['lookback', 'train_size_fraction']:
+        params[key] = int(params[key])
     return params
 
 
@@ -123,9 +129,9 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
         params["train_size_fraction"] = 0
         data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size_main = LSTM_train.predict(
             model_dawgs, df_dict, huc, params)
-        test_mse = LSTM_train.mean_squared_error(y_test_true, y_test_pred)
-        test_kge, _, _, _ = LSTM_train.kling_gupta_efficiency(y_test_true, y_test_pred)
-        test_r2 = r2_score(y_test_true, y_test_pred)
+        test_mse = LSTM_train.mean_squared_error(y_te_true, y_te_pred)
+        test_kge, _, _, _ = LSTM_train.kling_gupta_efficiency(y_te_true, y_te_pred)
+        test_r2 = r2_score(y_te_true, y_te_pred)
         metric_dict = dict(zip(["test_mse", "test_kge", "test_r2"], [test_mse, test_kge, test_r2]))
         LSTM_plot2.plot(data, y_tr_pred, y_te_pred, train_size_main,
             huc, params, metrics_dict = metric_dict)
@@ -143,12 +149,6 @@ def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri, mlf
     model_dawgs = load_model(model_uri)
     params = get_params(mlflow_tracking_uri, run_id)
 
-    # reformat some lists that got converted to string literals
-    for key in ["var_list", "train_hucs", "val_hucs"]:
-        params[key] = ast.literal_eval(params[key])
-    # convert some strings back to int that we need for predict and plotting
-    for key in ['lookback', 'train_size_fraction']:
-        params[key] = int(params[key])
 
     # assemble test data
     df_dict_test = assemble_df_dict(test_hucs, params["var_list"])
@@ -162,7 +162,7 @@ def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri, mlf
             mlflow.log_param("model_uri", model_uri)
 
             for huc in test_hucs:
-                metric_dict = eval_from_saved_model(model_dawgs, df_dict_test, huc, params)
+                metric_dict, _, _, _, _, _, _ = eval_from_saved_model(model_dawgs, df_dict_test, huc, params)
                 for met_nm, met in metric_dict.items():
                     mlflow.log_metric(f"{met_nm}_{str(huc)}", met)
                     print(f"{met_nm}: {met}")

@@ -134,7 +134,7 @@ def create_hyper_dict():
         "num_class": 1,
         "num_layers": 1,
         "dropout": 0.5,
-        "learning_rate": 3e-4,  
+        "learning_rate": 1e-3,  
         "n_epochs": 10,
         "lookback": 180,
         "batch_size": 64,

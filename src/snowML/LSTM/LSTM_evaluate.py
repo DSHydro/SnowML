@@ -50,7 +50,7 @@ def get_params(tracking_uri, run_id):
     # convert some strings back to int or float that we need for predict and plotting
     for key in ['lookback']:
         params[key] = int(params[key])
-    for key in ['train_size_fraction']: 
+    for key in ['train_size_fraction']:
         params[key] = float(params[key])
     return params
 
@@ -151,16 +151,16 @@ def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri, mlf
     model_dawgs = load_model(model_uri)
     params = get_params(mlflow_tracking_uri, run_id)
 
-
     # assemble test data
-    
-    if params["train_size_dimension"] == "huc": 
+
+    if params["train_size_dimension"] == "huc":
         df_dict_test = assemble_df_dict(test_hucs, params["var_list"])
         # normalize test data using same means/standard dev used in training
-        df_dict_test = renorm(params["train_hucs"],  params["val_hucs"], test_hucs, params["var_list"])
-    else: 
+        df_dict_test = renorm(params["train_hucs"],  params["val_hucs"],
+            test_hucs, params["var_list"])
+    else:
         # normalize test huc against itself only (as in training)
-        df_dict_test =  pp.z_score_normalize(test_hucs, params["var_list"])
+        df_dict_test =  pp.pre_process_separate(test_hucs, params["var_list"])
 
     if mlflow_log_now:
         mlflow.set_experiment("Predict_From_Pretrain")
@@ -170,7 +170,8 @@ def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri, mlf
             mlflow.log_param("model_uri", model_uri)
 
             for huc in test_hucs:
-                metric_dict,data, y_tr_pred, y_te_pred, _, _, train_size = eval_from_saved_model(model_dawgs, df_dict_test, huc, params)
+                metric_dict,data, y_tr_pred, y_te_pred, _, _, train_size = eval_from_saved_model(
+                    model_dawgs, df_dict_test, huc, params)
                 LSTM_plot2.plot(data, y_tr_pred, y_te_pred, train_size,
                     huc, params, metrics_dict = metric_dict)
                 for met_nm, met in metric_dict.items():
@@ -178,8 +179,8 @@ def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri, mlf
                     print(f"{met_nm}: {met}")
     else:
         for huc in test_hucs:
-            metric_dict, data, y_tr_pred, y_te_pred, _, _, train_size = eval_from_saved_model(model_dawgs,
-                                                df_dict_test, huc, params)
+            metric_dict, data, y_tr_pred, y_te_pred, _, _, train_size = eval_from_saved_model(
+                model_dawgs, df_dict_test, huc, params)
             LSTM_plot2.plot(data, y_tr_pred, y_te_pred, train_size,
                     huc, params, metrics_dict = metric_dict, mlflow_on=False)
             for met_nm, met in metric_dict.items():

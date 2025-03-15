@@ -82,6 +82,8 @@ Results from pair-wise Welch's t-test of null hypothesis of equality of mean_kge
 |--------------|--------------|
 | ![KGE By Basin](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20KGE%20by%20Basins%20-%20Locally%20Trained%20Sub-Watersheds%20_Excludes%20Ephemeral_.png)| ![MSE By Basin](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/charts/Boxplot%20of%20Test%20MSE%20by%20Basins%20-%20Locally%20Trained%20Sub-Watersheds%20_Excludes%20Ephemeral%20Sub-Watersheds_.png)|
 
+*Boxplot of Test KGE values (left) and Test MSE value (right) for the Huc12, locally trained models, grouped by the Huc08 sub-Basin in which they reside.  All sub-Basins are from the Pacific Northwest, as depicted in Figure 1, above. Water managers in basins with high Test KGE and low Test MSE values - for example Chelan, Naches, Upper Yakima  - could consider using the locally trained models as an interim, real-time forecasting tool based on precipitation data and temperature forecasts.*
+
 
 ## Figure5 
 | TEst KGE vs. Test MSE - All Snow Types | Test KGE vs. Test MSE - Maritime and Montane Forest |

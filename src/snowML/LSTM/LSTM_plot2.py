@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import mlflow
 import numpy as np
 
-def plot(data, y_train_pred, y_test_pred, train_size, huc_id, 
+def plot(data, y_train_pred, y_test_pred, train_size, huc_id,
          params, mlflow_on=True, metrics_dict=None):
     """
     Plots the actual and predicted SWE (Snow Water Equivalent) values for 
@@ -59,7 +59,7 @@ def plot(data, y_train_pred, y_test_pred, train_size, huc_id,
     if metrics_dict is not None:
         ax = plt.gca()
         metric_text = "\n".join([f"{key}: {value:.3f}" for key, value in metrics_dict.items()])
-    
+
         ax.text(
             0.02, 0.98, metric_text, transform=ax.transAxes, ha='left', va='top',
             fontsize=10, color='black', bbox=dict(facecolor='white', alpha=0.7, edgecolor='black')
@@ -70,4 +70,3 @@ def plot(data, y_train_pred, y_test_pred, train_size, huc_id,
     else:
         plt.savefig(f"docs/swe_prediction_plots/{ttle}.png")
     plt.close()
-

@@ -6,7 +6,7 @@ import mlflow
 import pandas as pd
 
 def create_run_dict_Ex3():
-    """ Create a dictionary of run_ids by recognizable short names """
+    """ Create a dictionary of run_ids from Ex3 by recognizable short names """
 
     run_dict = {}
     run_dict["base_1e-3"] = "a6c611d4c4cf410e9666796e3a8892b7" # debonair_dove (all 30)
@@ -23,12 +23,19 @@ def create_run_dict_Ex3():
 
 
 def create_run_dict_Ex3Eval():
+    """
+    Creates a dictionary containing run identifiers from Frosty Dawgs 
+    Ex 3, evaluation on Test Sets A and B. 
+    """
     run_dict = {}
     run_dict["Test_Set_A"] = "ccc1af0a3007412bb23cbd4a7cb0d431" # invincable snail
     run_dict["Test_Set_B"] = "148f7dddc0814c4f86bb93edbc425c4c" # bittersweet croc
     return run_dict
 
 def create_run_dict_Ex1():
+    """
+    Creates a dictionary containing run identifiers from Frosty Dawgs Ex. 1
+    """
     run_dict = {}
     run_dict["new10_rerun"] = "bfdd8164ce1f46d8a9418be41a70ffdf"
     run_dict["orig200_rerun"] = "02a508daab8e42b2a5f1baab194cd744"
@@ -69,6 +76,18 @@ def load_ml_metrics(
     return metrics_df
 
 def download_all(run_dict, folder ="mlflow_data/run_id_data", overwrite = False):
+    """
+    Downloads metrics for all runs specified in the run_dict and saves them as CSV files.
+
+    Args:
+        run_dict (dict): A dictionary where keys are run identifiers and values are run IDs.
+        folder (str, optional): The folder path where the CSV files will be saved. Defaults to "mlflow_data/run_id_data".
+        overwrite (bool, optional): If True, existing files will be overwritten. 
+            Defaults to False.
+
+    Returns:
+        None
+    """
     for run_id in run_dict.values():
         f_out =  f"{folder}/metrics_from_{run_id}.csv"
         print(f"processing file {f_out}")

@@ -162,7 +162,7 @@ hucs = shl.assemble_huc_list()
 5. **Run the expirement.**  The code below will run the expirement, logging Train_KGE, Test_KGE, Train_MSE, and Test_MSE values in mlflow for each Huc12 unit after each epoch. In the final epoch, the trained model and a swe prediction plot based on the train/test split will also be logged for each huc.
 ```
 from snowML.Scripts import local_training_expirement as lt
-lt.run_expirement(hucs, params)
+lt.run_local_exp(hucs, params)
 ``` 
 
 6.  **Download metrics and analyze.**  The metrics discussed above were downloaded from ML flow using [this notebook](https://github.com/DSHydro/SnowML/blob/d1653c0b190fa6e54b4473dc1d4808fe5c590e81/notebooks/Ex2_VarianceByHuc/DownloadMetrics.ipynb) and analyzed using [this notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/LSTM_By_Huc_with_warm_colors.ipynb)). 

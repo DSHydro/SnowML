@@ -117,6 +117,8 @@ Example prediction plots for Huc12 Units demonstrating s range of Test_KGE Value
 ## Figure 6 - Model Performance By Mean Elevation  
 ![Model Performance By Mean Elevation](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/charts/Test%20KGE_vs_mean_elevation_MultiHucModel_CombinedTestSets.png)
 
+*Plot of Test KGE for each Huc12 sub-watershed plotted against mean elevation for that sub-watershed. Unlike expirement 2, in this expirement 3 there is no statistically significant relationship between mean elevation and Test KGE*
+
 
 
 

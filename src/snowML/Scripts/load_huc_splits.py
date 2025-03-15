@@ -3,7 +3,7 @@
 import json
 
 
-def huc_split(f="src/Scripts/hucs_data.json"):
+def huc_split(f="src/snowML/Scripts/hucs_data.json"):
     with open(f, 'r') as file:
         data = json.load(file)
     tr = data["train_hucs"]

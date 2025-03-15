@@ -112,11 +112,7 @@ KGE values range from negative infinity to 1, with a KGE value of 1 indicating p
 
 
 # How to Reproduce The Results
-# How to Reproduce The Results
 The results for this expirement were produced using the snowML package in this repo, using the steps below.  Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes.
-
-
-
 
 1. **Set Up Your Run-Time Environment.** You will need an IDE that can execute python scripts and a terminal for bash commands, as well as an mlflow tracking server.  We recommend Sagemaker Studio which enables you to insantiate both an mlflow server and a Code Spaces IDE from within the Studio.  Take note of the tracking_uri for the mlflow server that you set up, as you'll need it in step 3. If working from Sagemaker Studio, the mlflow tracking_uri should look something like this: "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML."
 
@@ -157,14 +153,19 @@ def create_hyper_dict():
 params = create_hyper_dict()
 ```
 
+4. **Define the hucs that will be used in this expirement.**  To resuse the same hucs as discussed here, run the code below, which will create a list of 534 huc12 sub-watersheds.  
+```
+from snowML.Scripts import select_hucs_local_training as shl
+hucs = shl.assemble_huc_list()
+```
 
+5. ** Run the expirement.**  The code below will run the expirement, logging Train_KGE, Test_KGE, Train_MSE, and Test_MSE values in mlflow for each Huc12 unit after each epoch.  In the final epoch, the trained model and a swe predictoin plot based on the train/test split will also be logged for each huc.
+```
+from snowML.Scripts import local-training-expirement as lt
+lt.run_expirement(hucs, params)
+``` 
 
-
-The results for this expirement were produced using the `snowML.LSTM` package in this repo.  The hyperparameters were set as shown in the section below. The expirement was then run by importing the module `local-training-expirement.py` and by calling the function
-`run_expirement()` Note that during training data is split into batches and shuffled for randomness, so different runs of the same expirement may result in somewhat different outcomes. 
-
-
-The metrics discussed above were downloaded from ML flow using [this notebook](https://github.com/DSHydro/SnowML/blob/d1653c0b190fa6e54b4473dc1d4808fe5c590e81/notebooks/Ex2_VarianceByHuc/DownloadMetrics.ipynb) and analyzed using [this notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/LSTM_By_Huc_with_warm_colors.ipynb)). 
+6.  **Download metrics and analyze.**  The metrics discussed above were downloaded from ML flow using [this notebook](https://github.com/DSHydro/SnowML/blob/d1653c0b190fa6e54b4473dc1d4808fe5c590e81/notebooks/Ex2_VarianceByHuc/DownloadMetrics.ipynb) and analyzed using [this notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/LSTM_By_Huc_with_warm_colors.ipynb)). 
 
 # Model Parameters
 

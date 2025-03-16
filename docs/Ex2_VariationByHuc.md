@@ -123,6 +123,10 @@ git clone https://github.com/DSHydro/SnowML.git
 cd SnowML # make sure to switch into the snowML directory and run all subsequent code from there
 pip install . #installs the SnowML package
 ```
+**AFTER** installing snowML, also install easysnowdata (its a package conflict thing, trust us, do it in this order) 
+```
+pip install easysnowdata
+```
 
 3. **Create a dictionary called "params".** From within python, create a dictionary of "params" with the desired values of the relevant hyperparamenters (the values used in each run are shown in the table below). This can be acheived by updating the module ```snowML.LSTM.set_hyperparams``` in the snow.LSTM package or manually such as with the function below and updating the desired values. 
 

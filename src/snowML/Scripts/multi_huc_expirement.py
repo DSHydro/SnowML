@@ -1,19 +1,29 @@
 
 # # pylint: disable=C0103
+"""
+This module contains functions for setting up and running experiments with the 
+SnowML LSTM model. It includes functions to configure the MLflow tracking server, 
+initialize the model, train the model, and evaluate the model with validation set.
 
-# Script to run an expiriment on multiple HUCs
+Functions:
+    set_ML_server(params)
+        Configures the MLflow tracking server and sets the experiment.
+    initialize_model(params)
+        Initializes the SnowML model with the given parameters.
+    run_expirement(train_hucs, val_hucs, params=None):
+        Runs an experiment with the given training and validation HUCs and
+          parameters.
+"""
+
+
+
 import torch
-import importlib
 from torch import optim
 import mlflow
 from snowML.LSTM import LSTM_train as LSTM_tr
 from snowML.LSTM import LSTM_model as LSTM_mod
 from snowML.LSTM import set_hyperparams as sh
 from snowML.LSTM import LSTM_pre_process as pp
-
-importlib.reload(LSTM_tr)
-importlib.reload(sh)
-importlib.reload(pp)
 
 
 def set_ML_server(params):
@@ -31,7 +41,7 @@ def set_ML_server(params):
 
 def initialize_model(params):
     """
-    Initializes the SnowModel with the given parameters.
+    Initializes the SnowML model with the given parameters.
 
     Args:
         params (dict): A dictionary containing the following keys:
@@ -69,6 +79,19 @@ def initialize_model(params):
 
 
 def run_expirement(train_hucs, val_hucs, params = None):
+    """
+    Runs an experiment by pre-training and validating a model on multiple
+    HUCs (Hydrologic Unit Codes).
+
+    Parameters:
+        train_hucs (list): List of HUCs to be used for training.
+        val_hucs (list): List of HUCs to be used for validation.
+        params (dict, optional): Dictionary of parameters for the experiment. If 
+            None, default parameters are created.
+
+        Returns:
+        None
+    """
     if params is None:
         params = sh.create_hyper_dict()
     tr_and_val_hucs = train_hucs + val_hucs

@@ -1,4 +1,5 @@
 """ Module to select hucs for train, test, validate for multi-huc training expirement"""
+# pylint: disable=C0103
 
 import random
 import json
@@ -7,10 +8,10 @@ from snowML.datapipe import get_geos as gg
 
 # Define constants
 
-huc_maritime = [17020009, 17110006, 17110005, 17110009, 17020011]
-huc_montane =  [17060207, 17010304, 17010302, 17060208]
-huc_all = huc_montane + huc_maritime
-INPUT_PAIRS = [[huc, '12'] for huc in huc_all]
+HUC_MARITIME = [17020009, 17110006, 17110005, 17110009, 17020011]
+HUC_MONTANE =  [17060207, 17010304, 17010302, 17060208]
+HUC_ALL = HUC_MONTANE + HUC_MARITIME
+INPUT_PAIRS = [[huc, '12'] for huc in HUC_ALL]
 
 TRAIN_SIZE_FRACTION = 0.6
 VAL_SIZE_FRACTION = 0.2
@@ -50,8 +51,18 @@ def assemble_huc_list(input_pairs):
     hucs = [huc for huc in hucs if huc not in EXCLUDED_HUCS]
     return hucs
 
-# function that filters geos to exlcude hucs where ephemeral is >= 50
 def snowclass_filter(geos):
+    """
+    Filters the given GeoDataFrame to include only those HUCs 
+    (Hydrologic Unit Codes)  where the 'Ephemeral' snow class is less than 50.
+
+    Parameters:
+    geos (GeoDataFrame): A GeoDataFrame containing geographic data with a 'huc_id' column.
+
+    Returns:
+    GeoDataFrame: A filtered GeoDataFrame containing only the HUCs with 
+        'Ephemeral' snow class less than 50.
+    """
     df_snow_types = st.snow_class(geos)
     # Filter huc_ids where Ephemeral < 50
     valid_huc_ids = df_snow_types.loc[df_snow_types["Ephemeral"] < 50, "huc_id"]
@@ -60,6 +71,23 @@ def snowclass_filter(geos):
 
 
 def split_by_huc(hucs, train_size_frac, val_size_frac):
+    """
+    Splits a list of Hydrologic Unit Codes (HUCs) into training, validation, 
+    and test sets.
+
+    Args:
+        hucs (list): List of HUC IDs to be split.
+        train_size_frac (float): Fraction of the HUCs to be used for the 
+            training set.
+        val_size_frac (float): Fraction of the HUCs to be used for the 
+            validation set.
+
+    Returns:
+        tuple: A tuple containing three lists:
+            - train_hucs (list): List of HUC IDs for the training set.
+            - val_hucs (list): List of HUC IDs for the validation set.
+            - test_hucs (list): List of HUC IDs for the test set.
+    """
     random.shuffle(hucs)  # Shuffle the HUC IDs randomly
     train_end = int(len(hucs) * train_size_frac)
     val_end = train_end + int(len(hucs) * val_size_frac)
@@ -78,16 +106,7 @@ def select_hucs(input_pairs, f_out="hucs_data.json"):
         "test_hucs": test_hucs
     }
     # Save the dictionary to a single JSON file
-    with open(f_out, "w") as json_file:
+    with open(f_out, "w", encoding="utf-8") as json_file:
         json.dump(hucs_dict, json_file, indent=2)
 
     return train_hucs, val_hucs, test_hucs
-
-def find_nan_dataframes(df_dict):
-    nan_dfs = []
-    for key, df in df_dict.items():
-        nan_count = df.isnull().sum().sum()
-        if nan_count > 0:
-            print(f"Warning: The DataFrame for '{key}' has {nan_count} NaN values.")
-            nan_dfs.append(key)
-    return nan_dfs

@@ -90,7 +90,7 @@ def run_local_exp(hucs, train_size_frac, params = None):
             print(f"Training on HUC {huc}")
             df = df_dict[huc]
             df_dict_small = {huc: df}
-            df_train, df_test, _, _ = pp.train_test_split_time(df, train_size_frac)
+            df_train, _, _, _ = pp.train_test_split_time(df, train_size_frac)
 
             for epoch in range(params["n_epochs"]):
                 print(f"Epoch {epoch}")

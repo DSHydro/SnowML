@@ -1,18 +1,16 @@
 """ Module to select hucs for train, test, validate for Expirement2"""
+# # pylint: disable=C0103
 
-import random
-import json
-from snowML.datapipe import snow_types as st
 from snowML.datapipe import get_geos as gg
 
 # Define constants
 
-huc_maritime = [17020009, 17020011, 17110005, 17110006,  17110009]
-huc_montane =  [17010304, 17010302, 17060207, 17060208]
-huc_mixed = [17030001, 17030002, 17110008]
-huc_ephemeral = [17030003, 17020010, 17110007]
-huc_all = huc_montane + huc_maritime + huc_mixed+huc_ephemeral
-INPUT_PAIRS = [[huc, '12'] for huc in huc_all]
+HUC_MARITIME = [17020009, 17020011, 17110005, 17110006,  17110009]
+HUC_MONTANE =  [17010304, 17010302, 17060207, 17060208]
+HUC_MIXED = [17030001, 17030002, 17110008]
+HUC_EPHEMERAL = [17030003, 17020010, 17110007]
+HUC_ALL = HUC_MONTANE + HUC_MARITIME + HUC_MIXED + HUC_EPHEMERAL
+INPUT_PAIRS = [[huc, '12'] for huc in HUC_ALL]
 
 
 # Excluded Hucs Due to Missing SWE Data (Canada)
@@ -21,7 +19,9 @@ EXCLUDED_HUCS_CA = ["1711000501", "1711000502", "1711000503", "171100050101", "1
                 "171100050302", "171100050303", "171100050304", "171100050305", \
                 "171100050306", "171100050401"] 
 # Plus Six Inadvertently (?) Excluded Hucs
-EXCLUDED_HUCS_ADDTL = ['171100060305', '171100060401', '171100060402', '171100060403', '171100060404', '171100060405', '171100060406']
+EXCLUDED_HUCS_ADDTL = ['171100060305', '171100060401', '171100060402',
+                        '171100060403', '171100060404', '171100060405',
+                        '171100060406']
 EXCLUDED_HUCS = EXCLUDED_HUCS_CA + EXCLUDED_HUCS_ADDTL
 
 
@@ -50,6 +50,20 @@ def assemble_huc_list(input_pairs=INPUT_PAIRS):
     return hucs
 
 def find_nan_dataframes(df_dict):
+    """
+    Identifies DataFrames with NaN values in a dictionary of DataFrames.
+
+    Args:
+        df_dict (dict): A dictionary where keys are identifiers (str) and 
+            values are pandas DataFrames.
+
+    Returns:
+        list: A list of keys corresponding to DataFrames that contain NaN values.
+
+    Prints:
+        A warning message for each DataFrame that contains NaN values, 
+            indicating the number of NaN values.
+    """
     nan_dfs = []
     for key, df in df_dict.items():
         nan_count = df.isnull().sum().sum()
@@ -57,4 +71,3 @@ def find_nan_dataframes(df_dict):
             print(f"Warning: The DataFrame for '{key}' has {nan_count} NaN values.")
             nan_dfs.append(key)
     return nan_dfs
-

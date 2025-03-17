@@ -125,6 +125,7 @@ pip install . #installs the SnowML package
 ```
 3.  **Set up Earth Engine Credentials**  Go to https://developers.google.com/earth-engine/guides/auth to set up earth engine credentials and initialize a project.   Then run the following code: 
 ```
+#python
 import ee
 ee.Authenticate(auth_mode = "notebook")
 ee.Initialize(project="ee-frostydawgs") # replace with your project name

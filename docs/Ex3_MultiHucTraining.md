@@ -134,7 +134,7 @@ The results for this expirement were produced using the snowML package in this r
 
 
 
-1. **Set Up Your Run-Time Environment.** You will need an IDE that can execute python scripts and a terminal for bash commands, as well as an mlflow tracking server.  We recommend Sagemaker Studio which enables you to insantiate both an mlflow server and a Code Spaces IDE from within the Studio.  Take note of the tracking_uri for the mlflow server that you set up, as you'll need it in step 3. If working from Sagemaker Studio, the mlflow tracking_uri should look something like this: "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML."
+1. **Set Up Your Run-Time Environment.** You will need an IDE that can execute python scripts and a terminal for bash commands, as well as an mlflow tracking server.  We recommend Sagemaker Studio which enables you to insantiate both an mlflow server and a Code Spaces IDE from within the Studio.  Take note of the tracking_uri for the mlflow server that you set up, as you'll need it in step 5. If working from Sagemaker Studio, the mlflow tracking_uri should look something like this: "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML."
 
 2.  **Clone the SnowML Repo and Install SnowML package.**
 ```
@@ -144,12 +144,21 @@ cd SnowML # make sure to switch into the snowML directory and run all subsequent
 pip install . #installs the SnowML package
 ```
 
-**AFTER** installing snowML, also install easysnowdata (its a package conflict thing, trust us, do it in this order) 
+3.  **Set up Earth Engine Credentials**  Go to https://developers.google.com/earth-engine/guides/auth to set up earth engine credentials and initialize a project.   Then run the following code: 
 ```
-pip install easysnowdata
+#python
+import ee
+ee.Authenticate(auth_mode = "notebook")
+```
+After successful authentication, Initialize your project.  Replace ee-frostydawgs with your project name you created above. 
+```
+ee.Initialize(project="ee-frostydawgs") # replace with your project name
 ```
 
-3. **Create a dictionary called "params".** From within python, create a dictionary of "params" with the desired values of the relevant hyperparamenters (the values used in each run are shown in the table below). This can be acheived by updating the module ```snowML.LSTM.set_hyperparams``` in the snow.LSTM package or manually such as with the function below and updating the desired values. 
+4.  **Ensure Access To Model Ready Data**  The code in this github repo assumes you have access to the frosty-dawgs S3 buckets discussed in our [data pipeline notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/DataPipe.ipynb). If instead you are using your own model-ready data, plesae update the ```snowML.datapipe set_data_constants``` module to correctly point to the S3 buckets where your data is stored.   
+
+
+5. **Create a dictionary called "params".** From within python, create a dictionary of "params" with the desired values of the relevant hyperparamenters (the values used in each run are shown in the table below). This can be acheived by updating the module ```snowML.LSTM.set_hyperparams``` in the snow.LSTM package or manually such as with the function below and updating the desired values. 
 
 ```
 # python
@@ -178,7 +187,7 @@ def create_hyper_dict():
 params = create_hyper_dict()
 ```
 
-4. **Define the hucs that will be used in the training, validation, and huc sets.**  To resuse the same hucs as discussed here, run the code below.  This code results in four lists of huc numbers, corresponding to the train, validation, and test sets A and B.  If you run this code from within an AWS enviornment, you may see warning messages about unclosed aiohttp connectors.  These are harmless.  (But annoying!  Please, help us out with a pull request if you know how to suppress, we've tried everything . . . )
+6. **Define the hucs that will be used in the training, validation, and huc sets.**  To resuse the same hucs as discussed here, run the code below.  This code results in four lists of huc numbers, corresponding to the train, validation, and test sets A and B.  If you run this code from within an AWS enviornment, you may see warning messages about unclosed aiohttp connectors.  These are harmless.  (But annoying!  Please, help us out with a pull request if you know how to suppress, we've tried everything . . . )
 
 ```
 from snowML.Scripts import load_huc_splits as lh
@@ -187,7 +196,7 @@ tr, val, test_A = lh.huc_split()
 test_B = cb.get_testB_huc_list()
 ```
 
-5. **Train the model.**  Train the model, evaluating the results on the validation test set at the end of each epoch.   This will take a while!  The runs described in this expirement each took between 20-30 hours.
+7. **Train the model.**  Train the model, evaluating the results on the validation test set at the end of each epoch.   This will take a while!  The runs described in this expirement each took between 20-30 hours.
 
 ```
 from snowML.Scripts import multi_huc_expirement as mhe
@@ -196,9 +205,9 @@ mhe.run_expirement(tr, val, params)
 
 **Repeat steps 3-5 for every combination of hyperparameters you wish to examine**
 
-6. **Select Model To Use For Test Evaluation.**  To determine which model you want to use for testing, you'll want to examine the metrics logged in mlflow for each model run.  This can be done directly in the mlflow ui, or you can download metrics using the ```download_metrics``` module (discussed below) from the ```snowML.Scripts``` package and analyze the metrics offline as we did in this notebook [Choose Best Model](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/Choose_Best_Model.ipynb).
+8. **Select Model To Use For Test Evaluation.**  To determine which model you want to use for testing, you'll want to examine the metrics logged in mlflow for each model run.  This can be done directly in the mlflow ui, or you can download metrics using the ```download_metrics``` module (discussed below) from the ```snowML.Scripts``` package and analyze the metrics offline as we did in this notebook [Choose Best Model](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/Choose_Best_Model.ipynb).
   
-7. **Get the identifiers for the chosen model.**  Once you have identified the model you want to test against, locate the model run_id from the MLflow server, and the model_uri for the model that corresponds to the epoch you want to use from that run. The model used for the metrics on this page was from epoch 27 using a learning rate of 3e-4 and feature variables temperature, precipitation, humidity, anbasin elevation. You'll also need your mlflow_tracking_uri again.  
+9. **Get the identifiers for the chosen model.**  Once you have identified the model you want to test against, locate the model run_id from the MLflow server, and the model_uri for the model that corresponds to the epoch you want to use from that run. The model used for the metrics on this page was from epoch 27 using a learning rate of 3e-4 and feature variables temperature, precipitation, humidity, anbasin elevation. You'll also need your mlflow_tracking_uri again.  
 
 ```
 model_uri = "s3://sues-test/298/51884b406ec545ec96763d9eefd38c36/artifacts/epoch27_model" # update with model you will use
@@ -206,13 +215,13 @@ run_id = "d71b47a8db534a059578162b9a8808b7" # update with run-id you will use
 mlflow_tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML" # update with your tracking_uri
 ```
 
-8. **Run a new mlflow expirement to log the test metrics.**
+10. **Run a new mlflow expirement to log the test metrics.**
 ```
 from snowML.LSTM import LSTM_evaluate as eval
 eval.predict_from_pretrain(test_B, run_id, model_uri, mlflow_tracking_uri)
 ```
 
-9. **Download the test metrics from the mlflow server**
+11. **Download the test metrics from the mlflow server**
 ```
 from snowML.Scripts import download_metrics as dm
 run_dict = <new_run_id>  # insert the run_id for the run created in step 8 here
@@ -221,7 +230,7 @@ dm.download_all(run_dict, folder ="mlflow_data/run_id_data")  # update folder to
 ```
 This will create a file called "metrics_from_{run_id}.csv" into the designated folder.  
 
-10.  **Analyze Away!**  From here, we performed analytics in Jupyter Notebooks, with some helper scripts from the SnowML package.  Please refer to the notebooks [Assemble Metrics](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/LSTM_By_Huc_Metric_Download_TestMetrics.ipynb), [Test Set A](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetA.ipynb), [Test Set B](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetB.ipynb) and [Combined Test Set](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetA_and_B.ipynb) for details.  
+12.  **Analyze Away!**  From here, we performed analytics in Jupyter Notebooks, with some helper scripts from the SnowML package.  Please refer to the notebooks [Assemble Metrics](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/LSTM_By_Huc_Metric_Download_TestMetrics.ipynb), [Test Set A](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetA.ipynb), [Test Set B](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetB.ipynb) and [Combined Test Set](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex3_MultiHucTraining/TestSetA_and_B.ipynb) for details.  
 
 
 

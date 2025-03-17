@@ -81,7 +81,8 @@ def download_all(run_dict, folder ="mlflow_data/run_id_data", overwrite = False)
 
     Args:
         run_dict (dict): A dictionary where keys are run identifiers and values are run IDs.
-        folder (str, optional): The folder path where the CSV files will be saved. Defaults to "mlflow_data/run_id_data".
+        folder (str, optional): The folder path where the CSV files will be saved. 
+            Defaults to "mlflow_data/run_id_data".
         overwrite (bool, optional): If True, existing files will be overwritten. 
             Defaults to False.
 

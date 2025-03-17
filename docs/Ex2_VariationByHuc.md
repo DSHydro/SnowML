@@ -123,12 +123,16 @@ git clone https://github.com/DSHydro/SnowML.git
 cd SnowML # make sure to switch into the snowML directory and run all subsequent code from there
 pip install . #installs the SnowML package
 ```
-**AFTER** installing snowML, also install easysnowdata (its a package conflict thing, trust us, do it in this order) 
+3.  **Set up Earth Engine Credentials**  Go to https://developers.google.com/earth-engine/guides/auth to set up earth engine credentials and initialize a project.   Then run the following code: 
 ```
-pip install easysnowdata
+import ee
+ee.Authenticate(auth_mode = "notebook")
+ee.Initialize(project="ee-frostydawgs") # replace with your project name
 ```
 
-3. **Create a dictionary called "params".** From within python, create a dictionary of "params" with the desired values of the relevant hyperparamenters (the values used in each run are shown in the table below). This can be acheived by updating the module ```snowML.LSTM.set_hyperparams``` in the snow.LSTM package or manually such as with the function below and updating the desired values. 
+4.  **Ensure Access To Model Ready Data**  The code in this github repo assumes you have access to the frosty-dawgs S3 buckets discussed in our [data pipeline notebook] (https://github.com/DSHydro/SnowML/blob/main/notebooks/DataPipe.ipynb). If instead you are using your own model-ready data, plesae update the '''snowML.datapipe set_data_constants``` module to correctly point to the S3 buckets where your data is stored.   
+
+5. **Create a dictionary called "params".** From within python, create a dictionary of "params" with the desired values of the relevant hyperparamenters (the values used in each run are shown in the table below). This can be acheived by updating the module ```snowML.LSTM.set_hyperparams``` in the snow.LSTM package or manually such as with the function below and updating the desired values. 
 
 ```
 # python
@@ -157,19 +161,19 @@ def create_hyper_dict():
 params = create_hyper_dict()
 ```
 
-4. **Define the hucs that will be used in this expirement.**  To resuse the same hucs as discussed here, run the code below, which will create a list of 533 huc12 sub-watersheds. (This may take a minute or two.)  
+6. **Define the hucs that will be used in this expirement.**  To resuse the same hucs as discussed here, run the code below, which will create a list of 533 huc12 sub-watersheds. (This may take a minute or two.)  
 ```
 from snowML.Scripts import select_hucs_local_training as shl
 hucs = shl.assemble_huc_list()
 ```
 
-5. **Run the expirement.**  The code below will run the expirement, logging Train_KGE, Test_KGE, Train_MSE, and Test_MSE values in mlflow for each Huc12 unit after each epoch. In the final epoch, the trained model and a swe prediction plot based on the train/test split will also be logged for each huc.
+7. **Run the expirement.**  The code below will run the expirement, logging Train_KGE, Test_KGE, Train_MSE, and Test_MSE values in mlflow for each Huc12 unit after each epoch. In the final epoch, the trained model and a swe prediction plot based on the train/test split will also be logged for each huc.
 ```
 from snowML.Scripts import local_training_expirement as lt
 lt.run_local_exp(hucs, params)
 ``` 
 
-6.  **Download metrics and analyze.**  The metrics discussed above were downloaded from ML flow using [this notebook](https://github.com/DSHydro/SnowML/blob/d1653c0b190fa6e54b4473dc1d4808fe5c590e81/notebooks/Ex2_VarianceByHuc/DownloadMetrics.ipynb) and analyzed using [this notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/LSTM_By_Huc_with_warm_colors.ipynb)). 
+8.  **Download metrics and analyze.**  The metrics discussed above were downloaded from ML flow using [this notebook](https://github.com/DSHydro/SnowML/blob/d1653c0b190fa6e54b4473dc1d4808fe5c590e81/notebooks/Ex2_VarianceByHuc/DownloadMetrics.ipynb) and analyzed using [this notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/Ex2_VarianceByHuc/LSTM_By_Huc_with_warm_colors.ipynb)). 
 
 # Model Parameters
 

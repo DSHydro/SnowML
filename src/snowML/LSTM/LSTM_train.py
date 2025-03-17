@@ -216,6 +216,7 @@ def predict (model_dawgs, df_dict, selected_key, params):
         - Otherwise, predictions are made on the entire dataset without a train-test split.
         - The function uses PyTorch tensors for predictions and converts outputs to NumPy arrays.
     """
+
     data = df_dict[selected_key]
     if params["train_size_dimension"] == "time":
         train_main, test_main, train_size_main, _  = pp.train_test_split_time(

@@ -22,7 +22,8 @@ def plot(data, y_train_pred, y_test_pred, train_size, huc_id,
             - "train_size_dimension" (str): Training size dim, e.g., "time".
             - "lookback" (int): Number of time steps to consider for predictions.
             - "expirement_name" (str): Name of experiment for labeling the plot.
-        metrics_dict (dict, optional): Dictionary of metrics to display on the plot. Defaults to None.
+        metrics_dict (dict, optional): Dictionary of metrics to display on the plot. 
+            Defaults to None.
 
     Returns:
         None

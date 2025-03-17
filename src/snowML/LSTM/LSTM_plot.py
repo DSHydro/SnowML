@@ -1,11 +1,13 @@
-""" Module to plot actual and predicted model values"""
+""" Module to plot actual and predicted model values."""
+
 # pylint: disable=C0103
 
 import matplotlib.pyplot as plt
 import mlflow
 import numpy as np
 
-def plot(data, y_train_pred, y_test_pred, train_size, huc_id, params, mlflow_on=True, metrics_dict=None):
+def plot(data, y_train_pred, y_test_pred, train_size, huc_id, params,
+    mlflow_on=True, metrics_dict=None):
     """
     Plots the actual and predicted SWE (Snow Water Equivalent) values for 
     training and testing datasets.
@@ -21,7 +23,8 @@ def plot(data, y_train_pred, y_test_pred, train_size, huc_id, params, mlflow_on=
             - "train_size_dimension" (str): Training size dim, e.g., "time".
             - "lookback" (int): Number of time steps to consider for predictions.
             - "expirement_name" (str): Name of experiment for labeling the plot.
-        metrics_dict (dict, optional): Dictionary of metrics to display on the plot. Defaults to None.
+        metrics_dict (dict, optional): Dictionary of metrics to display on the plot. 
+            Defaults to None.
 
     Returns:
         None
@@ -58,7 +61,7 @@ def plot(data, y_train_pred, y_test_pred, train_size, huc_id, params, mlflow_on=
     if metrics_dict is not None:
         ax = plt.gca()
         metric_text = "\n".join([f"{key}: {value:.3f}" for key, value in metrics_dict.items()])
-        
+
         ax.text(
             0.02, 0.98, metric_text, transform=ax.transAxes, ha='left', va='top',
             fontsize=10, color='black', bbox=dict(facecolor='white', alpha=0.7, edgecolor='black')

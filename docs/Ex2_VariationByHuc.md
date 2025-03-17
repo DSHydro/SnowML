@@ -128,8 +128,13 @@ pip install . #installs the SnowML package
 #python
 import ee
 ee.Authenticate(auth_mode = "notebook")
+```
+After successful authentication, Initialize your project.  Replace ee-frostydawgs with your project name you created above. 
+```
 ee.Initialize(project="ee-frostydawgs") # replace with your project name
 ```
+
+
 
 4.  **Ensure Access To Model Ready Data**  The code in this github repo assumes you have access to the frosty-dawgs S3 buckets discussed in our [data pipeline notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/DataPipe.ipynb). If instead you are using your own model-ready data, plesae update the ```snowML.datapipe set_data_constants``` module to correctly point to the S3 buckets where your data is stored.   
 

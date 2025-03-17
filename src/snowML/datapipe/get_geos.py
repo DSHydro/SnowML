@@ -9,6 +9,23 @@ import ee
 import geopandas as gpd
 
 
+def ee_creds(project="ee-frostydawgs"):
+    """Authenticate and initialize Google Earth Engine with the given project."""
+    ee.Authenticate(auth_mode="notebook")
+    try:
+        if ee.data.getAssetRoots():
+            return  True # A valid project is already initialized; do nothing
+    except Exception:
+        pass  # If checking fails, proceed to initialization
+
+    try:
+        ee.Initialize(project=project)
+        return True  # Indicate successful authentication and initialization
+    except Exception as exc:
+        print("Problem with Earth Engine credentials, please provide a valid project name")
+        return False
+
+
 def get_geos(huc_id, final_huc_lev, s3_save = False, bucket_nm = "shape-bronze"):
     """
     Retrieves and processes geographic data from the USGS Watershed Boundary 
@@ -32,12 +49,7 @@ def get_geos(huc_id, final_huc_lev, s3_save = False, bucket_nm = "shape-bronze")
         the input HUC levels are invalid.
     """
 
-    # make sure earth engine credentials are working
-    try:
-        ee.Authenticate()
-        ee.Initialize(project="ee-frostydawgs")
-    except Exception as exc:
-        raise ValueError("Problem with earth link credentials") from exc
+    ee_creds()
 
     # validate inputs
     huc_levs = ['02', '04', '06', '08', '10', '12']
@@ -130,7 +142,8 @@ def get_geos_with_name(huc_id, final_huc_lev, s3_save=False, bucket_nm="shape-br
     final_huc_lev = final_huc_lev.lstrip('0')
     filtered_collection = collection.filter(ee.Filter.stringStartsWith(f"huc{final_huc_lev}", huc_id))
 
-    output = filtered_collection.map(lambda feature: feature.select([f"huc{final_huc_lev}", "name"]))
+    output = filtered_collection.map(lambda feature: feature.select([f"huc{final_huc_lev}",
+        "name"]))
     geojson_dict = output.getInfo()
 
     for feature in geojson_dict["features"]:

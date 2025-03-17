@@ -131,7 +131,7 @@ ee.Authenticate(auth_mode = "notebook")
 ee.Initialize(project="ee-frostydawgs") # replace with your project name
 ```
 
-4.  **Ensure Access To Model Ready Data**  The code in this github repo assumes you have access to the frosty-dawgs S3 buckets discussed in our [data pipeline notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/DataPipe.ipynb). If instead you are using your own model-ready data, plesae update the '''snowML.datapipe set_data_constants``` module to correctly point to the S3 buckets where your data is stored.   
+4.  **Ensure Access To Model Ready Data**  The code in this github repo assumes you have access to the frosty-dawgs S3 buckets discussed in our [data pipeline notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/DataPipe.ipynb). If instead you are using your own model-ready data, plesae update the ```snowML.datapipe set_data_constants``` module to correctly point to the S3 buckets where your data is stored.   
 
 5. **Create a dictionary called "params".** From within python, create a dictionary of "params" with the desired values of the relevant hyperparamenters (the values used in each run are shown in the table below). This can be acheived by updating the module ```snowML.LSTM.set_hyperparams``` in the snow.LSTM package or manually such as with the function below and updating the desired values. 
 

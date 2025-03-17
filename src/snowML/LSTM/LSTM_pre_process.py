@@ -109,6 +109,62 @@ def pre_process(huc_list, var_list, bucket_dict=None):
     print(f"number of sub units for training is {len(df_dict)}")
     return df_dict, global_means, global_stds
 
+
+def pre_process_separate(huc_list, var_list, bucket_dict=None):
+    """
+    Pre-processes data for LSTM model training by loading, normalizing, and 
+    organizing data from multiple HUCs. Normalize each huc only against itself.
+
+    Args:
+        huc_list (list): List of Hydrologic Unit Codes (HUCs) to process.
+        var_list (list): List of variable names to keep in the DataFrames.
+        bucket_dict (dict, optional): Dictionary containing bucket information.
+          If None, a default bucket dictionary is created.
+
+    Returns:
+        - df_dict (dict): Dictionary where keys are HUCs and values are 
+            normalized DataFrames.
+    """
+
+    df_dict = {}  # Initialize dictionary
+    if bucket_dict is None:
+        bucket_dict = sdc.create_bucket_dict("prod")
+    bucket_name = bucket_dict["model-ready"]
+
+    # Initialize an empty list to collect all DataFrames for global statistics calculation
+    all_dfs = []
+
+    # Step 1: Load all dataframes
+    for huc in huc_list:
+        file_name = f"model_ready_huc{huc}.csv"
+        df = du.s3_to_df(file_name, bucket_name)
+        df['day'] = pd.to_datetime(df['day'])
+        df.set_index('day', inplace=True)  # Set 'day' as the index
+        # Collect only the columns of interest
+        col_to_keep = var_list + ["mean_swe"]
+
+        for col in col_to_keep:
+            if col not in df.columns:
+                print(f"huf{huc} is missing col {col}")
+
+        df = df[col_to_keep]
+        all_dfs.append(df)  # Collect DataFrames for global normalization
+        df_dict[huc] = df  # Store DataFrame in dictionary
+
+
+    # Step 2: Normalzie each df individually
+    for huc, df in df_dict.items():
+        mean = df.mean()
+        std = df.std()
+        df = z_score_normalize(df, mean, std)
+        df_dict[huc] = df  # Store normalized DataFrame
+
+    return df_dict
+
+
+
+
+
 def create_tensor(dataset, lookback, var_list):
     """Transform the time series into a tensor object.
 

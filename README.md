@@ -161,8 +161,6 @@ mlflow.set_experiment("<your expirement name here>")
 
 # Thank You 
 
-## Acknowledgements <br>
 Thank you to our sponsor Dr. Nicoleta Cristea and our capstone director Dr. Megan Hazan for their expertise, support, and guidance. We are deeply grateful for the time and effort you invested. Thank you to AWS and eScience Institute for computing support.  
 
-## The Prototyped LSTM Model** <br>
 The Frosty Dawgs team did not start from scratch.  We were grateful to use as our starting point an LSTM Model that had been prototyped in Skagit Basin ("Prototyped LSTM Model") developed by our MSDS classmate Shivam Agarwal and Dr. Cristea.

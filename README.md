@@ -148,7 +148,7 @@ Follow [installation instructions](https://mlflow.org/docs/latest/getting-starte
 3. Open a terminal, `cd` to a directory where you model will run, and then type the command `mlfow ui` and press entire.
 4. Keep the termial alive, open a browser, and navigate to `localhost:5000` and press enter. This should direct to the MLflow enterface where all experiments and things live.
 
-## Using MLflow From Sagemaker Studio
+### Using MLflow From Sagemaker Studio
 1. Instantiate an MLflow server instance from within Sagemaker Studio.  Take note of the tracking uri.  It should look soemthing like this  "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML."
 2. Before running an expirement, set the MLflow server and server name. 
 

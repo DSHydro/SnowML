@@ -60,9 +60,9 @@ Eight model variations were tested using four feature sets (Base, plus Solar Rad
 View the task directory for ideas on where to take this project and interesting ideas to include in an academic poster. Sort the directory by completion status, type of project, and document your progress.
 
 ## Future Research Directions:
-\-1) Investigate optimal hyperparameter tuning for different snow types and elevations.
-\-2) Expand feature inputs to include additional meteorological variables such as solar radiation, humidity, and wind speed.
-\-3) Further refine loss function strategies to better optimize for KGE without sacrificing training stability.
+1) Investigate optimal hyperparameter tuning for different snow types and elevations.
+2) Expand feature inputs to include additional meteorological variables such as solar radiation, humidity, and wind speed.
+3) Further refine loss function strategies to better optimize for KGE without sacrificing training stability.
 
 # Folder Guide
 

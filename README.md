@@ -6,11 +6,11 @@ Even with improvements to snowpack estimation with ML models, challenges such as
 
 This project houses three primary experiments: 
 
-\- 1) [Experiment 1: Use More Data](https://github.com/DSHydro/SnowML/blob/main/docs/Ex1_MoreData.md)
+1) [Experiment 1: Use More Data](https://github.com/DSHydro/SnowML/blob/main/docs/Ex1_MoreData.md)
 
-\- 2) [Investigate Model Performance Across Varied Huc-12 Sub-Watersheds](Experiment 2: https://github.com/DSHydro/SnowML/blob/main/docs/Ex2_VariationByHuc.md)
+2) [Investigate Model Performance Across Varied Huc-12 Sub-Watersheds](https://github.com/DSHydro/SnowML/blob/main/docs/Ex2_VariationByHuc.md)
 
-\- 3) [Multi-Watershed Training](https://github.com/DSHydro/SnowML/blob/main/docs/Ex3_MultiHucTraining.md)
+3) [Multi-Watershed Training](https://github.com/DSHydro/SnowML/blob/main/docs/Ex3_MultiHucTraining.md)
 
 **Team Name:** Frosty Dawgs (this is our informal name)
 

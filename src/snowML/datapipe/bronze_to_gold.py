@@ -45,7 +45,7 @@ def prep_bronze(var, bucket_dict = None):
 
     # Open the Zarr file directly with storage options
     ds = xr.open_zarr(zarr_store_url, consolidated=True, storage_options={'anon': False})
-    print("Opened Zarr file successfully.")
+    #print("Opened Zarr file successfully.")
 
     # Process the dataset as needed
     if var != "swe":

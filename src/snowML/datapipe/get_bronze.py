@@ -32,6 +32,7 @@ import s3fs
 import requests
 import xarray as xr
 from snowML.datapipe import data_utils as du
+from snowML.datapipe import set_data_constants as sdc
 
 def url_to_ds(url, requires_auth=False, username=None, password=None, timeout=60):
     """
@@ -59,7 +60,7 @@ def url_to_ds(url, requires_auth=False, username=None, password=None, timeout=60
             file_like_object = io.BytesIO(response.content)
 
             # Open the dataset from the file-like object
-            ds = xr.open_dataset(file_like_object, chunks={"day": -1, "lat": None, "lon": None})
+            ds = xr.open_dataset(file_like_object, engine="h5netcdf", chunks={"day": -1, "lat": None, "lon": None})
 
             return ds
 
@@ -205,7 +206,7 @@ def download_multiple_years(
 def get_bronze(var,
                bronze_bucket_nm,
                year_start = 1995,
-               year_end =  2023,
+               year_end =  2024,
                append_to = False):
     """
     Downloads raw data for the specified variable and saves it to an S3 bucket.
@@ -217,7 +218,7 @@ def get_bronze(var,
     year_start (int, optional): The starting year for the data download. 
         Must be >= 1983. Default is 1995.
     year_end (int, optional): The ending year for the data download. 
-        Must be < 2024. Default is 2023.
+        Must be <= 2025. Default is 2023.
     append_to (bool, optional): If True, appends data to the 
         existing data in the S3 bucket. Default is False.
 
@@ -225,11 +226,11 @@ def get_bronze(var,
     str: The S3 path where the data has been saved.
 
     Raises:
-    ValueError: If year_start is less than 1983 or year_end is greater than or equal to 2024.
+    ValueError: If year_start is less than 1983 or year_end is greater than 2025.
     """
     # Validate year input
-    if year_start < 1983 or year_end >= 2024:
-        raise ValueError("Year start must be >= 1983; year end must be < 2024")
+    if year_start < 1983 or year_end > 2025:
+        raise ValueError("Year start must be >= 1983; year end must be < 2025")
 
     # download raw and save to S3 directly
     s3_path = download_multiple_years(year_start,
@@ -239,3 +240,27 @@ def get_bronze(var,
                                       append_to = append_to)
 
     return s3_path
+
+
+def add_partial_year(year, var, bronze_bucket_nm): 
+    ds = download_year(var, year)
+    ds = process_year(ds, var)
+    dim_to_concat = "day"
+    ds = ds.chunk({dim_to_concat: 365, "lat": 97, "lon": 231})
+    s3_path = f"{var}_all.zarr"
+    ds.to_zarr(f"s3://{bronze_bucket_nm}/{s3_path}", mode="a",
+                           append_dim=dim_to_concat, consolidated=True)
+    print(f"Appended year {year} to s3://{bronze_bucket_nm}/{s3_path}")
+    return ds
+
+# update bronze data with year 2024 and 2025 
+def update_bronze(var, bucket_nm = None): 
+    if bucket_nm is None: 
+        bucket_dict = sdc.create_bucket_dict("prod")
+        bucket_nm = bucket_dict["bronze"]
+    # Add data for 2024
+    get_bronze(var, bucket_nm, year_start = 2024, year_end = 2024, append_to=True)
+    # Add data for 2025 partial year 
+    add_partial_year(2025, var, bucket_nm) 
+
+    

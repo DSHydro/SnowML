@@ -18,7 +18,7 @@ from snowML.datapipe import set_data_constants as sdc
 # define constants
 VAR_DICT = sdc.create_var_dict()
 
-def prep_bronze(var, bucket_dict = None):
+def prep_bronze(var, bucket_dict = None, append_start = None):
     """
     Prepares a dataset from a Zarr file stored in an S3 bucket.
 
@@ -55,6 +55,8 @@ def prep_bronze(var, bucket_dict = None):
         ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace=True)
 
     ds.rio.write_crs("EPSG:4326", inplace=True)
+    if append_start is not None: 
+        ds = ds.sel(day=slice(append_start, None))
     ds.close()  # Close the dataset after processing
 
     return ds
@@ -99,7 +101,7 @@ def ds_to_gold(ds, var):
     return daily_mean
 
 
-def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite):
+def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite, append_start):
     """
     Processes a single row(geometry) of data from bronze to gold.
 
@@ -114,6 +116,7 @@ def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite):
             final gold dataset.
         overwrite (bool): Flag indicating whether to 
             overwrite existing files in the gold bucket.
+        append(bool): Flag indicating whether this is (new) additional gold data
 
     Returns:
         None
@@ -122,11 +125,14 @@ def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite):
     print(f"Processing huc {idx+1}, huc_id: {huc_id}")
 
     # process to silver
-    small_ds = prep_bronze(var, bucket_dict=bucket_dict)
+    small_ds = prep_bronze(var, bucket_dict=bucket_dict, append_start = append_start)
     df_silver = create_mask(small_ds, row, crs)
 
     # process to gold
-    f_gold = f"mean_{var}_in_{huc_id}"
+    if append_start is not None:
+        f_gold = f"mean_{var}_in_{huc_id}_append"
+    else: 
+        f_gold = f"mean_{var}_in_{huc_id}"
     b_gold = bucket_dict.get("gold")
 
 
@@ -148,7 +154,13 @@ def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite):
         du.dat_to_s3(gold_df, b_gold, f_gold, file_type="csv")
         #du.elapsed(time_start)
 
-def process_geos(geos, var, bucket_dict= None, overwrite=False, max_wk = 8):
+def process_geos(
+    geos, 
+    var, 
+    bucket_dict= None, 
+    overwrite=False, 
+    max_wk = 8, 
+    append = False):
     """
     Processes geographical data in parallel using a ProcessPoolExecutor.
 
@@ -174,7 +186,7 @@ def process_geos(geos, var, bucket_dict= None, overwrite=False, max_wk = 8):
     # Use ProcessPoolExecutor to parallelize the tasks
     with ProcessPoolExecutor(max_workers=max_wk) as executor:
         futures = [
-            executor.submit(process_row, row, var, idx, bucket_dict, crs, var_name, overwrite)
+            executor.submit(process_row, row, var, idx, bucket_dict, crs, var_name, overwrite, append_start = None)
             for idx, row in geos.iterrows()
         ]
 

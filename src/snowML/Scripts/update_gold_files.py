@@ -16,7 +16,8 @@ def update():
         var_list = sdc.create_var_dict()
         geos = gg.get_geos(huc, '12')
         for var in var_list: 
-            btg.process_geos(geos, var, max_wk = 4, append_start = "2024-01-01")
+            if var != "swe": 
+                btg.process_geos(geos, var, max_wk = 4, append_start = "2024-01-01")
 
 
 

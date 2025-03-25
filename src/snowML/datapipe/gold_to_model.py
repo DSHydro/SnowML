@@ -176,6 +176,7 @@ def huc_model(huc_id, var_list = None, bucket_dict = None, overwrite_mod = False
     # add mean elevation for huc to model_df
     mean_elevation = gd.process_dem_all(huc_id, huc_lev, plot = False)
     model_df['Mean Elevation'] = mean_elevation
+   
 
     # add snow_types for huc
     snow_types, _, _ = st.process_all(huc_id, huc_lev)

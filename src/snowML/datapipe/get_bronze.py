@@ -90,6 +90,7 @@ def download_year(var, year):
     url = url_pattern.format(year=year)
     print(f"Downloading {url}")
     ds = url_to_ds(url)
+    print(ds)
     return ds
 
 def process_year(ds, var):

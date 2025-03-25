@@ -160,7 +160,7 @@ def process_geos(
     bucket_dict= None, 
     overwrite=False, 
     max_wk = 8, 
-    append = False):
+    append_start = False):
     """
     Processes geographical data in parallel using a ProcessPoolExecutor.
 
@@ -186,7 +186,7 @@ def process_geos(
     # Use ProcessPoolExecutor to parallelize the tasks
     with ProcessPoolExecutor(max_workers=max_wk) as executor:
         futures = [
-            executor.submit(process_row, row, var, idx, bucket_dict, crs, var_name, overwrite, append_start = None)
+            executor.submit(process_row, row, var, idx, bucket_dict, crs, var_name, overwrite, append_start = append_start)
             for idx, row in geos.iterrows()
         ]
 

@@ -8,6 +8,7 @@ Functions:
         bucket types to bucket names based on the specified type.
     create_var_dict(): Creates a dictionary mapping 
         variable abbreviations to their full names.
+        variable abbreviations to their full names.
 """
 
 

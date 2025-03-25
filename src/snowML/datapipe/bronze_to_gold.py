@@ -55,7 +55,7 @@ def prep_bronze(var, bucket_dict = None, append_start = None):
         ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat", inplace=True)
 
     ds.rio.write_crs("EPSG:4326", inplace=True)
-    if append_start is not None: 
+    if append_start is not None:
         ds = ds.sel(day=slice(append_start, None))
     ds.close()  # Close the dataset after processing
 
@@ -131,7 +131,7 @@ def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite, append_sta
     # process to gold
     if append_start is not None:
         f_gold = f"mean_{var}_in_{huc_id}_append"
-    else: 
+    else:
         f_gold = f"mean_{var}_in_{huc_id}"
     b_gold = bucket_dict.get("gold")
 
@@ -155,12 +155,12 @@ def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite, append_sta
         #du.elapsed(time_start)
 
 def process_geos(
-    geos, 
-    var, 
-    bucket_dict= None, 
-    overwrite=False, 
-    max_wk = 8, 
-    append_start = None):
+    geos,
+    var,
+    bucket_dict= None,
+    overwrite=False,
+    max_wk = 8,
+    append_start = False):
     """
     Processes geographical data in parallel using a ProcessPoolExecutor.
 
@@ -186,7 +186,8 @@ def process_geos(
     # Use ProcessPoolExecutor to parallelize the tasks
     with ProcessPoolExecutor(max_workers=max_wk) as executor:
         futures = [
-            executor.submit(process_row, row, var, idx, bucket_dict, crs, var_name, overwrite, append_start = append_start)
+            executor.submit(process_row, row, var, idx, bucket_dict, crs,
+                            var_name, overwrite, append_start = append_start)
             for idx, row in geos.iterrows()
         ]
 

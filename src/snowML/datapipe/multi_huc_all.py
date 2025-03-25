@@ -50,5 +50,5 @@ def process_multi_huc (huc_id_start,
             model_df = gtm.huc_model(huc_id, overwrite_mod= overwrite_mod)
         except Exception as e:
             print(f"Error processing huc{huc_id}: {e}, omitting from dataset")
-        return model_df
+    return model_df
     

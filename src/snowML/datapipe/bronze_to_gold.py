@@ -160,7 +160,7 @@ def process_geos(
     bucket_dict= None,
     overwrite=False,
     max_wk = 8,
-    append_start = None):
+    append_start = False):
     """
     Processes geographical data in parallel using a ProcessPoolExecutor.
 

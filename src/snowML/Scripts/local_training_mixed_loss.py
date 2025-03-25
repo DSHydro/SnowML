@@ -1,19 +1,17 @@
 
+""" Script to run an expiriment with local training on target huc(s) only"""
+
 # # pylint: disable=C0103
 
-# Script to run an expiriment on multiple HUCs
+
+
 import torch
-import importlib
 from torch import optim
 import mlflow
 from snowML.LSTM import LSTM_train as LSTM_tr
 from snowML.LSTM import LSTM_model as LSTM_mod
 from snowML.LSTM import set_hyperparams as sh
 from snowML.LSTM import LSTM_pre_process as pp
-
-importlib.reload(LSTM_tr)
-importlib.reload(sh)
-importlib.reload(pp)
 
 
 def set_ML_server(params):
@@ -24,7 +22,9 @@ def set_ML_server(params):
         None
     """
     # Set our tracking server uri for logging
-    mlflow.set_tracking_uri(params["mlflow_tracking_uri"])
+    tracking_uri = params["mlflow_tracking_uri"]
+    #tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
+    mlflow.set_tracking_uri(tracking_uri)
 
     # Define the expirement
     mlflow.set_experiment(params["expirement_name"])
@@ -60,59 +60,57 @@ def initialize_model(params):
     # Set the loss function based on the loss_type parameter
     if params["loss_type"] == "mse":
         loss_fn_dawgs = torch.nn.MSELoss()
-    else: #params["loss_type"] == "hybrid"
-        loss_fn_dawgs = LSTM_mod.HybridLoss(initial_lambda=params["mse_lambda"],
-                                            final_lambda=params["mse_lambda"],
+    elif params["loss_type"] == "hybrid":
+        loss_fn_dawgs = LSTM_mod.HybridLoss(initial_lambda=params["mse_lambda_start"],
+                                            final_lambda=params["mse_lambda_end"],
                                             total_epochs=params["n_epochs"])
 
     return model_dawgs, optimizer_dawgs, loss_fn_dawgs
 
 
-def run_expirement(train_hucs, val_hucs, params = None):
+def run_local_exp(hucs, params = None):
     if params is None:
         params = sh.create_hyper_dict()
-    tr_and_val_hucs = train_hucs + val_hucs
-    #print("finished finding tr and val hucs")
-    df_dict, global_means, global_stds = pp.pre_process(tr_and_val_hucs, params["var_list"])
-    df_dict_tr = {huc: df_dict[huc] for huc in train_hucs if huc in df_dict}
-    df_dict_val = {huc: df_dict[huc] for huc in val_hucs if huc in df_dict}
 
+    # normalize each df separately when local training 
+    df_dict = pp.pre_process_separate(hucs, params["var_list"])
+    print("df_dict is", df_dict)
+    train_size_frac = params["train_size_fraction"]
 
     set_ML_server(params)
-    model_dawgs_pretrain, optimizer_dawgs, loss_fn_dawgs = initialize_model(params)
+    model_dawgs, optimizer_dawgs, loss_fn_dawgs = initialize_model(params)
 
     with mlflow.start_run():
         # log all the params
         mlflow.log_params(params)
-        # log the hucs
-        mlflow.log_param("train_hucs", train_hucs)
-        mlflow.log_param("val_hucs", val_hucs)
-        mlflow.log_param("val_hucs", val_hucs)
-        # log the normalization values
-        mlflow.log_param("global_means", global_means)
-        mlflow.log_param("global_stds", global_stds)
+        # log the hucs & train size fraction
+        mlflow.log_param("hucs", hucs)
 
+        for huc in df_dict.keys():
+            print(f"Training on HUC {huc}")
+            df = df_dict[huc]
+            df_dict_small = {huc: df}
+            df_train, _, _, _ = pp.train_test_split_time(df, train_size_frac)
 
-        for epoch in range(params["n_epochs"]):
-            print(f"Epoch {epoch}: Pre-training on multiple HUCs")
+            for epoch in range(params["n_epochs"]):
+                print(f"Epoch {epoch}")
 
-            # pre-train
-            LSTM_tr.pre_train(
-                model_dawgs_pretrain,
+                # for local training, call fine_tune instead of pre_train
+                LSTM_tr.fine_tune(
+                model_dawgs,
                 optimizer_dawgs,
                 loss_fn_dawgs,
-                df_dict_tr,
+                df_train,
                 params,
                 epoch
                 )
 
-            # validate
-            LSTM_tr.evaluate(
-                model_dawgs_pretrain,
-                df_dict_val,
-                params,
-                epoch)
+                # validate
+                LSTM_tr.evaluate(
+                    model_dawgs,
+                    df_dict_small,
+                    params,
+                    epoch)
 
             # log the model
-            mlflow.pytorch.log_model(model_dawgs_pretrain,
-                                     artifact_path=f"epoch{epoch}_model")
+            mlflow.pytorch.log_model(model_dawgs,artifact_path=f"model_{huc}")

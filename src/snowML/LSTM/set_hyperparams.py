@@ -15,12 +15,13 @@ def create_hyper_dict():
         "batch_size": 32,
         "n_steps": 1,
         "num_workers": 8,
-        "var_list": ["mean_pr", "mean_tair", "mean_hum", "Mean Elevation"],
-        "expirement_name": "Multi_All-2",
-        "loss_type": "mse",
-        "mse_lambda": 1, 
-        "train_size_dimension": "huc",
-        "train_size_fraction": 1, 
+        "var_list": ["mean_pr", "mean_tair", "mean_hum"],
+        "expirement_name": "Hybrid-Loss",
+        "loss_type": "hybrid",
+        "mse_lambda_start": 1, 
+        "mse_lambda_end": 0, 
+        "train_size_dimension": "time",
+        "train_size_fraction": .67, 
         "mlflow_tracking_uri": 
         "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
     }

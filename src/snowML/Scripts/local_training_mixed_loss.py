@@ -74,7 +74,7 @@ def run_local_exp(hucs, params = None):
 
     # normalize each df separately when local training 
     df_dict = pp.pre_process_separate(hucs, params["var_list"])
-    print("df_dict is", df_dict)
+    #print("df_dict is", df_dict)
     train_size_frac = params["train_size_fraction"]
 
     set_ML_server(params)

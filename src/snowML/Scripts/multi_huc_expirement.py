@@ -25,6 +25,9 @@ from snowML.LSTM import LSTM_model as LSTM_mod
 from snowML.LSTM import set_hyperparams as sh
 from snowML.LSTM import LSTM_pre_process as pp
 
+import importlib
+importlib.reload(sh)
+
 
 def set_ML_server(params):
     """

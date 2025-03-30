@@ -64,6 +64,8 @@ def initialize_model(params):
         loss_fn_dawgs = LSTM_mod.HybridLoss(initial_lambda=params["mse_lambda_start"],
                                             final_lambda=params["mse_lambda_end"],
                                             total_epochs=params["n_epochs"])
+    else: # MAE loss
+        loss_fn_dawgs= torch.nn.L1Loss()
 
     return model_dawgs, optimizer_dawgs, loss_fn_dawgs
 

@@ -8,10 +8,12 @@
 import torch
 from torch import optim
 import mlflow
+import time
 from snowML.LSTM import LSTM_train as LSTM_tr
 from snowML.LSTM import LSTM_model as LSTM_mod
 from snowML.LSTM import set_hyperparams as sh
 from snowML.LSTM import LSTM_pre_process as pp
+from snowML.datapipe import data_utils
 
 
 def set_ML_server(params):
@@ -64,6 +66,8 @@ def initialize_model(params):
         loss_fn_dawgs = LSTM_mod.HybridLoss(initial_lambda=params["mse_lambda_start"],
                                             final_lambda=params["mse_lambda_end"],
                                             total_epochs=params["n_epochs"])
+    else: # MAE loss
+        loss_fn_dawgs= torch.nn.L1Loss()
 
     return model_dawgs, optimizer_dawgs, loss_fn_dawgs
 
@@ -87,6 +91,7 @@ def run_local_exp(hucs, params = None):
         mlflow.log_param("hucs", hucs)
 
         for huc in df_dict.keys():
+            time_start = time.time()
             print(f"Training on HUC {huc}")
             df = df_dict[huc]
             df_dict_small = {huc: df}
@@ -114,3 +119,4 @@ def run_local_exp(hucs, params = None):
 
             # log the model
             mlflow.pytorch.log_model(model_dawgs,artifact_path=f"model_{huc}")
+            du.elapsed()

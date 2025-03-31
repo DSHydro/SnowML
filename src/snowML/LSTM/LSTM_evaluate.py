@@ -10,6 +10,7 @@ from sklearn.metrics import r2_score
 from snowML.LSTM import LSTM_pre_process as pp
 from snowML.LSTM import LSTM_train
 from snowML.LSTM import LSTM_plot2
+from snowML.LSTM import LSTM_metrics as met
 from snowML.datapipe import data_utils as du
 from snowML.datapipe import set_data_constants as sdc
 
@@ -119,6 +120,7 @@ def renorm(train_hucs, val_hucs, test_hucs, var_list):
     return df_dict
 
 
+
 def eval_from_saved_model (model_dawgs, df_dict, huc, params):
     print(f"evaluating on huc {huc}")
 
@@ -127,23 +129,15 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
         params["train_size_fraction"] = 0
         data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size = LSTM_train.predict(
             model_dawgs, df_dict, huc, params)
-        test_mse = LSTM_train.mean_squared_error(y_te_true, y_te_pred)
-        test_kge, _, _, _ = LSTM_train.kling_gupta_efficiency(y_te_true, y_te_pred)
-        test_r2 = r2_score(y_te_true, y_te_pred)
-        metric_dict = dict(zip(["test_mse", "test_kge", "test_r2"], [test_mse, test_kge, test_r2]))
-        return metric_dict, data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size
-
-    # else train/test split is time
-    if params.get("train_size_fraction") in {0, 1}:
-        raise ValueError("Train_size_fraction cannot be 0 or 1 if training dimension is time")
-    data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size = LSTM_train.predict(model_dawgs,
+    else: # else train/test split is time
+        if params.get("train_size_fraction") in {0, 1}:
+            raise ValueError("Train_size_fraction cannot be 0 or 1 if training dimension is time")
+        data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size = LSTM_train.predict(model_dawgs,
             df_dict, huc, params)
-    test_mse = LSTM_train.mean_squared_error(y_te_true, y_te_pred)
-    test_kge, _, _, _ = LSTM_train.kling_gupta_efficiency(y_te_true, y_te_pred)
-    test_r2 = r2_score(y_te_true, y_te_pred)
-    metric_dict = dict(zip(["test_mse", "test_kge", "test_r2"], [test_mse, test_kge, test_r2]))
+    
+    metrict_dict = met.calc_metrics(y_te_true, y_te_pred, type = "test")    
     return metric_dict, data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size
-
+    
 
 def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri, mlflow_log_now = True):
 

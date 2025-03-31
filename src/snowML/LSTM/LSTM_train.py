@@ -66,7 +66,7 @@ def pre_train(model, optimizer, loss_fn, df_dict, params, epoch):
 
     avg_loss = np.mean(loss_val_list)
     print(f"Average loss for epoch {epoch} is {avg_loss}")
-    mlflow.log_metric("avg_training_mse", avg_loss, step=epoch)
+    mlflow.log_metric("avg_training_loss", avg_loss, step=epoch)
 
 
 def fine_tune(model, optimizer, loss_fn, df_train, params, epoch):

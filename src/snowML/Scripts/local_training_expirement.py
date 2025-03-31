@@ -9,10 +9,12 @@ import torch
 from torch import optim
 import mlflow
 import importlib
+import time
 from snowML.LSTM import LSTM_train as LSTM_tr
 from snowML.LSTM import LSTM_model as LSTM_mod
 from snowML.LSTM import set_hyperparams as sh
 from snowML.LSTM import LSTM_pre_process as pp
+from snowML.LSTM import data_utils as du
 
 importlib.reload(sh)
 
@@ -90,6 +92,7 @@ def run_local_exp(hucs, params = None):
 
         for huc in df_dict.keys():
             print(f"Training on HUC {huc}")
+            start_time = time.time()
             df = df_dict[huc]
             df_dict_small = {huc: df}
             df_train, _, _, _ = pp.train_test_split_time(df, train_size_frac)
@@ -116,3 +119,4 @@ def run_local_exp(hucs, params = None):
 
             # log the model
             mlflow.pytorch.log_model(model_dawgs,artifact_path=f"model_{huc}")
+            du.elapsed(start_time)

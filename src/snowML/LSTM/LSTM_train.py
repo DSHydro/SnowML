@@ -7,6 +7,7 @@ import mlflow
 from sklearn.metrics import mean_squared_error
 from snowML.LSTM import LSTM_pre_process as pp
 from snowML.LSTM import LSTM_plot
+from snowML.LSTM import LSTM_plot2
 
 
 # Helper Function: Load data into DataLoader
@@ -309,7 +310,7 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
         # store plots for final epooch
         if epoch == params["n_epochs"] - 1:
             try:
-                LSTM_plot.plot(data, y_train_pred, y_test_pred, train_size_main, selected_key, params)
+                LSTM_plot2.plot(data, y_train_pred, y_test_pred, train_size_main, selected_key, params)
             except Exception as e:
                 print(f"Error occurred while plotting: {e}")
 

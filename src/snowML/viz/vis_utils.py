@@ -1,5 +1,5 @@
 # pylint: disable=C0103
-"Module to create basin and watershed visualizations"
+"Module to create basin and watershed visualizations; visualizations of metrics"
 
 import os
 import pandas as pd
@@ -7,6 +7,11 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import matplotlib.patches as mpatches
 import cartopy.crs as ccrs
+import seaborn as sns
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+from itertools import combinations
+from scipy.stats import ttest_ind_from_stats
 from snowML.datapipe import snow_types as st
 from snowML.datapipe import get_geos as gg
 from snowML.datapipe import data_utils as du
@@ -233,5 +238,298 @@ def create_vis_all(initial_huc, final_huc_lev):
     plot_dem(dem_ds, geos, initial_huc) # create and save map of elevation
     # for huc in geos["huc_id"].tolist(): # create and save map of actuals
         # plot_actual(huc, "mean_swe", initial_huc, bucket_dict = None)
-    # swe_summary = basin_swe_summary(initial_huc, final_huc_lev) # create & save csv of median peak
+    # swe_summary = basin_swe_summary(initial_huc, final_huc_lev) # create & save csv 
+
+
+
+def plot_scatter(df, x_var_name, y_var_name, color_map, title="Scatter_Plot", save_local=True, show_legend=True):
+    """
+    Creates a scatter plot of specified x and y variables, colored by Predominant Snow Type.
+
+    Parameters:
+    - df: DataFrame containing the x and y variables and "color_snow_type" column.
+    - x_var_name: Column name for the x-axis variable.
+    - y_var_name: Column name for the y-axis variable.
+    - color_map: Dictionary mapping labels to their respective colors for the legend.
+    - title: Title of the plot (default: "Scatter Plot" with underscores).
+    - save_local: If True, saves the plot as a PNG file.
+    - show_legend: If True, shows the legend (default is True).
+    """
+    plt.figure(figsize=(10, 6))
+
+    # Use colors directly from the dataframe, default to white if missing
+    colors = df["color_snow_type"].fillna("white")
+
+    plt.scatter(df[x_var_name], df[y_var_name], c=colors, alpha=0.7, edgecolors="k")
+
+    # Add labels and title
+    plt.xlabel(x_var_name.replace("_", " "))
+    plt.ylabel(y_var_name.replace("_", " "))
+    plt.title(title.replace("_", " "))
+
+    # Show legend if show_legend is True
+    if show_legend:
+        handles = [plt.Line2D([0], [0], marker='o', color=color, markersize=8, label=label) 
+               for label, color in color_map.items()]
+        plt.legend(handles=handles, title="Predominant Snow Type", loc='lower right', bbox_to_anchor=(0.95, 0.05))
+
+    # Show or save plot
+    if save_local:
+        plt.savefig(f"charts/{title}.png", bbox_inches='tight')
+        
+    plt.show()
+
+
+
+
+
+def plot_boxplot_by_group(df, parameter, title, groupby_column, color_map=None, category_order=None, trunc=False, save_local=True):
+    """
+    Plot a boxplot for the given parameter grouped by a specified column.
+    
+    Parameters:
+    - df: DataFrame containing the data.
+    - parameter: The name of the parameter to be plotted (as a column in the DataFrame).
+    - title: The title of the plot.
+    - groupby_column: The column by which to group the data.
+    - color_map: A dictionary mapping categories to colors. Defaults to None.
+    - category_order: Optional list of categories in the desired order for plotting.
+    - trunc: If True, rotates labels 90 degrees and truncates them to 15 characters.
+    - save_local: If True, saves the plot as a PNG file in the 'charts/' directory.
+    """
+    
+    grouped_data = df.groupby(groupby_column)[parameter].agg(['count', 'median', 'mean', 'std'])
+    #print(f"\nParameter Summary for '{parameter}' by '{groupby_column}':")
+    #print(grouped_data, "\n")
+    
+    # Define a default color map if none is provided
+    if color_map is None:
+        default_palette = sns.color_palette("twilight", len(df[groupby_column].unique()))
+        color_map = dict(zip(sorted(df[groupby_column].unique()), default_palette))
+
+    # If category_order is not provided, use the keys of the color_map in order
+    if category_order is None:
+        category_order = list(color_map.keys())
+
+    # Create the boxplot
+    plt.figure(figsize=(10, 6))
+    sns.boxplot(data=df, x=groupby_column, y=parameter, palette=color_map, order=category_order)
+
+    # Set the title and labels
+    plt.title(title)
+    plt.xlabel(groupby_column)
+    plt.ylabel(parameter)
+
+    # Adjust x-axis labels based on truncation
+    if trunc:
+        plt.xticks(rotation=90)  # Rotate labels 90 degrees
+    else:
+        plt.xticks(rotation=0)  # Keep labels horizontal
+
+    # Ensure layout is clean
+    plt.tight_layout()
+
+    # Save the plot locally if save_local is True
+    if save_local:
+        os.makedirs("charts", exist_ok=True)  # Ensure the directory exists
+        safe_title = "".join(c if c.isalnum() or c in (" ", "-", "_") else "_" for c in title)  # Remove invalid filename characters
+        plt.savefig(f"charts/{safe_title}.png", bbox_inches='tight')
+        
+
+    # Show the plot
+    plt.show()
+
+    return grouped_data
+
+def plot_scatter(df, x_var_name, y_var_name, color_map, title="Scatter_Plot", save_local=True, show_legend=True):
+    """
+    Creates a scatter plot of specified x and y variables, colored by Predominant Snow Type.
+
+    Parameters:
+    - df: DataFrame containing the x and y variables and "color_snow_type" column.
+    - x_var_name: Column name for the x-axis variable.
+    - y_var_name: Column name for the y-axis variable.
+    - color_map: Dictionary mapping labels to their respective colors for the legend.
+    - title: Title of the plot (default: "Scatter Plot" with underscores).
+    - save_local: If True, saves the plot as a PNG file.
+    - show_legend: If True, shows the legend (default is True).
+    """
+    plt.figure(figsize=(10, 6))
+
+    # Use colors directly from the dataframe, default to white if missing
+    colors = df["color_snow_type"].fillna("white")
+
+    plt.scatter(df[x_var_name], df[y_var_name], c=colors, alpha=0.7, edgecolors="k")
+
+    # Add labels and title
+    plt.xlabel(x_var_name.replace("_", " "))
+    plt.ylabel(y_var_name.replace("_", " "))
+    plt.title(title.replace("_", " "))
+
+    # Show legend if show_legend is True
+    if show_legend:
+        handles = [plt.Line2D([0], [0], marker='o', color=color, markersize=8, label=label) 
+               for label, color in color_map.items()]
+        plt.legend(handles=handles, title="Predominant Snow Type", loc='lower right', bbox_to_anchor=(0.95, 0.05))
+
+    # Show or save plot
+    if save_local:
+        plt.savefig(f"charts/{title}.png", bbox_inches='tight')
+        
+
+    plt.show()
+
+def plot_scatter_w_R2(df, x_var_name, y_var_name, color_map, title="Scatter_Plot", save_local=True, show_legend=True):
+    """
+    Creates a scatter plot of specified x and y variables, colored by Predominant Snow Type.
+    Adds a best-fit line and displays the R-squared value.
+
+    Parameters:
+    - df: DataFrame containing the x and y variables and "Snow_Type_Color" column.
+    - x_var_name: Column name for the x-axis variable.
+    - y_var_name: Column name for the y-axis variable.
+    - color_map: Dictionary mapping labels to their respective colors for the legend.
+    - title: Title of the plot (default: "Scatter Plot" with underscores).
+    - save_local: If True, saves the plot as a PNG file.
+    - show_legend: If True, shows the legend (default is True).
+    """
+    plt.figure(figsize=(10, 6))
+
+    # Use colors directly from the dataframe, default to white if missing
+    colors = df["color_snow_type"].fillna("white")
+
+    plt.scatter(df[x_var_name], df[y_var_name], c=colors, alpha=0.7, edgecolors="k", label="Data Points")
+
+    # Compute best-fit line
+    x_values = df[x_var_name].values.reshape(-1, 1)
+    y_values = df[y_var_name].values
+
+    model = LinearRegression()
+    model.fit(x_values, y_values)
+    y_pred = model.predict(x_values)
+
+    # Compute R-squared
+    r2 = r2_score(y_values, y_pred)
+
+    # Plot best-fit line
+    plt.plot(df[x_var_name], y_pred, color="red", linestyle="--", linewidth=2, label=f"Best Fit Line (R²={r2:.2f})")
+
+    # Add labels and title
+    plt.xlabel(x_var_name.replace("_", " "))
+    plt.ylabel(y_var_name.replace("_", " "))
+    plt.title(title.replace("_", " "))
+
+    # Annotate with R-squared value
+    plt.text(0.05, 0.9, f"R² = {r2:.2f}", transform=plt.gca().transAxes, fontsize=12, color="red", bbox=dict(facecolor="white", alpha=0.7))
+
+    # Show legend if show_legend is True
+    if show_legend:
+        handles = [plt.Line2D([0], [0], marker='o', color=color, markersize=8, label=label) 
+               for label, color in color_map.items()]
+        plt.legend(handles=handles, title="Predominant Snow Type", loc='lower right', bbox_to_anchor=(0.95, 0.05))
+
+
+    # Show or save plot
+    if save_local:
+        plt.savefig(f"charts/{title}.png", bbox_inches='tight')
+
+    plt.show()
+
+
+
+def pairwise_welch_t_test(grouped_data):
+    """
+    Performs Welch's t-test for unequal variances on all pairwise comparisons 
+    of groups in grouped_data.
+
+    Parameters:
+    - grouped_data: DataFrame with a 'mean' and 'std' column, indexed by group.
+
+    Returns:
+    - A DataFrame with columns "Group1", "Group2", and "P-Value".
+    """
+    results = []
+
+    # Get unique groups
+    groups = grouped_data.index
+
+    # Perform pairwise Welch's t-test
+    for group1, group2 in combinations(groups, 2):
+        # Extract data for each group
+        mean1, std1, n1 = grouped_data.loc[group1, ['mean', 'std', 'count']]
+        mean2, std2, n2 = grouped_data.loc[group2, ['mean', 'std', 'count']]
+
+        # Compute Welch's t-test
+        t_stat, p_value = ttest_ind_from_stats(mean1, std1, n1, mean2, std2, n2, equal_var=False)
+
+        # Append results as a row in the list
+        results.append({'Group1': group1, 'Group2': group2, 'P-Value': p_value})
+
+    # Convert the results list to a DataFrame
+    return pd.DataFrame(results)
+
+def plot_boxplot_by_2group(df, parameter, title, groupby_column_1, groupby_column_2, color_map=None, category_order=None, trunc=False, save_local=True):
+    """
+    Plot a boxplot for the given parameter grouped by two specified columns.
+    
+    Parameters:
+    - df: DataFrame containing the data.
+    - parameter: The name of the parameter to be plotted (as a column in the DataFrame).
+    - title: The title of the plot.
+    - groupby_column_1: The first column by which to group the data (determines left-to-right order).
+    - groupby_column_2: The second column for creating side-by-side box plots within each group of groupby_column_1.
+    - color_map: A dictionary mapping groupby_column_2 categories to colors. Defaults to None.
+    - category_order: Optional list of categories in the desired order for plotting groupby_column_1.
+    - trunc: If True, rotates labels 90 degrees and truncates them to 15 characters.
+    - save_local: If True, saves the plot as a PNG file in the 'charts/' directory.
+    """
+    
+    # Define a default color map if none is provided
+    if color_map is None:
+        unique_categories = sorted(df[groupby_column_2].unique())
+        default_palette = sns.color_palette("twilight", len(unique_categories))
+        color_map = dict(zip(unique_categories, default_palette))
+
+    # If category_order is not provided, use the sorted unique values from groupby_column_1
+    if category_order is None:
+        category_order = sorted(df[groupby_column_1].unique())
+
+    # Apply truncation if enabled
+    if trunc:
+        category_order = [cat[:15] for cat in category_order]
+
+    # Create the boxplot
+    plt.figure(figsize=(12, 6))
+    sns.boxplot(data=df, x=groupby_column_1, y=parameter, hue=groupby_column_2, 
+                palette=color_map, order=category_order, dodge=True)
+
+    # Set the title and labels
+    plt.title(title)
+    plt.xlabel(groupby_column_1)
+    plt.ylabel(parameter)
+
+    # Adjust x-axis labels based on truncation
+    if trunc:
+        plt.xticks(rotation=90)  # Rotate labels 90 degrees
+    else:
+        plt.xticks(rotation=0)  # Keep labels horizontal
+
+    # Move the legend outside the plot for better visibility
+    plt.legend(title=groupby_column_2, bbox_to_anchor=(1.05, 1), loc='upper left')
+
+    # Ensure layout is clean
+    plt.tight_layout()
+
+    # Save the plot locally if save_local is True
+    if save_local:
+        os.makedirs("charts", exist_ok=True)  # Ensure the directory exists
+        safe_title = "".join(c if c.isalnum() or c in (" ", "-", "_") else "_" for c in title)  # Remove invalid filename characters
+        plt.savefig(f"charts/{safe_title}.png", bbox_inches='tight')
+
+    # Show the plot
+    plt.show()
+
+  
+
+
     

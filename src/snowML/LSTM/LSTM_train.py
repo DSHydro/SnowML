@@ -4,10 +4,10 @@ import random
 import torch
 import numpy as np
 import mlflow
-from sklearn.metrics import mean_squared_error
 from snowML.LSTM import LSTM_pre_process as pp
-from snowML.LSTM import LSTM_plot
+#from snowML.LSTM import LSTM_plot
 from snowML.LSTM import LSTM_plot2
+from snowML.LSTM import LSTM_metrics as met
 
 
 # Helper Function: Load data into DataLoader
@@ -106,82 +106,6 @@ def fine_tune(model, optimizer, loss_fn, df_train, params, epoch):
         optimizer.step()
 
 
-def kling_gupta_efficiency(y_true, y_pred):
-    """
-    Calculate the Kling-Gupta Efficiency (KGE) and its components.
-
-    The KGE is a metric used to evaluate the performance of hydrological models.
-    It is composed of three components: correlation (r), variability ratio 
-    (alpha), and bias ratio (beta).
-
-    Parameters:
-    y_true (np.ndarray): Array of true values.
-    y_pred (np.ndarray): Array of predicted values.
-
-    Returns:
-    tuple: A tuple containing the following elements:
-        - kg (float): Kling-Gupta Efficiency.
-        - r (float): Correlation coefficient between y_true and y_pred.
-        - alpha (float): Variability ratio (standard deviation of y_pred / 
-            standard deviation of y_true).
-        - beta (float): Bias ratio (mean of y_pred / mean of y_true).
-
-    Notes:
-    - If NaN values are detected in y_true or y_pred, the function will print 
-        an error message and return (np.nan, np.nan, np.nan, np.nan).
-    - If zero variance is detected in y_true or y_pred, the function will print 
-        an error message and return (np.nan, np.nan, np.nan, np.nan).
-
-    Example:
-    >>> y_true = np.array([1, 2, 3, 4, 5])
-    >>> y_pred = np.array([1.1, 2.1, 2.9, 4.1, 5.1])
-    >>> kling_gupta_efficiency(y_true, y_pred)
-    (0.993, 0.998, 1.0, 1.02)
-    """
-    # Check for NaNs
-    if np.isnan(y_true).any() or np.isnan(y_pred).any():
-        print("Error: NaN values detected in y_true or y_pred")
-        return np.nan, np.nan, np.nan, np.nan
-
-    # Check for zero variance
-    if np.std(y_true) == 0 or np.std(y_pred) == 0:
-        print("Error: Zero variance detected in y_true or y_pred")
-        return np.nan, np.nan, np.nan, np.nan
-
-    # Compute correlation
-    r = np.corrcoef(y_true.ravel(), y_pred.ravel())[0, 1]
-
-    # Compute KGE components
-    alpha = np.std(y_pred) / np.std(y_true)
-    beta = np.mean(y_pred) / np.mean(y_true)
-    kg = 1 - np.sqrt((r - 1)**2 + (alpha - 1)**2 + (beta - 1)**2)
-
-    print(f"r: {r}, alpha: {alpha}, beta: {beta}")
-    return kg, r, alpha, beta
-
-def store_summ_metrics(metric_names, metrics_list_dict, epoch):
-    """
-   Computes and logs the mean and median of given metrics for each epoch.
-
-    Parameters:
-        metric_names (list of str): List of metric names to be stored and logged.
-        metrics_list_dict (dict): Dict of metric values, keyed by metric names.
-        epoch (int): The current epoch number, used for logging metrics in mlflow.
-
-    Returns:
-        None
-    """
-    for i in range(len(metric_names)):
-        metric_nm = metric_names[i]
-        metric_list = metrics_list_dict[metric_nm]
-        mean_value = np.mean(metric_list)
-        print(f"mean_{metric_nm} is {mean_value}")
-        mlflow.log_metric(f"mean_{metric_nm}", mean_value, step=epoch)
-        median_value = np.median(metric_list)
-        print(f"median_{metric_nm} is {median_value}")
-        mlflow.log_metric(f"median_{metric_nm}", median_value, step=epoch)
-
-
 def predict (model_dawgs, df_dict, selected_key, params):
     """
     Generates predictions using the given model for a specified dataset.
@@ -267,52 +191,36 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
 
     else:
         available_keys = selected_keys
-    metric_names = ["train_mse", "test_mse", "train_kge", "test_kge"]
-    metrics_list_dict = {metric: [] for metric in metric_names}
 
     # Loop through each HUC
     for selected_key in available_keys:
         print(f"evaluating on huc {selected_key}")
-        data, y_train_pred, y_test_pred, y_train_true, y_test_true, train_size_main = (
-            predict(model_dawgs, df_dict, selected_key, params)
-        )
+        data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size_main = (
+            predict(model_dawgs, df_dict, selected_key, params))
 
-        # Compute MSE
+        # test metrics
+        metric_dict_test = met.calc_metrics(y_te_true, y_te_pred, metric_type = "test")
+
+        # train metrics if avail
         if params["train_size_dimension"] == "time":
-            train_mse = mean_squared_error(y_train_true, y_train_pred)
+            metric_dict_train = met.calc_metrics(y_tr_true, y_tr_pred, metric_type = "train")
         else:
-            train_mse = -500
-        metrics_list_dict["train_mse"].append(train_mse)
-        test_mse = mean_squared_error(y_test_true, y_test_pred)
-        metrics_list_dict["test_mse"].append(test_mse)
+            metric_dict_train = None
 
-        # Compute KGE
-        if params["train_size_dimension"] == "time":
-            train_kge, _, _, _ = kling_gupta_efficiency(y_train_true, y_train_pred)
-        else:
-            train_kge = -500
-        metrics_list_dict["train_kge"].append(train_kge)
-        test_kge, _, _, _ = kling_gupta_efficiency(y_test_true, y_test_pred)
-        metrics_list_dict["test_kge"].append(test_kge)
-
-
-        metrics = [train_mse, test_mse, train_kge, test_kge]
-
-        # Log, print, & save metrics
-        for i, metric in enumerate(metrics):
-            mlflow.log_metric(f"{metric_names[i]}_{str(selected_key)}",
-                              metric, step=epoch)
-            print(f"{metric_names[i]}_{str(selected_key)}: {metric}")
-            metrics_list_dict[metric_names[i]].append(metric)
-        print("")
-
+        #Log and print metrics
+        for met_nm, metric in metric_dict_test.items():
+            mlflow.log_metric(f"{met_nm}_{str(selected_key)}", metric, step=epoch)
+            print(f"{met_nm}: {metric}")
+        if metric_dict_train is not None:
+            for met_nm, metric in metric_dict_train.items():
+                mlflow.log_metric(f"{met_nm}_{str(selected_key)}", metric, step = epoch)
+                print(f"{met_nm}: {metric}")
 
         # store plots for final epooch
         if epoch == params["n_epochs"] - 1:
             try:
-                LSTM_plot2.plot(data, y_train_pred, y_test_pred, train_size_main, selected_key, params)
+                LSTM_plot2.plot(data, y_tr_pred, y_te_pred, train_size_main, selected_key,
+                    params, metrics_dict=metric_dict_test)
             except Exception as e:
                 print(f"Error occurred while plotting: {e}")
 
-    if len(available_keys) > 1:
-        store_summ_metrics(metric_names, metrics_list_dict, epoch)

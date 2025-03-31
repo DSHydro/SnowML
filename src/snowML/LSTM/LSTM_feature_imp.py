@@ -106,4 +106,7 @@ def feature_imp_all(model_uri, mlflow_tracking_uri, run_id, test_hucs, mlflow_lo
                 for var in var_list:
                     metric_name = f"{huc}_importance_{var}"
                     mlflow.log_metric(metric_name,importance_df.iloc[i][var])
+        
+    if mlflow_log_now: 
+        mlflow.end_run()
     return importance_df

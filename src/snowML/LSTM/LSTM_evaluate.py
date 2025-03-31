@@ -1,4 +1,4 @@
-# Module to evaluate model results from a saved model
+""" Module to evaluate model results from a saved model """
 # Uses plot2 function (warm colors and flexible y scale)
 # pylint: disable=C0103
 
@@ -6,7 +6,6 @@ import ast
 import mlflow
 import mlflow.pytorch
 import pandas as pd
-from sklearn.metrics import r2_score
 from snowML.LSTM import LSTM_pre_process as pp
 from snowML.LSTM import LSTM_train
 from snowML.LSTM import LSTM_plot2
@@ -134,10 +133,10 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
             raise ValueError("Train_size_fraction cannot be 0 or 1 if training dimension is time")
         data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size = LSTM_train.predict(model_dawgs,
             df_dict, huc, params)
-    
-    metrict_dict = met.calc_metrics(y_te_true, y_te_pred, type = "test")    
+
+    metric_dict = met.calc_metrics(y_te_true, y_te_pred, metric_type = "test")
     return metric_dict, data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size
-    
+
 
 def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri, mlflow_log_now = True):
 
@@ -164,18 +163,18 @@ def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri, mlf
             mlflow.log_param("model_uri", model_uri)
 
             for huc in test_hucs:
-                metric_dict,data, y_tr_pred, y_te_pred, _, _, train_size = eval_from_saved_model(
+                metric_dict, data, y_tr_pred, y_te_pred, _, _, train_size = eval_from_saved_model(
                     model_dawgs, df_dict_test, huc, params)
                 LSTM_plot2.plot(data, y_tr_pred, y_te_pred, train_size,
                     huc, params, metrics_dict = metric_dict)
-                for met_nm, met in metric_dict.items():
-                    mlflow.log_metric(f"{met_nm}_{str(huc)}", met)
-                    print(f"{met_nm}: {met}")
+                for met_nm, metric in metric_dict.items():
+                    mlflow.log_metric(f"{met_nm}_{str(huc)}", metric)
+                    print(f"{met_nm}: {metric}")
     else:
         for huc in test_hucs:
             metric_dict, data, y_tr_pred, y_te_pred, _, _, train_size = eval_from_saved_model(
                 model_dawgs, df_dict_test, huc, params)
             LSTM_plot2.plot(data, y_tr_pred, y_te_pred, train_size,
                     huc, params, metrics_dict = metric_dict, mlflow_on=False)
-            for met_nm, met in metric_dict.items():
-                print(f"{met_nm}: {met}")
+            for met_nm, metric in metric_dict.items():
+                print(f"{met_nm}: {metric}")

@@ -41,7 +41,7 @@ def create_run_dict_Ex4():
     run_dict["prairie10"] = "033984f1ce27482090740030fa25af9d"
     run_dict["prairie10_mixed"] = "4dde4b91d28349c9b88688a860a6cf34"
     run_dict["prairie30_mixed"] = "6842189b35964aff8aa815cc517c5890"
-    run_dict["no_hum_mixed_loss"] = "ba300bba68fd451bbb684283fd3b3eab"
+    run_dict["no_hum_mixed_loss"] = "f64daf3d9751406ab4c054804c51c340"
     return run_dict
 
 

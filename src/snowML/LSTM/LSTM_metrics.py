@@ -1,6 +1,7 @@
-""" Module to calculate various dianostic metrics """
+""" Module to calculate various diagnostic metrics """
+# pylint: disable=C0103
 
-import numpy
+import numpy as np
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
@@ -58,12 +59,12 @@ def kling_gupta_efficiency(y_true, y_pred):
     return kg, r, alpha, beta
 
 
-def calc_metrics(d_true, d_pred, type = "test"): 
-    metrics = [mse, kge, r2, mae]
-    metric_names = [f"{type}_metric" for metric in metrics]
-    r2 = r2_score(d_true, d_prod)
+def calc_metrics(d_true, d_pred, metric_type = "test"):
+    metrics = ["mse", "kge", "r2", "mae"]
+    metric_names = [f"{metric_type}_{metric}" for metric in metrics]
+    r2 = r2_score(d_true, d_pred)
     kge, _, _, _ = kling_gupta_efficiency(d_true, d_pred)
-    mse = mean_squared_error(d_true, d_prod)
-    mae = mean_squared_error(d_true, d_prod)
+    mse = mean_squared_error(d_true, d_pred)
+    mae = mean_absolute_error(d_true, d_pred)
     metric_dict = dict(zip(metric_names, [mse, kge, r2, mae]))
     return metric_dict

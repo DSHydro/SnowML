@@ -14,7 +14,7 @@ from snowML.LSTM import LSTM_train as LSTM_tr
 from snowML.LSTM import LSTM_model as LSTM_mod
 from snowML.LSTM import set_hyperparams as sh
 from snowML.LSTM import LSTM_pre_process as pp
-from snowML.LSTM import data_utils as du
+from snowML.datapipe import data_utils as du
 
 importlib.reload(sh)
 

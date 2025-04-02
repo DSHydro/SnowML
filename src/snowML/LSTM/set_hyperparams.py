@@ -9,13 +9,13 @@ def create_hyper_dict():
         "num_class": 1,
         "num_layers": 1,
         "dropout": 0.5,
-        "learning_rate":  3e-4, #1e-3, # 3e-3
+        "learning_rate":  1e-3, #3e-4, # 3e-3
         "n_epochs": 10,
         "lookback": 180,
-        "batch_size": 32,
+        "batch_size": 64,
         "n_steps": 1,
         "num_workers": 8,
-        "var_list": ["mean_pr", "mean_tair", "mean_swe_lag_30"],
+        "var_list": ["mean_pr", "mean_tair", "mean_hum"],
         "expirement_name": "Data_Integration",
         "loss_type": "mse",
         "mse_lambda_start": 1, 

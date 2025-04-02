@@ -9,67 +9,45 @@ from snowML.datapipe import get_geos as gg
 
 # Define constants
 
-#HUC_MARITIME = [17020009, 17110006, 17110005, 17110009, 17020011]
-HUC_MONTANE =  [17060207, 17010304, 17010302, 17060208]
-INPUT_PAIRS = [[huc, '12'] for huc in HUC_MONTANE]
+HUC_MARITIME = [17020009, 17020011, 17110005, 17110006,  17110009]
+HUC_MONTANE =  [17010304, 17010302, 17060207, 17060208]
+HUC_MIXED = [17030001, 17030002, 17110008]
+HUC_EPHEMERAL = [17030003, 17020010, 17110007]
+HUC_ALL =  HUC_MARITIME + HUC_MIXED + HUC_EPHEMERAL + HUC_MONTANE  
+INPUT_PAIRS = [[huc, '12'] for huc in HUC_ALL]
 
 TRAIN_SIZE_FRACTION = 0.6
 VAL_SIZE_FRACTION = 0.2
 TEST_SIZE_FRACTION = 0.2
-EXLCUDED_EPHEMERAL = True
-SNOW_TYPE = "Montane Forest"
 
-EXCLUDED_HUCS = ["1711000501", "1711000502", "1711000503", "171100050101", "171100050102", \
+
+
+# Excluded Hucs Due to Missing SWE Data (Canada)
+EXCLUDED_HUCS_CA = ["1711000501", "1711000502", "1711000503", "171100050101", "171100050102", \
                 "171100050201", "171100050202", "171100050203", "171100050301", \
                 "171100050302", "171100050303", "171100050304", "171100050305", \
                 "171100050306", "171100050401"] 
+# Plus Six Inadvertently (?) Excluded Hucs
+EXCLUDED_HUCS_ADDTL = ['171100060305', '171100060401', '171100060402',
+                        '171100060403', '171100060404', '171100060405',
+                        '171100060406']
+EXCLUDED_HUCS = EXCLUDED_HUCS_CA + EXCLUDED_HUCS_ADDTL
 
 
 
-def assemble_huc_list(input_pairs):
-    """
-    Assembles a list of HUC (Hydrologic Unit Code) IDs from a list of input pairs.
-
-    Args:
-        input_pairs (list of tuples): A list of tuples where each tuple contains two elements:
-            - The first element is a string representing the huc code for the region of interest.
-            - The second element is a string or intrepresenting the lowest huc subunit to study.
-
-    Returns:
-        list: HUC IDs extracted from the geojson files corresponding to the input pairs.
-
-    Example:
-        input_pairs = [("RegionA", "10"), ("RegionB", "12")]
-        huc_list = assemble_huc_list(input_pairs)
-    """
+def assemble_huc_list(snow_type, input_pairs = INPUT_PAIRS):
     hucs = []
     for pair in input_pairs:
         geos = gg.get_geos(pair[0], pair[1])
-        if EXLCUDED_EPHEMERAL is True:
-            geos = snowclass_filter(geos)
-            #print(f"filtered shape for {pair[0]} is {geos.shape}")
-        hucs.extend(geos["huc_id"].to_list())
+        _, _, df_predom = st.process_all(pair[0], pair[1])
+        valid_hucs = df_predom.loc[df_predom["Predominant_Snow"] == snow_type, "huc_id"]
+        geos_filtered = geos[geos["huc_id"].isin(valid_hucs)]
+        hucs.extend(geos_filtered["huc_id"].to_list())
     # Filter out excluded hucs
     hucs = [huc for huc in hucs if huc not in EXCLUDED_HUCS]
     return hucs
 
-def snowclass_filter(geos):
-    """
-    Filters the given GeoDataFrame to include only those HUCs 
-    (Hydrologic Unit Codes)  where the 'Ephemeral' snow class is less than 50.
 
-    Parameters:
-    geos (GeoDataFrame): A GeoDataFrame containing geographic data with a 'huc_id' column.
-
-    Returns:
-    GeoDataFrame: A filtered GeoDataFrame containing only the HUCs with 
-        'Ephemeral' snow class less than 50.
-    """
-    df_snow_types = st.snow_class(geos)
-    # Filter huc_ids where Ephemeral < 50
-    valid_huc_ids = df_snow_types.loc[df_snow_types["Ephemeral"] < 50, "huc_id"]
-    geos_filtered = geos[geos["huc_id"].isin(valid_huc_ids)]
-    return geos_filtered
 
 
 def split_by_huc(hucs, train_size_frac, val_size_frac):
@@ -112,4 +90,5 @@ def select_hucs(input_pairs=INPUT_PAIRS, f_out="hucs_data_maritime.json"):
         json.dump(hucs_dict, json_file, indent=2)
 
     return train_hucs, val_hucs, test_hucs
+
 

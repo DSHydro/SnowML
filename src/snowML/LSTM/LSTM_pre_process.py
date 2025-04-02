@@ -147,7 +147,11 @@ def pre_process_separate(huc_list, var_list, bucket_dict=None):
             if col not in df.columns:
                 print(f"huf{huc} is missing col {col}")
 
-        df = df[col_to_keep]
+        df = df[col_to_keep].dropna()
+        num_dropped = len(df[col_to_keep]) - len(df)
+        if num_dropped > 0:
+            print(f"Number of rows dropped: {num_dropped}")
+
         all_dfs.append(df)  # Collect DataFrames for global normalization
         df_dict[huc] = df  # Store DataFrame in dictionary
 

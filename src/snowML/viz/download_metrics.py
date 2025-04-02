@@ -41,6 +41,7 @@ def create_run_dict_Ex4():
     run_dict["no_hum_mixed_loss10"] = "f64daf3d9751406ab4c054804c51c340"
     run_dict["orig_10_low_lr"] = "8dcf79313b6a43be8b779b2a927714e6" # Aborted early
     run_dict["orig10_ml_05"] = "018b5d59203a49c6bbdb06324eca434f" # Aborted early
+    run_dict["hum10"] = "9e1a4f60d2924717be25e33ee065a74c"
     return run_dict
 
 def create_run_dict_Ex4_Prairie():

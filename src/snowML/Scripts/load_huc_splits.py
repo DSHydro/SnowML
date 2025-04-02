@@ -25,4 +25,3 @@ def huc_split(f="src/snowML/Scripts/hucs_data.json"):
     val = data["val_hucs"]
     te = data["test_hucs"]
     return tr, val, te
-    

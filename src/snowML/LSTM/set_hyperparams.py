@@ -15,7 +15,7 @@ def create_hyper_dict():
         "batch_size": 64,
         "n_steps": 1,
         "num_workers": 8,
-        "var_list": ["mean_pr", "mean_tair", "mean_hum"],
+        "var_list": ["mean_pr", "mean_tair", "mean_swe_lag_30"],
         "expirement_name": "Data_Integration",
         "loss_type": "mse",
         "mse_lambda_start": 1, 

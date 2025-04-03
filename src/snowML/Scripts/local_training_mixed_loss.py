@@ -62,12 +62,15 @@ def initialize_model(params):
     # Set the loss function based on the loss_type parameter
     if params["loss_type"] == "mse":
         loss_fn_dawgs = torch.nn.MSELoss()
+        print("We are using Mse loss")
     elif params["loss_type"] == "hybrid":
         loss_fn_dawgs = LSTM_mod.HybridLoss(initial_lambda=params["mse_lambda_start"],
                                             final_lambda=params["mse_lambda_end"],
                                             total_epochs=params["n_epochs"])
+        print("We are using hybrid loss")
     else: # MAE loss
         loss_fn_dawgs= torch.nn.L1Loss()
+        print("We are using MAE loss")
 
     return model_dawgs, optimizer_dawgs, loss_fn_dawgs
 

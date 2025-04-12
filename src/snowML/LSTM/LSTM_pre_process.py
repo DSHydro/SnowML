@@ -147,8 +147,9 @@ def pre_process_separate(huc_list, var_list, bucket_dict=None):
             if col not in df.columns:
                 print(f"huf{huc} is missing col {col}")
 
+        startrow = df.shape[0]
         df = df[col_to_keep].dropna()
-        num_dropped = len(df[col_to_keep]) - len(df)
+        num_dropped = startrow - df.shape[0]
         if num_dropped > 0:
             print(f"Number of rows dropped: {num_dropped}")
 

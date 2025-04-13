@@ -58,7 +58,9 @@ def create_run_dict_Ex5():
     run_dict["Maritime_DI_mae"] = "c11ded8d42c24b5aa23746e8c7eb0121" # adaptable cat 
     run_dict["Maritime_DI_hybrid_2"] = "f9118f415b37408ba4d4dd2a6dc3e8e6" # omniscient fish 
     
-    run_dict["Ephemeral_DI_hybrid"]  = "5c31e266ce404aa7a5e5716d04e78b93" # kindly cow
+    #run_dict["Ephemeral_DI_hybrid"]  = "5c31e266ce404aa7a5e5716d04e78b93" # kindly cow
+    
+    run_dict["Ephemeral_DI_hybrid"] = "ec1bc8b9064841cba401607a5c3866bc" # abrasive finch
     run_dict["Ephemeral_DI_mse"] = "d462d25d0aac4ae1952e502ee435ccd0" # valuable foal
     
     run_dict["Maritime_DI_MSE"] = "f56504d6c33447c095615c2167d9b5d2" # grandiose-bee 

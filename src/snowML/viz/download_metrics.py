@@ -56,7 +56,8 @@ def create_run_dict_Ex5():
     run_dict["Maritime_DI_low_batch"] = "d8e9971eb89f4ce087fddb766aa85ef1" # stylish ant
     run_dict["Maritime_DI_mse"] = "5d8480525f5246f3a9cad0948daf9fde" # sincere snake
     run_dict["Maritime_DI_mae"] = "c11ded8d42c24b5aa23746e8c7eb0121" # adaptable cat 
-    run_dict["Maritime_DI_hybrid_2"] = "f9118f415b37408ba4d4dd2a6dc3e8e6" # omniscient fish 
+    #run_dict["Maritime_DI_hybrid_2"] = "f9118f415b37408ba4d4dd2a6dc3e8e6" # omniscient fish (aborted)
+    run_dict["Maritime_DI_hybrid"] = "be0e7e4963a94309b7447ceb70ee8bb2"
     
     #run_dict["Ephemeral_DI_hybrid"]  = "5c31e266ce404aa7a5e5716d04e78b93" # kindly cow
     

@@ -63,7 +63,13 @@ def create_run_dict_Ex5():
     run_dict["Ephemeral_DI_mse"] = "d462d25d0aac4ae1952e502ee435ccd0" # valuable foal
     
     run_dict["Maritime_DI_MSE"] = "f56504d6c33447c095615c2167d9b5d2" # grandiose-bee 
+    run_dict["Maritime_DI_2_MAE"] = "56d60b81d63e4b81a88e89e344b39fa9" # orderly stoat
 
+    return run_dict
+
+def create_run_dict_Ex6(): 
+    run_dict = {}
+    run_dict["Maritime_90Lookback"] = "8d14cdd4d15045b183347211b1e20751"
     return run_dict
 
 

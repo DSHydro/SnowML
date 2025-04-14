@@ -59,11 +59,16 @@ def create_run_dict_Ex5():
     #run_dict["Maritime_DI_hybrid_2"] = "f9118f415b37408ba4d4dd2a6dc3e8e6" # omniscient fish (aborted)
     run_dict["Maritime_DI_hybrid"] = "be0e7e4963a94309b7447ceb70ee8bb2"
     
-    run_dict["Ephemeral_DI_hybrid"]  = "5c31e266ce404aa7a5e5716d04e78b93" # kindly cow
+    #run_dict["Ephemeral_DI_hybrid"]  = "5c31e266ce404aa7a5e5716d04e78b93" # kindly cow
+    
+    run_dict["Ephemeral_DI_hybrid"] = "ec1bc8b9064841cba401607a5c3866bc" # abrasive finch
     run_dict["Ephemeral_DI_mse"] = "d462d25d0aac4ae1952e502ee435ccd0" # valuable foal
+    run_dict["Ephemeral_DI_mae"] = "5d4eae0991c545e2a3a9739cfd1d7268" # righteous snake 
     
     run_dict["Maritime_DI_MSE"] = "f56504d6c33447c095615c2167d9b5d2" # grandiose-bee 
     run_dict["Maritime_DI_2_MAE"] = "56d60b81d63e4b81a88e89e344b39fa9" # orderly stoat
+    run_dict["Maritime_DI_mae"] = "bebeee98ccb74137b3c629ef6e38b8dc"
+    
 
     return run_dict
 

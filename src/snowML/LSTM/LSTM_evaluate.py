@@ -134,6 +134,9 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
         data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size = LSTM_train.predict(model_dawgs,
             df_dict, huc, params)
 
+        print("Last few elements of y_te_true", y_te_true[-10])
+        print("Last few elements of y_te_pred", y_te_pred[-10])
+
     metric_dict = met.calc_metrics(y_te_true, y_te_pred, metric_type = "test")
     return metric_dict, data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size
 

@@ -5,10 +5,11 @@
 
 
 
+import time
 import torch
 from torch import optim
 import mlflow
-import time
+import cloudpickle
 from snowML.LSTM import LSTM_train as LSTM_tr
 from snowML.LSTM import LSTM_model as LSTM_mod
 from snowML.LSTM import set_hyperparams as sh
@@ -80,7 +81,7 @@ def run_local_exp(hucs, params = None):
         params = sh.create_hyper_dict()
 
     # normalize each df separately when local training 
-    df_dict = pp.pre_process_separate(hucs, params["var_list"])
+    df_dict = pp.pre_process_separate(hucs, params["var_list"], filter_dates=params["filter_dates"])
     #print("df_dict is", df_dict)
     train_size_frac = params["train_size_fraction"]
 
@@ -121,5 +122,6 @@ def run_local_exp(hucs, params = None):
                     epoch)
 
             # log the model
-            mlflow.pytorch.log_model(model_dawgs,artifact_path=f"model_{huc}")
+            #mlflow.pytorch.log_model(model_dawgs, artifact_path=f"model_{huc}", pickle_module=cloudpickle)
+            mlflow.pytorch.log_model(model_dawgs, artifact_path=f"model_{huc}")
             du.elapsed(time_start)

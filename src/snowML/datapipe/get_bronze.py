@@ -34,6 +34,10 @@ import xarray as xr
 from snowML.datapipe import data_utils as du
 from snowML.datapipe import set_data_constants as sdc
 
+# define constants
+VAR_DICT = sdc.create_var_dict()
+
+
 def url_to_ds(url, requires_auth=False, username=None, password=None, timeout=60):
     """
     Load data from a URL into an xarray Dataset.

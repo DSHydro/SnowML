@@ -23,6 +23,7 @@ def create_hyper_dict():
         "train_size_dimension": "time",
         "train_size_fraction": .67, 
         "mlflow_tracking_uri": 
-        "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
+        "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML",
+        "recursive_predict": True
     }
     return param_dict

@@ -127,6 +127,7 @@ def process_row(row, var, idx, bucket_dict, crs, var_name, overwrite, append_sta
     # process to silver
     small_ds = prep_bronze(var, bucket_dict=bucket_dict, append_start = append_start)
     df_silver = create_mask(small_ds, row, crs)
+    #print(f"Processing huc {idx+1}, huc_id: {huc_id} to silver completed")
 
     # process to gold
     if append_start is not None:

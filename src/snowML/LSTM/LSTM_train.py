@@ -8,6 +8,10 @@ from snowML.LSTM import LSTM_pre_process as pp
 #from snowML.LSTM import LSTM_plot
 from snowML.LSTM import LSTM_plot2
 from snowML.LSTM import LSTM_metrics as met
+from snowML.LSTM import LSTM_predict_recursive as recur
+
+import importlib
+importlib.reload(recur)
 
 
 # Helper Function: Load data into DataLoader
@@ -159,6 +163,22 @@ def predict (model_dawgs, df_dict, selected_key, params):
             y_train = y_train.numpy()
             y_test = y_test.numpy()
 
+            if params["recursive_predict"]:
+
+                # Index of the lagged SWE variable in the input features
+                lagged_swe_idx = params['var_list'].index('mean_swe_lag_30')
+
+                # Recursive forecast on test set
+                y_test_pred_recur = recur.recursive_forecast(
+                    model_dawgs,
+                    test_main,
+                    lagged_swe_idx, 
+                    params
+                )
+                y_test_pred_recur = np.array(y_test_pred_recur).reshape(-1, 1)
+            else:
+                y_test_pred_recur = np.zeros_like(y_test)
+
     else: # split along entire huc
         X_test, y_test = pp.create_tensor(data, params['lookback'], params['var_list'])
         with torch.no_grad():
@@ -166,8 +186,9 @@ def predict (model_dawgs, df_dict, selected_key, params):
             y_test = y_test.numpy()
         y_train_pred = None
         y_train = None
+        y_test_pred_recur = None
         train_size_main = 0
-    return data, y_train_pred, y_test_pred, y_train, y_test, train_size_main
+    return data, y_train_pred, y_test_pred, y_train, y_test, y_test_pred_recur, train_size_main
 
 
 def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
@@ -195,7 +216,7 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
     # Loop through each HUC
     for selected_key in available_keys:
         print(f"evaluating on huc {selected_key}")
-        data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size_main = (
+        data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, y_te_pred_recur, train_size_main = (
             predict(model_dawgs, df_dict, selected_key, params))
 
         # test metrics
@@ -223,4 +244,3 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
                     params, metrics_dict=metric_dict_test)
             except Exception as e:
                 print(f"Error occurred while plotting: {e}")
-

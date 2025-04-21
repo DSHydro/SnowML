@@ -23,7 +23,8 @@ def create_hyper_dict():
         "train_size_dimension": "time",
         "train_size_fraction": .67, 
         "mlflow_tracking_uri": 
-        "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML", 
+        "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML",
+        "recursive_predict": False, 
         "filter_dates": ["1984-10-01", "2021-09-30"]
     }
     return param_dict

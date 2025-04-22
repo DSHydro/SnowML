@@ -61,7 +61,7 @@ def create_run_dict_Ex5():
     run_dict["Ephemeral_DI_hybrid"]  = "5c31e266ce404aa7a5e5716d04e78b93" # kindly cow
     run_dict["Ephemeral_DI_mse"] = "d462d25d0aac4ae1952e502ee435ccd0" # valuable foal
     
-    run_dict["Maritime_DI_MSE"] = "f56504d6c33447c095615c2167d9b5d2" # grandiose-bee 
+    run_dict["Montane_DI_MSE"] = "f56504d6c33447c095615c2167d9b5d2" # grandiose-bee 
 
     return run_dict
 

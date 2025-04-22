@@ -65,7 +65,7 @@ def create_run_dict_Ex5():
     run_dict["Ephemeral_DI_mse"] = "d462d25d0aac4ae1952e502ee435ccd0" # valuable foal
     run_dict["Ephemeral_DI_mae"] = "5d4eae0991c545e2a3a9739cfd1d7268" # righteous snake 
     
-    run_dict["Maritime_DI_MSE"] = "f56504d6c33447c095615c2167d9b5d2" # grandiose-bee 
+    run_dict["Montane_DI_MSE"] = "f56504d6c33447c095615c2167d9b5d2" # grandiose-bee 
     run_dict["Maritime_DI_2_MAE"] = "56d60b81d63e4b81a88e89e344b39fa9" # orderly stoat
     run_dict["Maritime_DI_mae"] = "bebeee98ccb74137b3c629ef6e38b8dc"
     
@@ -74,7 +74,8 @@ def create_run_dict_Ex5():
 
 def create_run_dict_Ex6(): 
     run_dict = {}
-    run_dict["Maritime_90Lookback"] = "8d14cdd4d15045b183347211b1e20751"
+    run_dict["Maritime_90Lookback"] = "8d14cdd4d15045b183347211b1e20751"  # Trained on entire HUC by accident
+    run_dict["Montane_90Lookback"] = "f82e931b60cd4d21863729305ff312a8"  # Dashing sloth
     return run_dict
 
 

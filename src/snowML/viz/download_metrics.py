@@ -74,7 +74,8 @@ def create_run_dict_Ex5():
 
 def create_run_dict_Ex6(): 
     run_dict = {}
-    run_dict["Maritime_90Lookback"] = "8d14cdd4d15045b183347211b1e20751"
+    run_dict["Maritime_90Lookback"] = "8d14cdd4d15045b183347211b1e20751"  # Trained on entire HUC by accident
+    run_dict["Montane_90Lookback"] = "f82e931b60cd4d21863729305ff312a8"  # Dashing sloth
     return run_dict
 
 

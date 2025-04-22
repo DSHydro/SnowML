@@ -13,6 +13,10 @@ from snowML.LSTM import LSTM_metrics as met
 from snowML.datapipe import data_utils as du
 from snowML.datapipe import set_data_constants as sdc
 
+import importlib
+importlib.reload(LSTM_plot2)
+importlib.reload(LSTM_train)
+
 
 def load_model(model_uri):
     """
@@ -36,7 +40,7 @@ def get_params(tracking_uri, run_id):
     Args:
         tracking_uri (str): The URI of the MLflow tracking server.
         run_id (str): The ID of the MLflow run.
-
+        
     Returns:
         dict: A dictionary containing the parameters of the specified MLflow run.
     """
@@ -126,23 +130,31 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
     if params["train_size_dimension"] == "huc":
         # all data is "test" data
         params["train_size_fraction"] = 0
-        data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size = LSTM_train.predict(
+        data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, y_te_pred_recur, train_size = LSTM_train.predict(
             model_dawgs, df_dict, huc, params)
     else: # else train/test split is time
         if params.get("train_size_fraction") in {0, 1}:
             raise ValueError("Train_size_fraction cannot be 0 or 1 if training dimension is time")
-        data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size = LSTM_train.predict(model_dawgs,
+        data, y_tr_pred, y_te_pred, y_tr_true, y_te_true,  y_te_pred_recur, train_size, = LSTM_train.predict(model_dawgs,
             df_dict, huc, params)
 
+        #print("Last few elements of y_te_true", y_te_true[-10])
+        #print("Last few elements of y_te_pred", y_te_pred[-10])
+
     metric_dict = met.calc_metrics(y_te_true, y_te_pred, metric_type = "test")
-    return metric_dict, data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, train_size
+    return metric_dict, data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, y_te_pred_recur, train_size
 
 
-def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri, mlflow_log_now = True):
+def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri,
+    mlflow_log_now = True, recur_predict = False):
 
     # retrieve model details from mlflow
     model_dawgs = load_model(model_uri)
     params = get_params(mlflow_tracking_uri, run_id)
+    if recur_predict:
+        params["recursive_predict"] = True
+    else:
+        params["recursive_predict"] = False
 
     # assemble test data
 
@@ -163,18 +175,19 @@ def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri, mlf
             mlflow.log_param("model_uri", model_uri)
 
             for huc in test_hucs:
-                metric_dict, data, y_tr_pred, y_te_pred, _, _, train_size = eval_from_saved_model(
+                metric_dict, data, y_tr_pred, y_te_pred, _, _, y_te_pred_recur, train_size = eval_from_saved_model(
                     model_dawgs, df_dict_test, huc, params)
-                LSTM_plot2.plot(data, y_tr_pred, y_te_pred, train_size,
+                print("Metrict dict is:", metric_dict)
+                LSTM_plot2.plot(data, y_tr_pred, y_te_pred, y_te_pred_recur, train_size,
                     huc, params, metrics_dict = metric_dict)
                 for met_nm, metric in metric_dict.items():
                     mlflow.log_metric(f"{met_nm}_{str(huc)}", metric)
                     print(f"{met_nm}: {metric}")
     else:
         for huc in test_hucs:
-            metric_dict, data, y_tr_pred, y_te_pred, _, _, train_size = eval_from_saved_model(
+            metric_dict, data, y_tr_pred, y_te_pred, _, _, y_te_pred_recur, train_size = eval_from_saved_model(
                 model_dawgs, df_dict_test, huc, params)
-            LSTM_plot2.plot(data, y_tr_pred, y_te_pred, train_size,
+            LSTM_plot2.plot(data, y_tr_pred, y_te_pred, y_te_pred_recur, train_size,
                     huc, params, metrics_dict = metric_dict, mlflow_on=False)
             for met_nm, metric in metric_dict.items():
                 print(f"{met_nm}: {metric}")

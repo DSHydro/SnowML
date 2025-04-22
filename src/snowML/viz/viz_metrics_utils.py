@@ -137,10 +137,9 @@ def plot_metric(df, metric_type, output_file="plot.png"):
     print(f"\nPlot saved as {output_file}")
 
 
-def retrieve_plot (huc, key):  
+def retrieve_plot (huc, key, local_file_path):  
     bucket = "sues-test" # TO DO - UPDATE TO DIFF S3 BUCKET
     s3 = boto3.client('s3')
-    local_file_path = f"docs/model_results/SWE_Predictions_for_huc{huc}.png"
     s3.download_file(bucket, key, local_file_path)
     s3.close()
 

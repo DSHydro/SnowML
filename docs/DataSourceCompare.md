@@ -8,7 +8,8 @@ Refer to [this notebook](..notebooks/Verify_Pipeline/Compare_SWE.ipynb) for futh
 
 | HUC 1711000504 | HUC 1711000509 |
 |:--:|:--:|
-| ![HUC 1711000504](../notebooks/Verify_Pipeline/charts/Mean_SWE_over_Time_for_Huc_1711000504.png) | ![](../notebooks/Verify_Pipeline/charts/Mean_SWE_over_Time_for_Huc_1711000509.png)
+| ![HUC 1711000504](../notebooks/Verify_Pipeline/charts/Mean_SWE_over_Time_for_Huc_1711000504.png) | ![](../notebooks/Verify_Pipeline/charts/Mean_SWE_over_Time_for_Huc_1711000509.png)|
+| ![HUC 1711000504](../notebooks/Verify_Pipeline/charts/Difference_in_SWE_values_UA_Data_vs_Skagit_Data_1711000504.png) | ![](../notebooks/Verify_Pipeline/charts/Difference_in_SWE_values_UA_Data_vs_Skagit_Data_1711000509.png)
 
 
 Graphs below show prediction results vs. actual data using the UA and Skagit original data fed into an LSTM model that was trained on UA data from 162 Huc 12 sub-watersheds where Maritme and Montane Forest snow predominates, using precipitation, air temperature, and basin elevation as feature variables.  Refer to [Expirement 3 doumentation] (https://github.com/DSHydro/SnowML/blob/main/docs/Ex3_MultiHucTraining.md) for details on the multi-huc training approach. 

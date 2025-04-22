@@ -2,8 +2,10 @@
 # pylint: disable=C0103
 
 import numpy as np
+import mlflow
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error, mean_absolute_error
+
 
 def kling_gupta_efficiency(y_true, y_pred):
     """
@@ -68,3 +70,9 @@ def calc_metrics(d_true, d_pred, metric_type = "test"):
     mae = mean_absolute_error(d_true, d_pred)
     metric_dict = dict(zip(metric_names, [mse, kge, r2, mae]))
     return metric_dict
+
+def log_print_metrics(metric_dict, epoch):
+    if metric_dict is not None: 
+        for met_nm, metric in metric_dict.items():
+            mlflow.log_metric(f"{met_nm}_{str(selected_key)}", metric, step=epoch)
+            print(f"{met_nm}: {metric}")

@@ -13,9 +13,9 @@ from snowML.LSTM import LSTM_metrics as met
 from snowML.datapipe import data_utils as du
 from snowML.datapipe import set_data_constants as sdc
 
-import importlib
-importlib.reload(LSTM_plot2)
-importlib.reload(LSTM_train)
+#import importlib
+#importlib.reload(LSTM_plot2)
+#importlib.reload(LSTM_train)
 
 
 def load_model(model_uri):
@@ -141,8 +141,10 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
         #print("Last few elements of y_te_true", y_te_true[-10])
         #print("Last few elements of y_te_pred", y_te_pred[-10])
 
-    metric_dict = met.calc_metrics(y_te_true, y_te_pred, metric_type = "test")
-    return metric_dict, data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, y_te_pred_recur, train_size
+    metric_dict_test = met.calc_metrics(y_te_true, y_te_pred, metric_type = "test")
+    metric_dict_test_recur = met.calc_metrics(y_te_true, y_te_pred_recur, metric_type = "test_recur")
+    return metric_dict_test, metric_dict_test_recur, data, y_tr_pred, \
+        y_te_pred, y_tr_true, y_te_true, y_te_pred_recur, train_size
 
 
 def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri,
@@ -175,19 +177,18 @@ def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri,
             mlflow.log_param("model_uri", model_uri)
 
             for huc in test_hucs:
-                metric_dict, data, y_tr_pred, y_te_pred, _, _, y_te_pred_recur, train_size = eval_from_saved_model(
+                metric_dict_test, metric_dict_test_recur, data, y_tr_pred, y_te_pred, _, _, y_te_pred_recur, train_size = eval_from_saved_model(
                     model_dawgs, df_dict_test, huc, params)
-                print("Metrict dict is:", metric_dict)
+                for m_dict in [metric_dict_test, metric_dict_test_recur]:
+                    met.log_print_metrics(m_dict, 0)
                 LSTM_plot2.plot(data, y_tr_pred, y_te_pred, y_te_pred_recur, train_size,
-                    huc, params, metrics_dict = metric_dict)
-                for met_nm, metric in metric_dict.items():
-                    mlflow.log_metric(f"{met_nm}_{str(huc)}", metric)
-                    print(f"{met_nm}: {metric}")
+                    huc, params, metrics_dict = metric_dict_test)
+
     else:
         for huc in test_hucs:
-            metric_dict, data, y_tr_pred, y_te_pred, _, _, y_te_pred_recur, train_size = eval_from_saved_model(
+            metric_dict_test, metric_dict_test_recur, data, y_tr_pred, y_te_pred, _, _, y_te_pred_recur, train_size = eval_from_saved_model(
                 model_dawgs, df_dict_test, huc, params)
+            for m_dict in [metric_dict_test, metric_dict_test_recur]:
+                met.log_print_metrics(m_dict, 0)
             LSTM_plot2.plot(data, y_tr_pred, y_te_pred, y_te_pred_recur, train_size,
-                    huc, params, metrics_dict = metric_dict, mlflow_on=False)
-            for met_nm, metric in metric_dict.items():
-                print(f"{met_nm}: {metric}")
+                    huc, params, metrics_dict = metric_dict_test, mlflow_on=False)

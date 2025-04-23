@@ -10,8 +10,8 @@ from snowML.LSTM import LSTM_plot2
 from snowML.LSTM import LSTM_metrics as met
 from snowML.LSTM import LSTM_predict_recursive as recur
 
-import importlib
-importlib.reload(recur)
+#import importlib
+#importlib.reload(recur)
 
 
 # Helper Function: Load data into DataLoader
@@ -166,13 +166,13 @@ def predict (model_dawgs, df_dict, selected_key, params):
             if params["recursive_predict"]:
 
                 # Index of the lagged SWE variable in the input features
-                lagged_swe_idx = params['var_list'].index('mean_swe_lag_30')
+                lagged_swe_idx = params['lag_swe_var_idx']
 
                 # Recursive forecast on test set
                 y_test_pred_recur = recur.recursive_forecast(
                     model_dawgs,
                     test_main,
-                    lagged_swe_idx, 
+                    lagged_swe_idx,
                     params
                 )
                 y_test_pred_recur = np.array(y_test_pred_recur).reshape(-1, 1)
@@ -186,8 +186,21 @@ def predict (model_dawgs, df_dict, selected_key, params):
             y_test = y_test.numpy()
         y_train_pred = None
         y_train = None
-        y_test_pred_recur = None
         train_size_main = 0
+
+        if params["recursive_predict"]:
+             # Index of the lagged SWE variable in the input features
+            lagged_swe_idx = params['lag_swe_var_idx']
+            # Recursive forecast on test set
+            y_test_pred_recur = recur.recursive_forecast(
+                model_dawgs,
+                test_main,
+                lagged_swe_idx,
+                params
+                )
+            y_test_pred_recur = np.array(y_test_pred_recur).reshape(-1, 1)
+        else:
+            y_test_pred_recur = np.zeros_like(y_test)
     return data, y_train_pred, y_test_pred, y_train, y_test, y_test_pred_recur, train_size_main
 
 
@@ -222,6 +235,12 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
         # test metrics
         metric_dict_test = met.calc_metrics(y_te_true, y_te_pred, metric_type = "test")
 
+         # test_metrics_recur if avail
+        if params["recursive_predict"]:
+            metric_dict_te_recur = met.calc_metrics(y_te_true, y_te_pred_recur, metric_type = "test_recur")
+        else:
+            metric_dict_te_recur = None
+
         # train metrics if avail
         if params["train_size_dimension"] == "time":
             metric_dict_train = met.calc_metrics(y_tr_true, y_tr_pred, metric_type = "train")
@@ -229,13 +248,8 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
             metric_dict_train = None
 
         #Log and print metrics
-        for met_nm, metric in metric_dict_test.items():
-            mlflow.log_metric(f"{met_nm}_{str(selected_key)}", metric, step=epoch)
-            print(f"{met_nm}: {metric}")
-        if metric_dict_train is not None:
-            for met_nm, metric in metric_dict_train.items():
-                mlflow.log_metric(f"{met_nm}_{str(selected_key)}", metric, step = epoch)
-                print(f"{met_nm}: {metric}")
+        for m_dict in [metric_dict_test, metric_dict_te_recur, metric_dict_train]:
+            met.log_print_metrics(m_dict, epoch)
 
         # store plots for final epooch
         if epoch == params["n_epochs"] - 1:

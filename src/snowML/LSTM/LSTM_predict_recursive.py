@@ -4,10 +4,10 @@ import torch
 from snowML.LSTM import LSTM_pre_process as pp
 
 
-# TO DO - Make lag_days part of params dict
-def recursive_forecast(model_dawgs, df_test, lagged_swe_idx, params, lag_days=30):
+def recursive_forecast(model_dawgs, df_test, lagged_swe_idx, params):
     model_dawgs.eval()
     y_pred_recur = []
+    lag_days = params["lag_days"]
     count = 0
 
     for idx in range (params["lookback"], df_test.shape[0]):

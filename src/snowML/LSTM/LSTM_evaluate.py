@@ -1,5 +1,4 @@
 """ Module to evaluate model results from a saved model """
-# Uses plot2 function (warm colors and flexible y scale)
 # pylint: disable=C0103
 
 import ast
@@ -8,14 +7,10 @@ import mlflow.pytorch
 import pandas as pd
 from snowML.LSTM import LSTM_pre_process as pp
 from snowML.LSTM import LSTM_train
-from snowML.LSTM import LSTM_plot2
+from snowML.LSTM import LSTM_plot3 as plot3
 from snowML.LSTM import LSTM_metrics as met
 from snowML.datapipe import data_utils as du
 from snowML.datapipe import set_data_constants as sdc
-
-#import importlib
-#importlib.reload(LSTM_plot2)
-#importlib.reload(LSTM_train)
 
 
 def load_model(model_uri):
@@ -56,6 +51,8 @@ def get_params(tracking_uri, run_id):
         params[key] = int(params[key])
     for key in ['train_size_fraction']:
         params[key] = float(params[key])
+    params["lag_swe_var_idx"] =  2 # TO DO - MAKE DYNAMIC
+    params["lag_days"] = 30 # TO DO - MAKE DYNAMIC
     return params
 
 
@@ -177,18 +174,38 @@ def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri,
             mlflow.log_param("model_uri", model_uri)
 
             for huc in test_hucs:
-                metric_dict_test, metric_dict_test_recur, data, y_tr_pred, y_te_pred, _, _, y_te_pred_recur, train_size = eval_from_saved_model(
+                metric_dict_test, metric_dict_test_recur, data, y_tr_pred, y_te_pred, _, y_te_true, y_te_pred_recur, train_size = eval_from_saved_model(
                     model_dawgs, df_dict_test, huc, params)
                 for m_dict in [metric_dict_test, metric_dict_test_recur]:
-                    met.log_print_metrics(m_dict, 0)
-                LSTM_plot2.plot(data, y_tr_pred, y_te_pred, y_te_pred_recur, train_size,
-                    huc, params, metrics_dict = metric_dict_test)
+                    met.log_print_metrics(m_dict, huc, 0)
 
+                print("y_te_pred", y_te_pred.flatten()[400:420])
+                print("y_te_pred_recur", y_te_pred_recur.flatten()[400:420])
+
+                plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
+                        'SWE Estimates UA Data (Physics Based Model)')
+                plot_dict_te = plot3.assemble_plot_dict(y_te_pred, "green",
+                        'SWE Estimates Prediction')     
+                plot_dict_te_recur = plot3.assemble_plot_dict(y_te_pred_recur, "black",
+                        'SWE Estimates Recursive Prediction')
+                y_dict_list = [plot_dict_true, plot_dict_te, plot_dict_te_recur ]
+                ttl = "SWE_Actual_vs_Predicted_for_huc_{huc}"
+                x_axis_vals = data.index[9523:]  # TO DO - MAKE DYNAMIC
+                plot3.plot3(x_axis_vals, y_dict_list, ttl)
     else:
         for huc in test_hucs:
-            metric_dict_test, metric_dict_test_recur, data, y_tr_pred, y_te_pred, _, _, y_te_pred_recur, train_size = eval_from_saved_model(
+            metric_dict_test, metric_dict_test_recur, data, y_tr_pred, y_te_pred, _, y_te_true, y_te_pred_recur, train_size = eval_from_saved_model(
                 model_dawgs, df_dict_test, huc, params)
             for m_dict in [metric_dict_test, metric_dict_test_recur]:
                 met.log_print_metrics(m_dict, 0)
-            LSTM_plot2.plot(data, y_tr_pred, y_te_pred, y_te_pred_recur, train_size,
-                    huc, params, metrics_dict = metric_dict_test, mlflow_on=False)
+
+            plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
+                    'SWE Estimates UA Data (Physics Based Model)')
+            plot_dict_te = plot3.assemble_plot_dict(y_te_pred, "green",
+                    'SWE Estimates Prediction')     
+            plot_dict_te_recur = plot3.assemble_plot_dict(y_te_pred_recur, "black",
+                    'SWE Estimates Recursive Prediction')
+            y_dict_list = [plot_dict_true, plot_dict_te, plot_dict_te_recur]
+            ttl = "SWE_Actual_vs_Predicted_for_huc_{huc}"
+            x_axis_vals = data.index
+            plot3.plot3(x_axis_vals, y_dict_list, ttl)

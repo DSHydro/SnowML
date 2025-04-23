@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from snowML.LSTM import LSTM_evaluate as evaluate
 from snowML.LSTM import LSTM_pre_process as pp
-from snowML.LSTM import LSTM_plot2 as plot2
+from snowML.LSTM import LSTM_plot3 as plot3
 from snowML.Scripts.load_hucs import select_hucs_local_training as sh
 
 

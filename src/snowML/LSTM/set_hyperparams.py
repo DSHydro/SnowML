@@ -25,6 +25,16 @@ def create_hyper_dict():
         "mlflow_tracking_uri": 
         "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML",
         "recursive_predict": False, 
+        "lag_days": 30,
+        "lag_swe_var_idx": 3,
         "filter_dates": ["1984-10-01", "2021-09-30"]
     }
     return param_dict
+
+def val_params(params): 
+    if params["recursive_predict"]:
+        lag_var_name = params["var_list"][params["lag_swe_var_idx"]]
+        if not lag_var_name.startswith("lag"):
+            print("Double check index of lagged variable for recursive predict")
+            return False
+    return True

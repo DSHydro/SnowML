@@ -12,6 +12,10 @@ from snowML.LSTM import LSTM_metrics as met
 from snowML.datapipe import data_utils as du
 from snowML.datapipe import set_data_constants as sdc
 
+# TO DO - MAKE MORE GENERALIZABLE
+def get_model_uri(prefix, huc):
+    model_uri = f"{prefix}_{huc}"
+    return model_uri
 
 def load_model(model_uri):
     """
@@ -120,7 +124,6 @@ def renorm(train_hucs, val_hucs, test_hucs, var_list):
     return df_dict
 
 
-
 def eval_from_saved_model (model_dawgs, df_dict, huc, params):
     print(f"evaluating on huc {huc}")
 
@@ -144,11 +147,26 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
         y_te_pred, y_tr_true, y_te_true, y_te_pred_recur, train_size
 
 
-def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri,
+def predict_one(model_dawgs, df_dict_test, huc, params):
+    metric_dict_test, metric_dict_test_recur, data, _, y_te_pred, _, y_te_true, y_te_pred_recur, train_size = eval_from_saved_model(
+        model_dawgs, df_dict_test, huc, params)
+    combined_dict = {**metric_dict_test, **metric_dict_test_recur}
+    met.log_print_metrics(combined_dict, huc, 0)
+    plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
+            'SWE Estimates UA Data (Physics Based Model)')
+    plot_dict_te = plot3.assemble_plot_dict(y_te_pred, "green",
+            'SWE Estimates Prediction')     
+    plot_dict_te_recur = plot3.assemble_plot_dict(y_te_pred_recur, "black",
+            'SWE Estimates Recursive Prediction')
+    y_dict_list = [plot_dict_true, plot_dict_te, plot_dict_te_recur ]
+    ttl = f"SWE_Actual_vs_Predicted_for_huc_{huc}"
+    x_axis_vals = data.index[train_size:]  
+    plot3.plot3(x_axis_vals, y_dict_list, ttl, metrics_dict = combined_dict)
+
+def predict_from_pretrain(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri,
     mlflow_log_now = True, recur_predict = False):
 
     # retrieve model details from mlflow
-    model_dawgs = load_model(model_uri)
     params = get_params(mlflow_tracking_uri, run_id)
     if recur_predict:
         params["recursive_predict"] = True
@@ -171,41 +189,15 @@ def predict_from_pretrain(test_hucs, run_id, model_uri, mlflow_tracking_uri,
         with mlflow.start_run():
             mlflow.log_params(params)
             mlflow.log_param("test_hucs", test_hucs)
-            mlflow.log_param("model_uri", model_uri)
+            mlflow.log_param("model_uri_prefix", model_uri_prefix)
 
             for huc in test_hucs:
-                metric_dict_test, metric_dict_test_recur, data, y_tr_pred, y_te_pred, _, y_te_true, y_te_pred_recur, train_size = eval_from_saved_model(
-                    model_dawgs, df_dict_test, huc, params)
-                for m_dict in [metric_dict_test, metric_dict_test_recur]:
-                    met.log_print_metrics(m_dict, huc, 0)
+                model_uri = get_model_uri(model_uri_prefix, huc)
+                model_dawgs = load_model(model_uri)
+                predict_one(model_dawgs, df_dict_test, huc, params)
 
-                print("y_te_pred", y_te_pred.flatten()[400:420])
-                print("y_te_pred_recur", y_te_pred_recur.flatten()[400:420])
-
-                plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
-                        'SWE Estimates UA Data (Physics Based Model)')
-                plot_dict_te = plot3.assemble_plot_dict(y_te_pred, "green",
-                        'SWE Estimates Prediction')     
-                plot_dict_te_recur = plot3.assemble_plot_dict(y_te_pred_recur, "black",
-                        'SWE Estimates Recursive Prediction')
-                y_dict_list = [plot_dict_true, plot_dict_te, plot_dict_te_recur ]
-                ttl = "SWE_Actual_vs_Predicted_for_huc_{huc}"
-                x_axis_vals = data.index[9523:]  # TO DO - MAKE DYNAMIC
-                plot3.plot3(x_axis_vals, y_dict_list, ttl)
     else:
         for huc in test_hucs:
-            metric_dict_test, metric_dict_test_recur, data, y_tr_pred, y_te_pred, _, y_te_true, y_te_pred_recur, train_size = eval_from_saved_model(
-                model_dawgs, df_dict_test, huc, params)
-            for m_dict in [metric_dict_test, metric_dict_test_recur]:
-                met.log_print_metrics(m_dict, 0)
-
-            plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
-                    'SWE Estimates UA Data (Physics Based Model)')
-            plot_dict_te = plot3.assemble_plot_dict(y_te_pred, "green",
-                    'SWE Estimates Prediction')     
-            plot_dict_te_recur = plot3.assemble_plot_dict(y_te_pred_recur, "black",
-                    'SWE Estimates Recursive Prediction')
-            y_dict_list = [plot_dict_true, plot_dict_te, plot_dict_te_recur]
-            ttl = "SWE_Actual_vs_Predicted_for_huc_{huc}"
-            x_axis_vals = data.index
-            plot3.plot3(x_axis_vals, y_dict_list, ttl)
+            model_uri = get_model_uri(model_uri_prefix, huc)
+            model_dawgs = load_model(model_uri)
+            predict_one(model_dawgs, df_dict_test, huc, params)

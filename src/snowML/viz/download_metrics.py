@@ -67,7 +67,9 @@ def create_run_dict_Ex5():
     
     run_dict["Montane_DI_MSE"] = "f56504d6c33447c095615c2167d9b5d2" # grandiose-bee 
     run_dict["Maritime_DI_2_MAE"] = "56d60b81d63e4b81a88e89e344b39fa9" # orderly stoat
-    run_dict["Maritime_DI_mae"] = "bebeee98ccb74137b3c629ef6e38b8dc"
+    run_dict["Maritime_DI_mae"] = "bebeee98ccb74137b3c629ef6e38b8dc" 
+    
+    run_dict["Maritime_DI_MSE_recur"] = "586bfeb7a5cc4b769205503c113e7528" # upbeat smelt (from righteous snake)
     
 
     return run_dict

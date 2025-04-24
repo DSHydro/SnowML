@@ -254,7 +254,7 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
         # store plots for final epooch
         if epoch == params["n_epochs"] - 1:
             combined_dict = {**metric_dict_test, **metric_dict_te_recur}
-            met.log_print_metrics(combined_dict, selected_key, epoch)
+            #met.log_print_metrics(combined_dict, selected_key, epoch)
             plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
                 'SWE Estimates UA Data (Physics Based Model)')
             plot_dict_te = plot3.assemble_plot_dict(y_te_pred, "green",

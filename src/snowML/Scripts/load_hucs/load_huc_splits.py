@@ -4,7 +4,7 @@
 import json
 
 
-def huc_split(f="src/snowML/Scripts/hucs_data.json"):
+def huc_split(f="src/snowML/Scripts/load_hucs/hucs_data.json"):
     """
     Splits HUCs (Hydrologic Unit Codes) data into training, validation, and 
     test sets.

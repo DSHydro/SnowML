@@ -15,8 +15,8 @@ def create_hyper_dict():
         "batch_size": 64,
         "n_steps": 1,
         "num_workers": 8,
-        "var_list": ["mean_pr", "mean_tair"],
-        "expirement_name": "Skagit_DataSource_Compare",
+        "var_list": ["mean_pr", "mean_tair", "mean_swe_lag_30"],
+        "expirement_name": "Data_Integration",
         "loss_type": "mse",
         "mse_lambda_start": 1, 
         "mse_lambda_end": 0.5, 
@@ -24,17 +24,17 @@ def create_hyper_dict():
         "train_size_fraction": .67, 
         "mlflow_tracking_uri": 
         "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML",
-        "recursive_predict": False, 
+        "recursive_predict": True, 
         "lag_days": 30,
-        "lag_swe_var_idx": 3,
+        "lag_swe_var_idx": 2,
         "filter_dates": ["1984-10-01", "2021-09-30"]
     }
     return param_dict
 
-def val_params(params): 
+def val_params(params):
     if params["recursive_predict"]:
         lag_var_name = params["var_list"][params["lag_swe_var_idx"]]
-        if not lag_var_name.startswith("lag"):
+        if "lag" not in lag_var_name:
             print("Double check index of lagged variable for recursive predict")
             return False
     return True

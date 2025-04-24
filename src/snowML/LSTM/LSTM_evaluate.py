@@ -160,7 +160,7 @@ def predict_one(model_dawgs, df_dict_test, huc, params):
             'SWE Estimates Recursive Prediction')
     y_dict_list = [plot_dict_true, plot_dict_te, plot_dict_te_recur ]
     ttl = f"SWE_Actual_vs_Predicted_for_huc_{huc}"
-    x_axis_vals = data.index[train_size:]  
+    x_axis_vals = data.index[train_size:]
     plot3.plot3(x_axis_vals, y_dict_list, ttl, metrics_dict = combined_dict)
 
 def predict_from_pretrain(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri,

@@ -72,7 +72,7 @@ def calc_metrics(d_true, d_pred, metric_type = "test"):
     return metric_dict
 
 def log_print_metrics(metric_dict, huc, epoch):
-    if metric_dict is not None: 
+    if metric_dict is not None:
         for met_nm, metric in metric_dict.items():
             mlflow.log_metric(f"{met_nm}_{str(huc)}", metric, step=epoch)
             print(f"{met_nm}: {metric}")

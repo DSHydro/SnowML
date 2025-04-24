@@ -190,8 +190,8 @@ params = create_hyper_dict()
 6. **Define the hucs that will be used in the training, validation, and huc sets.**  To resuse the same hucs as discussed here, run the code below.  This code results in four lists of huc numbers, corresponding to the train, validation, and test sets A and B.  If you run this code from within an AWS enviornment, you may see warning messages about unclosed aiohttp connectors.  These are harmless.  (But annoying!  Please, help us out with a pull request if you know how to suppress, we've tried everything . . . )
 
 ```
-from snowML.Scripts import load_huc_splits as lh
-from snowML.Scripts import create_test_set_B as cb
+from snowML.Scripts.load_hucs import load_huc_splits as lh
+from snowML.Scripts.load_hucs import create_test_set_B as cb
 tr, val, test_A = lh.huc_split()
 test_B = cb.get_testB_huc_list()
 ```

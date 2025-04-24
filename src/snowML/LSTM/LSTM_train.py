@@ -3,10 +3,10 @@
 import random
 import torch
 import numpy as np
-import mlflow
 from snowML.LSTM import LSTM_pre_process as pp
 #from snowML.LSTM import LSTM_plot
-from snowML.LSTM import LSTM_plot2
+#from snowML.LSTM import LSTM_plot2
+from snowML.LSTM import LSTM_plot3 as plot3
 from snowML.LSTM import LSTM_metrics as met
 from snowML.LSTM import LSTM_predict_recursive as recur
 
@@ -69,9 +69,9 @@ def pre_train(model, optimizer, loss_fn, df_dict, params, epoch):
 
             loss_val_list.append(loss.item())
 
-    avg_loss = np.mean(loss_val_list)
-    print(f"Average loss for epoch {epoch} is {avg_loss}")
-    mlflow.log_metric("avg_training_loss", avg_loss, step=epoch)
+    #avg_loss = np.mean(loss_val_list)
+    #print(f"Average loss for epoch {epoch} is {avg_loss}")
+    #mlflow.log_metric("avg_training_loss", avg_loss, step=epoch)
 
 
 def fine_tune(model, optimizer, loss_fn, df_train, params, epoch):
@@ -229,13 +229,13 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
     # Loop through each HUC
     for selected_key in available_keys:
         print(f"evaluating on huc {selected_key}")
-        data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, y_te_pred_recur, train_size_main = (
+        data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, y_te_pred_recur, train_size = (
             predict(model_dawgs, df_dict, selected_key, params))
 
         # test metrics
         metric_dict_test = met.calc_metrics(y_te_true, y_te_pred, metric_type = "test")
 
-         # test_metrics_recur if avail
+        # test_metrics_recur if avail
         if params["recursive_predict"]:
             metric_dict_te_recur = met.calc_metrics(y_te_true, y_te_pred_recur, metric_type = "test_recur")
         else:
@@ -249,12 +249,19 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
 
         #Log and print metrics
         for m_dict in [metric_dict_test, metric_dict_te_recur, metric_dict_train]:
-            met.log_print_metrics(m_dict, epoch)
+            met.log_print_metrics(m_dict, selected_key, epoch)
 
         # store plots for final epooch
         if epoch == params["n_epochs"] - 1:
-            try:
-                LSTM_plot2.plot(data, y_tr_pred, y_te_pred, train_size_main, selected_key,
-                    params, metrics_dict=metric_dict_test)
-            except Exception as e:
-                print(f"Error occurred while plotting: {e}")
+            combined_dict = {**metric_dict_test, **metric_dict_te_recur}
+            met.log_print_metrics(combined_dict, selected_key, epoch)
+            plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
+                'SWE Estimates UA Data (Physics Based Model)')
+            plot_dict_te = plot3.assemble_plot_dict(y_te_pred, "green",
+                'SWE Estimates Prediction')     
+            plot_dict_te_recur = plot3.assemble_plot_dict(y_te_pred_recur, "black",
+                'SWE Estimates Recursive Prediction')
+            y_dict_list = [plot_dict_true, plot_dict_te, plot_dict_te_recur ]
+            ttl = f"SWE_Actual_vs_Predicted_for_huc_{selected_key}"
+            x_axis_vals = data.index[train_size:]
+            plot3.plot3(x_axis_vals, y_dict_list, ttl, metrics_dict = combined_dict)

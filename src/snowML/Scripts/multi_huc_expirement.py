@@ -97,6 +97,7 @@ def run_expirement(train_hucs, val_hucs, params = None):
     """
     if params is None:
         params = sh.create_hyper_dict()
+        sh.val_params(params)
     tr_and_val_hucs = train_hucs + val_hucs
     #print("finished finding tr and val hucs")
     df_dict, global_means, global_stds = pp.pre_process(tr_and_val_hucs, params["var_list"])
@@ -112,7 +113,6 @@ def run_expirement(train_hucs, val_hucs, params = None):
         mlflow.log_params(params)
         # log the hucs
         mlflow.log_param("train_hucs", train_hucs)
-        mlflow.log_param("val_hucs", val_hucs)
         mlflow.log_param("val_hucs", val_hucs)
         # log the normalization values
         mlflow.log_param("global_means", global_means)

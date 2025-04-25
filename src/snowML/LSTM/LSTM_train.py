@@ -115,7 +115,7 @@ def predict(model_dawgs, data, X_te, params, X_tr=None):
         y_te_pred = model_dawgs(X_te).cpu().numpy()
     
         if X_tr is not None: 
-            y_tr_pred = model_dawgs(X_train).cpu().numpy()
+            y_tr_pred = model_dawgs(X_tr).cpu().numpy()
         else: 
             y_tr_pred = None  
     
@@ -191,11 +191,11 @@ def predict_prep(model_dawgs, df_dict, selected_key, params):
     else: # split along entire huc
         X_test, y_test = pp.create_tensor(data, params['lookback'], params['var_list'])
         y_test = y_test.numpy()
-        y_train_pred = None
+        y_tr_pred = None
         y_train = None
         train_size_main = 0
         y_tr_pred, y_te_pred, y_te_pred_recur = predict(model_dawgs, data, X_test, params)
-    return data, y_train_pred, y_te_pred, y_train, y_test, y_te_pred_recur, train_size_main
+    return data, y_tr_pred, y_te_pred, y_train, y_test, y_te_pred_recur, train_size_main
 
 
 def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
@@ -247,14 +247,20 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
 
         # store plots for final epooch
         if epoch == params["n_epochs"] - 1:
-            combined_dict = {**metric_dict_test, **metric_dict_te_recur}
+            if params["recursive_predict"]:
+                combined_dict = {**metric_dict_test, **metric_dict_te_recur}
+            else: 
+                combined_dict = metric_dict_test
             #met.log_print_metrics(combined_dict, selected_key, epoch)
             plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
                 'SWE Estimates UA Data (Physics Based Model)')
             plot_dict_te = plot3.assemble_plot_dict(y_te_pred, "green",
-                'SWE Estimates Prediction')     
-            plot_dict_te_recur = plot3.assemble_plot_dict(y_te_pred_recur, "black",
-                'SWE Estimates Recursive Prediction')
+                'SWE Estimates Prediction') 
+            if params["recursive_predict"]:     
+                plot_dict_te_recur = plot3.assemble_plot_dict(y_te_pred_recur, "black",
+                    'SWE Estimates Recursive Prediction')
+            else: 
+                plot_dict_te_recur = None
             y_dict_list = [plot_dict_true, plot_dict_te, plot_dict_te_recur ]
             ttl = f"SWE_Actual_vs_Predicted_for_huc_{selected_key}"
             x_axis_vals = data.index[train_size:]

@@ -12,6 +12,13 @@ from snowML.LSTM import LSTM_metrics as met
 from snowML.datapipe import data_utils as du
 from snowML.datapipe import set_data_constants as sdc
 
+
+# mlflow_tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML" # update with your tracking_uri
+# model_uri_prefix = "s3://sues-test/298/a6c611d4c4cf410e9666796e3a8892b7/artifacts/epoch29_model"
+# run_id = "a6c611d4c4cf410e9666796e3a8892b7" # debonair dove 
+
+
+
 # TO DO - MAKE MORE GENERALIZABLE
 def get_model_uri(prefix, huc):
     model_uri = f"{prefix}_{huc}"
@@ -50,6 +57,7 @@ def get_params(tracking_uri, run_id):
     for key in ["var_list", "train_hucs", "val_hucs"]:
         if params.get(key):
             params[key] = ast.literal_eval(params[key])
+    print(params["var_list"])
     # convert some strings back to int or float that we need for predict and plotting
     for key in ['lookback']:
         params[key] = int(params[key])
@@ -166,6 +174,9 @@ def predict_one(model_dawgs, df_dict_test, huc, params):
 def predict_from_pretrain(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri,
     mlflow_log_now = True, recur_predict = False):
 
+    # get_model
+    model_dawgs = load_model(model_uri_prefix)
+
     # retrieve model details from mlflow
     params = get_params(mlflow_tracking_uri, run_id)
     if recur_predict:
@@ -192,12 +203,12 @@ def predict_from_pretrain(test_hucs, run_id, model_uri_prefix, mlflow_tracking_u
             mlflow.log_param("model_uri_prefix", model_uri_prefix)
 
             for huc in test_hucs:
-                model_uri = get_model_uri(model_uri_prefix, huc)
+                #model_uri = get_model_uri(model_uri_prefix, huc)
                 model_dawgs = load_model(model_uri)
                 predict_one(model_dawgs, df_dict_test, huc, params)
 
     else:
         for huc in test_hucs:
-            model_uri = get_model_uri(model_uri_prefix, huc)
+            #model_uri = get_model_uri(model_uri_prefix, huc)
             model_dawgs = load_model(model_uri)
             predict_one(model_dawgs, df_dict_test, huc, params)

@@ -70,7 +70,7 @@ def create_run_dict_Ex5():
     run_dict["Maritime_DI_mae"] = "bebeee98ccb74137b3c629ef6e38b8dc" 
     
     run_dict["Maritime_DI_MSE_recur"] = "586bfeb7a5cc4b769205503c113e7528" # upbeat smelt (from righteous snake)
-    
+    run_dict["DI_MandM"] = "cbd9d301420740f1becd6235a9044335" # big donkey
 
     return run_dict
 

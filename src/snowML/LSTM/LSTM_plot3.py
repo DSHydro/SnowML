@@ -14,11 +14,12 @@ def assemble_plot_dict(y_vals, color, label, n_offset=180):
 def plot3(x_axis_vals, y_dict_list, ttl, metrics_dict = None):
     plt.figure(figsize=(12, 6))
     for plot_dict in y_dict_list:
-        plt.plot(
-            x_axis_vals,
-            plot_dict["y_axis_vals"],
-            c = plot_dict["color"],
-            label = plot_dict["label"])
+        if plot_dict is not None: 
+            plt.plot(
+                x_axis_vals,
+                plot_dict["y_axis_vals"],
+                c = plot_dict["color"],
+                label = plot_dict["label"])
     plt.legend(loc='upper right')
     plt.xlabel('Date')
     plt.ylabel('SWE')

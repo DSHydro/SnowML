@@ -110,7 +110,33 @@ def fine_tune(model, optimizer, loss_fn, df_train, params, epoch):
         optimizer.step()
 
 
-def predict (model_dawgs, df_dict, selected_key, params):
+def predict(model_dawgs, data, X_te, params, X_tr=None): 
+    with torch.no_grad():
+        y_te_pred = model_dawgs(X_te).cpu().numpy()
+    
+        if X_tr is not None: 
+            y_tr_pred = model_dawgs(X_train).cpu().numpy()
+        else: 
+            y_tr_pred = None  
+    
+        if params["recursive_predict"]: 
+            # Index of the lagged SWE variable in the input features
+            lagged_swe_idx = params['lag_swe_var_idx']
+
+            # Recursive forecast on test set
+            y_te_pred_recur = recur.recursive_forecast(
+                model_dawgs,
+                data,
+                lagged_swe_idx,
+                params
+                )
+            y_te_pred_recur = np.array(y_te_pred_recur).reshape(-1, 1)
+        else:
+            y_te_pred_recur = None
+    return y_tr_pred, y_te_pred, y_te_pred_recur
+
+
+def predict_prep(model_dawgs, df_dict, selected_key, params):
     """
     Generates predictions using the given model for a specified dataset.
 
@@ -157,51 +183,19 @@ def predict (model_dawgs, df_dict, selected_key, params):
         X_test, y_test = pp.create_tensor(test_main,
                                     params['lookback'],
                                     params['var_list'])
-        with torch.no_grad():
-            y_train_pred = model_dawgs(X_train).cpu().numpy()
-            y_test_pred = model_dawgs(X_test).cpu().numpy()
-            y_train = y_train.numpy()
-            y_test = y_test.numpy()
-
-            if params["recursive_predict"]:
-
-                # Index of the lagged SWE variable in the input features
-                lagged_swe_idx = params['lag_swe_var_idx']
-
-                # Recursive forecast on test set
-                y_test_pred_recur = recur.recursive_forecast(
-                    model_dawgs,
-                    test_main,
-                    lagged_swe_idx,
-                    params
-                )
-                y_test_pred_recur = np.array(y_test_pred_recur).reshape(-1, 1)
-            else:
-                y_test_pred_recur = np.zeros_like(y_test)
-
+        
+        y_train = y_train.numpy()
+        y_test = y_test.numpy()
+        y_tr_pred, y_te_pred, y_te_pred_recur = predict(model_dawgs, data, X_test, params, X_tr=X_train)
+            
     else: # split along entire huc
         X_test, y_test = pp.create_tensor(data, params['lookback'], params['var_list'])
-        with torch.no_grad():
-            y_test_pred = model_dawgs(X_test).cpu().numpy()
-            y_test = y_test.numpy()
+        y_test = y_test.numpy()
         y_train_pred = None
         y_train = None
         train_size_main = 0
-
-        if params["recursive_predict"]:
-             # Index of the lagged SWE variable in the input features
-            lagged_swe_idx = params['lag_swe_var_idx']
-            # Recursive forecast on test set
-            y_test_pred_recur = recur.recursive_forecast(
-                model_dawgs,
-                test_main,
-                lagged_swe_idx,
-                params
-                )
-            y_test_pred_recur = np.array(y_test_pred_recur).reshape(-1, 1)
-        else:
-            y_test_pred_recur = np.zeros_like(y_test)
-    return data, y_train_pred, y_test_pred, y_train, y_test, y_test_pred_recur, train_size_main
+        y_tr_pred, y_te_pred, y_te_pred_recur = predict(model_dawgs, data, X_test, params)
+    return data, y_train_pred, y_te_pred, y_train, y_test, y_te_pred_recur, train_size_main
 
 
 def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
@@ -230,7 +224,7 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
     for selected_key in available_keys:
         print(f"evaluating on huc {selected_key}")
         data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, y_te_pred_recur, train_size = (
-            predict(model_dawgs, df_dict, selected_key, params))
+            predict_prep(model_dawgs, df_dict, selected_key, params))
 
         # test metrics
         metric_dict_test = met.calc_metrics(y_te_true, y_te_pred, metric_type = "test")

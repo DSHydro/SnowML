@@ -71,7 +71,7 @@ def create_run_dict_Ex5():
     
     run_dict["Maritime_DI_MSE_recur"] = "586bfeb7a5cc4b769205503c113e7528" # upbeat smelt (from righteous snake)
     run_dict["DI_MandM"] = "cbd9d301420740f1becd6235a9044335" # big donkeyrun_dict["Montane_DI_MSE_recur"] = "f957c4c9c8f44ce78cad41068764641b" # worried sheep
-
+    run_dict["DI_MandM_7"] # clumsy bass
     return run_dict
 
 def create_run_dict_Ex6(): 
@@ -80,6 +80,9 @@ def create_run_dict_Ex6():
     run_dict["Montane_90Lookback"] = "f82e931b60cd4d21863729305ff312a8"  # Dashing sloth
     return run_dict
 
+def create_run_dict_Tum(): 
+    run_dict = {}
+    run_dict["local_training"] = "16a66fee27f24d3d814c5ca0b5e6bec4" # peaceful-croc
 
 # function to retrieve metrics from ML server
 def load_ml_metrics(

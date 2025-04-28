@@ -139,19 +139,22 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
     if params["train_size_dimension"] == "huc":
         # all data is "test" data
         params["train_size_fraction"] = 0
-        data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, y_te_pred_recur, train_size = LSTM_train.predict(
+        data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, y_te_pred_recur, train_size = LSTM_train.predict_prep(
             model_dawgs, df_dict, huc, params)
     else: # else train/test split is time
         if params.get("train_size_fraction") in {0, 1}:
             raise ValueError("Train_size_fraction cannot be 0 or 1 if training dimension is time")
-        data, y_tr_pred, y_te_pred, y_tr_true, y_te_true,  y_te_pred_recur, train_size, = LSTM_train.predict(model_dawgs,
+        data, y_tr_pred, y_te_pred, y_tr_true, y_te_true,  y_te_pred_recur, train_size, = LSTM_train.predict_prep(model_dawgs,
             df_dict, huc, params)
 
         #print("Last few elements of y_te_true", y_te_true[-10])
         #print("Last few elements of y_te_pred", y_te_pred[-10])
 
     metric_dict_test = met.calc_metrics(y_te_true, y_te_pred, metric_type = "test")
-    metric_dict_test_recur = met.calc_metrics(y_te_true, y_te_pred_recur, metric_type = "test_recur")
+    if y_te_pred_recur is not None: 
+        metric_dict_test_recur = met.calc_metrics(y_te_true, y_te_pred_recur, metric_type = "test_recur")
+    else: 
+        metric_dict_test_recur = None 
     return metric_dict_test, metric_dict_test_recur, data, y_tr_pred, \
         y_te_pred, y_tr_true, y_te_true, y_te_pred_recur, train_size
 
@@ -173,7 +176,7 @@ def predict_one(model_dawgs, df_dict_test, huc, params):
     plot3.plot3(x_axis_vals, y_dict_list, ttl, metrics_dict = combined_dict)
     return combined_dict, y_te_true, y_te_pred, y_te_pred_recur
 
-def set_up(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri):
+def set_up(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri, recur_predict):
     
     # get_model
     model_uri = model_uri_prefix # if it was multi-training
@@ -197,13 +200,13 @@ def set_up(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri):
         # normalize test huc against itself only (as in training)
         df_dict_test =  pp.pre_process_separate(test_hucs, params["var_list"])
 
-    return model_dawgs, df_dict, paramas 
+    return model_dawgs, df_dict_test, params 
 
 
 def predict_from_pretrain(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri,
     mlflow_log_now = True, recur_predict = False):
 
-    model_dawgs, df_dict, paramas = set_up(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri)
+    model_dawgs, df_dict, paramas = set_up(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri, params["recursive_predict"])
 
     if mlflow_log_now:
         mlflow.set_experiment("Predict_From_Pretrain")

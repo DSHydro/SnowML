@@ -6,7 +6,11 @@ import rioxarray as rxr
 import xarray as xr
 import earthaccess
 import s3fs
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 from snowML.datapipe import set_data_constants as sdc
+from snowML.datapipe import get_geos as gg
 
 
 def get_files():
@@ -41,7 +45,11 @@ def get_one_timeslice(file):
     """
     swe_xr = rxr.open_rasterio(file, masked=True).squeeze()
     swe_ds = swe_xr.to_dataset(name="SWE")
-    return swe_ds
+    # reproject and sort
+    swe_ds.rio.write_crs("EPSG:32611", inplace=True)
+    ds_re = swe_ds.rio.reproject("EPSG:4326")
+    ds_re = ds_re.sortby(['x', 'y'])
+    return ds_re
 
 def create_data_dict(files):
     """
@@ -128,3 +136,76 @@ def get_lidar_all(bucket_name = None):
     else:
         print(f"The file already exists at {file_path}. Skipping the save.")
     return ds
+
+def subset_by_row(ds, row): 
+    ds.rio.write_crs(row.crs, inplace=True)
+    clipped_data = ds.rio.clip(row.geometry, drop=True) 
+    return clipped_data
+
+def subset_by_huc(ds, huc_id): 
+    huc_lev = str(len(str(huc_id))).zfill(2)
+    row = gg.get_geos(huc_id, huc_lev)
+    clipped_data = subset_by_row(ds, row)
+    return clipped_data
+    
+def count_na(ds, day = "All"):
+    total_values = np.prod(ds['SWE'].shape)
+    nan_count = np.isnan(ds['SWE'].values).sum()
+    nan_percent = (nan_count / total_values) * 100
+    print(f"for day {day}:")
+    print(f"Number of NaN values: {nan_count}")
+    print(f"Percent of NaN values: {nan_percent:.2f}%")
+
+def plot_valid_pixels(ds):
+    """
+    Plot grid of valid SWE pixels in red on a white background.
+
+    Parameters:
+    -----------
+    ds : xarray.Dataset
+        Input Dataset with variables including 'SWE' and dimensions ('day', 'y', 'x').
+    """
+    # Step 1: Create a mask where SWE is not NaN for any day
+    valid_mask = ds['SWE'].notnull().any(dim='day')
+
+    # Step 2: Create meshgrid for lon and lat
+    lon, lat = np.meshgrid(ds['x'].values, ds['y'].values)
+
+    # Step 3: Plot
+    plt.figure(figsize=(10, 10))
+    plt.pcolormesh(lon, lat, valid_mask, cmap='Reds', shading='auto', vmin=0, vmax=1)
+    plt.gca().set_facecolor('white')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.title('Pixels with SWE Observations (Red)')
+    plt.axis('equal')  # Keep aspect ratio
+    plt.xticks([])
+    plt.yticks([])
+    plt.show()
+
+def calc_mean(ds):
+    """
+    Calculate mean SWE for each day from an xarray Dataset.
+
+    Parameters:
+    -----------
+    ds : xarray.Dataset
+        Input Dataset with variables including 'SWE' and dimensions ('day', 'y', 'x').
+
+    Returns:
+    --------
+    pd.DataFrame
+        DataFrame with 'day' as datetime index and one column 'mean_swe'.
+    """
+    # Take mean over 'y' and 'x', skipping NaNs
+    mean_swe = ds['SWE'].mean(dim=['y', 'x'], skipna=True)
+
+    # Step 2: Convert to DataFrame & Clean Up 
+    df = mean_swe.to_dataframe().reset_index()
+    df = df.rename(columns={'SWE': 'mean_swe_lidar'})
+    df['day'] = pd.to_datetime(df['day'], format='%Y%m%d')
+    df = df.drop(columns=[col for col in ['band', 'spatial_ref'] if col in df.columns])
+    df = df.set_index('day')
+
+    return df
+    

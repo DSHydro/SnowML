@@ -64,7 +64,8 @@ def get_params(tracking_uri, run_id):
     for key in ['train_size_fraction']:
         params[key] = float(params[key])
     params["lag_swe_var_idx"] =  2 # TO DO - MAKE DYNAMIC
-    params["lag_days"] = 30 # TO DO - MAKE DYNAMIC
+    if not params["lag_days"]: 
+        params["lag_days"] = 30 # TO DO - MAKE DYNAMIC
     return params
 
 
@@ -170,12 +171,13 @@ def predict_one(model_dawgs, df_dict_test, huc, params):
     ttl = f"SWE_Actual_vs_Predicted_for_huc_{huc}"
     x_axis_vals = data.index[train_size:]
     plot3.plot3(x_axis_vals, y_dict_list, ttl, metrics_dict = combined_dict)
+    return combined_dict, y_te_true, y_te_pred, y_te_pred_recur
 
-def predict_from_pretrain(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri,
-    mlflow_log_now = True, recur_predict = False):
-
+def set_up(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri):
+    
     # get_model
-    model_dawgs = load_model(model_uri_prefix)
+    model_uri = model_uri_prefix # if it was multi-training
+    model_dawgs = load_model(model_uri)
 
     # retrieve model details from mlflow
     params = get_params(mlflow_tracking_uri, run_id)
@@ -194,6 +196,14 @@ def predict_from_pretrain(test_hucs, run_id, model_uri_prefix, mlflow_tracking_u
     else:
         # normalize test huc against itself only (as in training)
         df_dict_test =  pp.pre_process_separate(test_hucs, params["var_list"])
+
+    return model_dawgs, df_dict, paramas 
+
+
+def predict_from_pretrain(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri,
+    mlflow_log_now = True, recur_predict = False):
+
+    model_dawgs, df_dict, paramas = set_up(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri)
 
     if mlflow_log_now:
         mlflow.set_experiment("Predict_From_Pretrain")

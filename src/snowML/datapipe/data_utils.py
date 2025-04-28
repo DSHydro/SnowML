@@ -20,6 +20,8 @@ import geopandas as gpd
 import requests
 from rasterio.transform import from_bounds
 from affine import Affine
+import pyproj
+import numpy as np
 
 
 
@@ -313,3 +315,45 @@ def s3_to_ds_zarr (bucket_name, zarr_path):
     dat = xr.open_zarr(store=s3_url, chunks={}, consolidated=True)
 
     return dat
+
+
+
+def reproject_to_latlon(ds_lidar):
+    """
+    Convert an xarray dataset from UTM (EPSG:32611) to lat/lon (EPSG:4326),
+    drop x and y, and reindex using lat and lon.
+    
+    Parameters:
+    -----------
+    ds_lidar : xarray.Dataset
+        Input dataset with 'x' and 'y' coordinates in UTM Zone 11N.
+
+    Returns:
+    --------
+    xarray.Dataset
+        Dataset with 'lat' and 'lon' coordinates instead of 'x' and 'y'.
+    """
+    # Set up transformer from UTM Zone 11N to WGS84 (lat/lon)
+    transformer = pyproj.Transformer.from_crs("EPSG:32611", "EPSG:4326", always_xy=True)
+
+    # Extract x and y coordinate values
+    x = ds_lidar['x'].values
+    y = ds_lidar['y'].values
+
+    # Create meshgrid of x and y to match dataset dimensions
+    xx, yy = np.meshgrid(x, y)
+
+    # Transform the meshgrid to lon and lat
+    lon, lat = transformer.transform(xx, yy)
+
+    # Create new DataArray for lat and lon
+    lat_da = xr.DataArray(lat, dims=("y", "x"))
+    lon_da = xr.DataArray(lon, dims=("y", "x"))
+
+    # Assign new coordinates
+    ds_lidar = ds_lidar.assign_coords(lat=lat_da, lon=lon_da)
+
+    # Drop old x and y coords
+    ds_lidar = ds_lidar.drop_vars(['x', 'y'])
+
+    return ds_lidar

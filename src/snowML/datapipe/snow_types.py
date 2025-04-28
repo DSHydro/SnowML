@@ -339,3 +339,16 @@ def process_all(huc_id, huc_lev, save = False):
     if save:
         save_snow_types(df_predominant, huc_id)
     return df_snow_types, snow_class_counts, df_predominant
+
+def color_map_standard(): 
+    # Create a color map for the "Predominant_Snow" column with specific colors
+    color_map_snow = {
+        "Montane Forest": "darkgreen",  
+        "Maritime": "blue",
+        "Ephemeral": "#E6E6FA",  # Hex code for lavender
+        "Prairie": "lightgreen", 
+        "Tundra": "gray"
+    }
+    return color_map_snow
+
+

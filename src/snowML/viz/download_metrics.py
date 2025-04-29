@@ -83,6 +83,7 @@ def create_run_dict_Ex6():
 def create_run_dict_Tum(): 
     run_dict = {}
     run_dict["local_training"] = "16a66fee27f24d3d814c5ca0b5e6bec4" # peaceful-croc
+    run_dict["multi_w_hum"] = "10b40f9398b2459bbd3c119b3c7e92ae" # vaunted mink
 
 # function to retrieve metrics from ML server
 def load_ml_metrics(

@@ -1,0 +1,15 @@
+artifact_uri: file:///home/suetboyd/Capstone/SnowML/Toloumne/mlruns/0/dfa925a187524da99b91abdcead1853d/artifacts
+end_time: 1745685316611
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: dfa925a187524da99b91abdcead1853d
+run_name: treasured-swan-667
+run_uuid: dfa925a187524da99b91abdcead1853d
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1745685252567
+status: 3
+tags: []
+user_id: suetboyd

@@ -1,0 +1,28 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis version="3.26.0-Buenos Aires">
+  <identifier>HH_HRU_Rev_Border</identifier>
+  <parentidentifier></parentidentifier>
+  <language>ENG</language>
+  <type>dataset</type>
+  <title>HH_HRU_Rev_Border</title>
+  <abstract></abstract>
+  <links>
+    <link url="file://\\psf\Host\Users\Kev\Dropbox\PRMS\GIS_data\tp_str3k_3" mimeType="" size="" type="Local Area Network" name="" format="" description=""/>
+  </links>
+  <fees></fees>
+  <encoding></encoding>
+  <crs>
+    <spatialrefsys nativeFormat="Wkt">
+      <wkt></wkt>
+      <proj4></proj4>
+      <srsid>0</srsid>
+      <srid>0</srid>
+      <authid></authid>
+      <description></description>
+      <projectionacronym></projectionacronym>
+      <ellipsoidacronym></ellipsoidacronym>
+      <geographicflag>false</geographicflag>
+    </spatialrefsys>
+  </crs>
+  <extent/>
+</qgis>

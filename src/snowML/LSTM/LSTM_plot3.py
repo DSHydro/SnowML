@@ -87,7 +87,6 @@ def plot3b(x_axis_vals, y_dict_list, ttl, metrics_dict=None):
             fontsize=10, color='black', bbox=dict(facecolor='white', alpha=0.7, edgecolor='black')
         )
 
-    plt.show()
-    plt.close()
+    return plt
 
     

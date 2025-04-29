@@ -15,7 +15,7 @@ from snowML.datapipe import set_data_constants as sdc
 
 # mlflow_tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML" # update with your tracking_uri
 # model_uri_prefix = "s3://sues-test/298/a6c611d4c4cf410e9666796e3a8892b7/artifacts/epoch29_model"
-# run_id = "a6c611d4c4cf410e9666796e3a8892b7" # debonair dove 
+# run_id = "a6c611d4c4cf410e9666796e3a8892b7" # debonair dove
 
 
 
@@ -64,8 +64,7 @@ def get_params(tracking_uri, run_id):
     for key in ['train_size_fraction']:
         params[key] = float(params[key])
     params["lag_swe_var_idx"] =  2 # TO DO - MAKE DYNAMIC
-    if not params["lag_days"]: 
-        params["lag_days"] = 30 # TO DO - MAKE DYNAMIC
+    params["lag_days"] = 30 # TO DO - MAKE DYNAMIC
     return params
 
 
@@ -151,10 +150,10 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
         #print("Last few elements of y_te_pred", y_te_pred[-10])
 
     metric_dict_test = met.calc_metrics(y_te_true, y_te_pred, metric_type = "test")
-    if y_te_pred_recur is not None: 
+    if y_te_pred_recur is not None:
         metric_dict_test_recur = met.calc_metrics(y_te_true, y_te_pred_recur, metric_type = "test_recur")
-    else: 
-        metric_dict_test_recur = None 
+    else:
+        metric_dict_test_recur = None
     return metric_dict_test, metric_dict_test_recur, data, y_tr_pred, \
         y_te_pred, y_tr_true, y_te_true, y_te_pred_recur, train_size
 
@@ -162,14 +161,20 @@ def eval_from_saved_model (model_dawgs, df_dict, huc, params):
 def predict_one(model_dawgs, df_dict_test, huc, params):
     metric_dict_test, metric_dict_test_recur, data, _, y_te_pred, _, y_te_true, y_te_pred_recur, train_size = eval_from_saved_model(
         model_dawgs, df_dict_test, huc, params)
-    combined_dict = {**metric_dict_test, **metric_dict_test_recur}
+    if metric_dict_test_recur is not None: 
+        combined_dict = {**metric_dict_test, **metric_dict_test_recur}
+    else: 
+        combined_dict = metric_dict_test
     met.log_print_metrics(combined_dict, huc, 0)
     plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
             'SWE Estimates UA Data (Physics Based Model)')
     plot_dict_te = plot3.assemble_plot_dict(y_te_pred, "green",
-            'SWE Estimates Prediction')     
-    plot_dict_te_recur = plot3.assemble_plot_dict(y_te_pred_recur, "black",
+            'SWE Estimates Prediction')
+    if y_te_pred_recur is not None:  
+        plot_dict_te_recur = plot3.assemble_plot_dict(y_te_pred_recur, "black",
             'SWE Estimates Recursive Prediction')
+    else: 
+        plot_dict_te_recur = None
     y_dict_list = [plot_dict_true, plot_dict_te, plot_dict_te_recur ]
     ttl = f"SWE_Actual_vs_Predicted_for_huc_{huc}"
     x_axis_vals = data.index[train_size:]
@@ -177,7 +182,7 @@ def predict_one(model_dawgs, df_dict_test, huc, params):
     return combined_dict, y_te_true, y_te_pred, y_te_pred_recur
 
 def set_up(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri, recur_predict):
-    
+
     # get_model
     model_uri = model_uri_prefix # if it was multi-training
     model_dawgs = load_model(model_uri)
@@ -200,13 +205,13 @@ def set_up(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri, recur_predi
         # normalize test huc against itself only (as in training)
         df_dict_test =  pp.pre_process_separate(test_hucs, params["var_list"])
 
-    return model_dawgs, df_dict_test, params 
+    return model_dawgs, df_dict_test, params
 
 
 def predict_from_pretrain(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri,
     mlflow_log_now = True, recur_predict = False):
 
-    model_dawgs, df_dict, paramas = set_up(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri, params["recursive_predict"])
+    model_dawgs, df_dict_test, params = set_up(test_hucs, run_id, model_uri_prefix, mlflow_tracking_uri, recur_predict)
 
     if mlflow_log_now:
         mlflow.set_experiment("Predict_From_Pretrain")
@@ -217,11 +222,11 @@ def predict_from_pretrain(test_hucs, run_id, model_uri_prefix, mlflow_tracking_u
 
             for huc in test_hucs:
                 #model_uri = get_model_uri(model_uri_prefix, huc)
-                model_dawgs = load_model(model_uri)
+                # model_dawgs = load_model(model_uri)
                 predict_one(model_dawgs, df_dict_test, huc, params)
 
     else:
         for huc in test_hucs:
             #model_uri = get_model_uri(model_uri_prefix, huc)
-            model_dawgs = load_model(model_uri)
+            # model_dawgs = load_model(model_uri)
             predict_one(model_dawgs, df_dict_test, huc, params)

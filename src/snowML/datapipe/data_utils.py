@@ -99,6 +99,10 @@ def get_url_pattern(var):
         root = "https://daacdata.apps.nsidc.org/pub/DATASETS/nsidc0719_SWE_Snow_Depth_v1/"
         file_name_pattern = "4km_SWE_Depth_WY{year}_v01.nc"
         url_pattern = root+file_name_pattern
+    elif var == "swe_ucla": 
+        url_pattern = "https://n5eil01u.ecs.nsidc.org/SNOWEX/WUS_UCLA_SR.001/{Yr}.10.01/WUS_UCLA_SR_v01_N{north}_0W{west}_0_agg_16_WY{Yr}_{Yr_end}_SWE_SCA_POST.nc"
+   
+    
     elif var in ["pr", "tmmn", "sph", "vs", "srad", "tmmx", "rmin", "rmax"]:
         url_p = f"http://www.northwestknowledge.net/metdata/data/{var}"
         url_pattern = url_p + "_{year}.nc"

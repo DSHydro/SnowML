@@ -3,3 +3,5 @@ __pycache__/
 *.pyo
 .ipynb_checkpoints/
 *.nc
+*.nc
+*.tif

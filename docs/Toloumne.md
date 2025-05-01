@@ -1,4 +1,4 @@
-This document discusses results from local training LSTM model on Huc12 sub-watersheds in [Tuolumne valley](basin_fact_sheets/Tuolumne.md).  Huc12 watershed units where epheneral snow dominates were excluded, resulting in 22 sub-watersheds for analysis. 
+This document discusses results from local training LSTM model on Huc12 sub-watersheds in [Tuolumne valley](basin_fact_sheets/Tuolumne.md).  Huc12 watershed units where epheneral snow dominates were excluded, resulting in 22 sub-watersheds for analysis: 12 Maritime, 5 Prairie, 4 Montane Forest, and 1 Tundra.   
 
 [Add map] 
 

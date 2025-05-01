@@ -8,6 +8,7 @@ import requests
 import xarray as xr
 import rioxarray as rxr
 import pandas as pd
+import earthaccess
 from snowML.datapipe import data_utils as du
 from snowML.datapipe import get_bronze as gb
 from snowML.datapipe import get_geos as gg 
@@ -15,6 +16,8 @@ from snowML.datapipe import set_data_constants as sdc
 
 # define constants
 VAR_DICT = sdc.create_var_dict()
+
+earthaccess.login()
 
 import importlib
 importlib.reload(du)

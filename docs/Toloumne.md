@@ -2,7 +2,7 @@ This document discusses results from local training LSTM model on Huc12 sub-wate
 
 [Add map] 
 
-Each Huc12 was trained with a simple LSTM model, using precipitation and air temperature as the feature inputs, and the University of Arizona re-analysis data for swe estimates. Median KGE was .88, similar to what was observed in the non-ephemeral sub-watershed in Washington State discussed [here](Ex2_VariationByHuc.md) Charts/results for each of the 22 watersheds available [here](../notebooks/Toloumne/charts/Local_Training_Results).
+Each Huc12 was trained with a simple LSTM model, using precipitation and air temperature as the feature inputs, and the University of Arizona re-analysis data for swe estimates. Median KGE was .88, similar to what was observed in the non-ephemeral sub-watersheds in Washington State discussed [here](Ex2_VariationByHuc.md) Charts/results for each of the 22 watersheds available [here](../notebooks/Toloumne/charts/Local_Training_Results).
 
 An example of a well-performing sub-watershed: 
 ![Good Example](../notebooks/Toloumne/charts/Local_Training_Results/UA_Results_and_Lidar_for_huc_180400090105_w_UCLA_dat.png)

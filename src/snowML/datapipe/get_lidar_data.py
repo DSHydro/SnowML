@@ -208,4 +208,4 @@ def calc_mean(ds):
     df = df.set_index('day')
 
     return df
-    
+

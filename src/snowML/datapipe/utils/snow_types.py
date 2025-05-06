@@ -36,8 +36,8 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 import s3fs
-from snowML.datapipe import get_geos as gg
-from snowML.datapipe import set_data_constants as sdc
+from snowML.datapipe.utils import get_geos as gg
+from snowML.datapipe.utils import set_data_constants as sdc
 
 
 def get_snow_class_data(geos = None):
@@ -347,7 +347,8 @@ def color_map_standard():
         "Maritime": "blue",
         "Ephemeral": "#E6E6FA",  # Hex code for lavender
         "Prairie": "lightgreen", 
-        "Tundra": "gray"
+        "Tundra": "gray", 
+        "Boreal Forest": "red"
     }
     return color_map_snow
 

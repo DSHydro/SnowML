@@ -9,8 +9,8 @@ import numpy as np
 import rioxarray
 from pyproj import Transformer
 import matplotlib.pyplot as plt
-from snowML.datapipe import get_geos as gg
-from snowML.datapipe import data_utils as du
+from snowML.datapipe.utils import get_geos as gg
+from snowML.datapipe.utils import data_utils as du
 
 
 def load():
@@ -123,42 +123,16 @@ def plot_tree_canopy(ds_clean, var_name="tree_canopy_cover"):
 
     # Show the plot
     plt.show()
-
-def load_current_cover_data(save_ttl):
-    b = "snowml-gold"  # TO DO - make dynamic
-    f = save_ttl + ".csv"
-    df = du.s3_to_df(f, b)
-    return df 
     
 
-def forest_cover_all (huc_list, save_ttl = "Forest_Cover_Percent"):
+def forest_cover_huc(huc_id):
     land_cover_ds = load()
-    mean_cover_list = []
-    new_huc_list = []
-    existing_df = load_current_cover_data(save_ttl)
-    processed_hucs = list(existing_df["huc_id"])
-    
-    tot = len(huc_list)
-    count = 0
-    for huc_id in huc_list:
-        count += 1
-        print(f"processing huc {count} of {tot}") 
-        if int(huc_id) in processed_hucs: 
-            print("already exists")
-        else: 
-            geos, geo = get_geos_series(huc_id)
-            ds_small = clip_and_reproject(land_cover_ds, geo).squeeze()
-            mask = subset_by_row(ds_small, geos).squeeze()
-            ds_clean = remove_invals(mask)
-            mean_cover = calc_mean(ds_clean)
-            mean_cover_list.append(mean_cover)
-            new_huc_list.append(int(huc_id))
-    new_df = pd.DataFrame({"huc_id": new_huc_list, "Mean Forest Cover": mean_cover_list})
-    results = pd.concat([existing_df, new_df], ignore_index=True)
+    geos, geo = get_geos_series(huc_id)
+    ds_small = clip_and_reproject(land_cover_ds, geo).squeeze()
+    mask = subset_by_row(ds_small, geos).squeeze()
+    ds_clean = remove_invals(mask)
+    mean_cover = calc_mean(ds_clean)
+    results = pd.Dataframe({"huc_id": huc_id, "Mean_Forest_Cover": mean_cover})    
     results.set_index("huc_id", inplace=True)
-    results.sort_index(inplace=True)
-    if save_ttl is not None: 
-        b = "snowml-gold"  # TO DO - make dynamic
-        du.dat_to_s3(results, b, save_ttl, file_type="csv")
     return results
 

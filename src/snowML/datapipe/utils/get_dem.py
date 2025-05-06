@@ -18,7 +18,7 @@ Functions:
 
 import matplotlib.pyplot as plt
 import easysnowdata as easy
-from snowML.datapipe import get_geos as gg
+from snowML.datapipe.utils import get_geos as gg
 
 def get_dem(geos):
     """

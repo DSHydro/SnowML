@@ -1,7 +1,7 @@
 """ Module to select hucs for train, test, validate for Expirement2"""
 # # pylint: disable=C0103
 
-from snowML.datapipe import get_geos as gg
+from snowML.datapipe.utils import get_geos as gg
 
 # Define constants
 

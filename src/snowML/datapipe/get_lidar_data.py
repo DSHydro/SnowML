@@ -2,15 +2,16 @@
 # pylint: disable=C0103
 
 import re
+from datetime import datetime
 import rioxarray as rxr
 import xarray as xr
 import earthaccess
-import s3fs
 import numpy as np
 import pandas as pd
+import s3fs
 import matplotlib.pyplot as plt
-from snowML.datapipe import set_data_constants as sdc
-from snowML.datapipe import get_geos as gg
+from snowML.datapipe.utils import set_data_constants as sdc
+from snowML.datapipe.utils import get_geos as gg
 
 
 def get_files():
@@ -43,13 +44,44 @@ def get_one_timeslice(file):
         xarray.Dataset: A dataset containing the single time slice with 
         the variable named "SWE".
     """
+    print("Warning - have you verified the EPSG for this prefix?")
     swe_xr = rxr.open_rasterio(file, masked=True).squeeze()
     swe_ds = swe_xr.to_dataset(name="SWE")
     # reproject and sort
-    swe_ds.rio.write_crs("EPSG:32611", inplace=True)
+    #swe_ds.rio.write_crs("EPSG:32611", inplace=True)  # TO DO - dynamically modify per prefix
     ds_re = swe_ds.rio.reproject("EPSG:4326")
     ds_re = ds_re.sortby(['x', 'y'])
     return ds_re
+
+
+def create_data_dict_2(files, prefix):
+    """
+    Creates a dictionary mapping date strings to file paths from a list of file
+    names using a specified prefix.
+
+    This function processes a list of file names, extracts date strings in the 
+    format 'YYYYMMDD' from file names containing the pattern '<prefix>_<YYYYMMDD>',
+    and stores them as keys in a dictionary with the corresponding file paths
+    as values.
+
+    Args:
+        files (list of str): A list of file paths or file names to process.
+        prefix (str): The prefix to search for before the date string.
+
+    Returns:
+        dict: A dictionary where the keys are date strings (YYYYMMDD) extracted 
+            from the file names, and the values are the file paths.
+    """
+    date_dict = {}
+    pattern = rf'{re.escape(prefix)}_(\d{{8}})'  # dynamically build regex with escaped prefix
+    for file in files:
+        match = re.search(pattern, file)
+        if match:
+            date_string = match.group(1)
+            date_dict[date_string] = file
+    return date_dict
+
+
 
 def create_data_dict(files):
     """
@@ -91,7 +123,7 @@ def concatenate_timeslices(date_dict):
     return final_dataset
 
 
-def get_lidar_all(bucket_name = None):
+def get_lidar_all(prefix, bucket_name = None):
     """
     Retrieves, processes, and stores LiDAR data as a Zarr file in an S3 
         bucket.
@@ -121,9 +153,10 @@ def get_lidar_all(bucket_name = None):
     """
     earthaccess.login()
     files = get_files()
-    date_dict = create_data_dict(files)
+    date_dict = create_data_dict_2(files, prefix)
+    print(date_dict)
     ds = concatenate_timeslices(date_dict)
-    s3_path = "lidar_all.zarr"
+    s3_path = f"lidar_{prefix}.zarr"
     if bucket_name is None:
         bucket_dict = sdc.create_bucket_dict("prod")
         bucket_name = bucket_dict["bronze"]
@@ -148,13 +181,15 @@ def subset_by_huc(ds, huc_id):
     clipped_data = subset_by_row(ds, row)
     return clipped_data
     
-def count_na(ds, day = "All"):
+def count_na(ds, day = "All", quiet = False):
     total_values = np.prod(ds['SWE'].shape)
     nan_count = np.isnan(ds['SWE'].values).sum()
     nan_percent = (nan_count / total_values) * 100
-    print(f"for day {day}:")
-    print(f"Number of NaN values: {nan_count}")
-    print(f"Percent of NaN values: {nan_percent:.2f}%")
+    if not quiet: 
+        print(f"for day {day}:")
+        print(f"Number of NaN values: {nan_count}")
+        print(f"Percent of NaN values: {nan_percent:.2f}%")
+    return nan_percent 
 
 def plot_valid_pixels(ds):
     """
@@ -208,4 +243,29 @@ def calc_mean(ds):
     df = df.set_index('day')
 
     return df
+
+
+def add_day_dimension(ds: xr.DataArray | xr.Dataset, day_str: str) -> xr.DataArray | xr.Dataset:
+    
+    # Expand with a new dimension called "day"
+    day = np.datetime64(pd.to_datetime(day_str), 'ns')
+    
+    # Expand with a new dimension called "day"
+    ds_expanded = ds.expand_dims({"day": [day]})
+    
+    return ds_expanded
+
+def extract_date_from_filename(filename: str) -> str:
+    # Look for a pattern like '2020May21' in the filename
+    match = re.search(r'(\d{4}[A-Za-z]{3}\d{2})', filename)
+    if not match:
+        raise ValueError("Date string in format 'YYYYMonDD' not found in filename.")
+
+    date_str = match.group(1)
+    # Convert to datetime object
+    date_obj = datetime.strptime(date_str, "%Y%b%d")
+    
+    # Return in 'YYYY-MM-DD' format
+    return date_obj.strftime("%Y-%m-%d")
+
 

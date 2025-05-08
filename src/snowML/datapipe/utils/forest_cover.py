@@ -132,7 +132,6 @@ def forest_cover_huc(huc_id):
     mask = subset_by_row(ds_small, geos).squeeze()
     ds_clean = remove_invals(mask)
     mean_cover = calc_mean(ds_clean)
-    results = pd.Dataframe({"huc_id": huc_id, "Mean_Forest_Cover": mean_cover})    
-    results.set_index("huc_id", inplace=True)
+    results = pd.DataFrame({"huc_id": [huc_id], "Mean_Forest_Cover": [mean_cover]})
     return results
 

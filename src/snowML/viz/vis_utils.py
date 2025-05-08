@@ -12,11 +12,11 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 from itertools import combinations
 from scipy.stats import ttest_ind_from_stats
-from snowML.datapipe import snow_types as st
-from snowML.datapipe import get_geos as gg
-from snowML.datapipe import data_utils as du
-from snowML.datapipe import set_data_constants as sdc
-from snowML.datapipe import get_dem as gd
+from snowML.datapipe.utils import snow_types as st
+from snowML.datapipe.utils import get_geos as gg
+from snowML.datapipe.utils import data_utils as du
+from snowML.datapipe.utils import set_data_constants as sdc
+from snowML.datapipe.utils import get_dem as gd
 
 def plot_var(df, var, huc, initial_huc):
     plt.figure(figsize=(12,  6))

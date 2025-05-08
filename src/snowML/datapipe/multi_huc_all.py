@@ -1,11 +1,11 @@
 # Model to run end to end pipeline
 # pylint: disable=C0103
 
-from snowML.datapipe import data_utils as du
-from snowML.datapipe import set_data_constants as sdc
+from snowML.datapipe.utils import data_utils as du
+from snowML.datapipe.utils import set_data_constants as sdc
+from snowML.datapipe.utils import get_geos as gg
 from snowML.datapipe import bronze_to_gold as btg
-from snowML.datapipe import gold_to_model as gtm
-from snowML.datapipe import get_geos as gg
+from snowML.datapipe import to_model_ready as gtm
 
 
 def process_multi_huc (huc_id_start,

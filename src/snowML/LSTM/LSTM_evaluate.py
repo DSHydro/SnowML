@@ -9,8 +9,8 @@ from snowML.LSTM import LSTM_pre_process as pp
 from snowML.LSTM import LSTM_train
 from snowML.LSTM import LSTM_plot3 as plot3
 from snowML.LSTM import LSTM_metrics as met
-from snowML.datapipe import data_utils as du
-from snowML.datapipe import set_data_constants as sdc
+from snowML.datapipe.utils import data_utils as du
+from snowML.datapipe.utils import set_data_constants as sdc
 
 
 # mlflow_tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML" # update with your tracking_uri

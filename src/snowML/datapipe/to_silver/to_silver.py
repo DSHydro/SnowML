@@ -26,11 +26,13 @@ def load_current_data(save_ttl):
     return df
 
 
-def process_list (huc_list, save_ttl, var_name, first = False):
+def process_list (huc_list, save_ttl, var_name):
     time_start = time.time()
 
     # initialize existing df and huc_processed list
-    if not first:
+    f= save_ttl + ".csv"
+    if du.isin_s3(B, f):
+        print("loading existing file")
         existing_df = load_current_data(save_ttl)
         processed_hucs = list(existing_df["huc_id"])
     else:
@@ -51,7 +53,7 @@ def process_list (huc_list, save_ttl, var_name, first = False):
             huc_lev = str(len(str(huc_id))).zfill(2)
             if var_name == "geos":
                 row = gg.get_geos_with_name(huc_id, huc_lev)
-                row = row[["row_id", "huc_name", "geometry"]]
+                row = row[["huc_id", "huc_name", "geometry"]]
             elif var_name == "snow_types":
                 _, _, df_predom = st.process_all(huc_id, huc_lev)
                 row = df_predom[["huc_id", "Predominant_Snow"]]
@@ -68,9 +70,7 @@ def process_list (huc_list, save_ttl, var_name, first = False):
     results_df.set_index("huc_id", inplace=True)
     results_df.index = results_df.index.astype(str)
     results_df.sort_index(inplace=True)
-    print("time to save")
     du.dat_to_s3(results_df, B, save_ttl, file_type="csv")
-    print("finished saving")
     du.elapsed(time_start)
     return results_df
 
@@ -80,7 +80,7 @@ def get_region_ls(region = 17):
     print(f"There are {len(ls)} huc08 units to process")
     return ls
 
-def process_regions(region_ls, var_name, region = 17, first = False):
+def process_regions(region_ls, var_name, region = 17):
     save_ttl = SAVE_DICT[var_name]
     save_ttl = save_ttl + "_" + str(region)
     error_regions = []
@@ -90,10 +90,10 @@ def process_regions(region_ls, var_name, region = 17, first = False):
         print(f"processing region no {count} : {reg}")
         geos = gg.get_geos(reg, '12')
         huc_list = list(geos["huc_id"])
-        #try:
-        results_df = process_list(huc_list, save_ttl, var_name, first = first)
-        #except:
-        #error_regions.append(reg)
-    
+        try:
+            results_df = process_list(huc_list, save_ttl, var_name)
+        except:
+            error_regions.append(reg)
+
     print(f"The following regions had errors {error_regions}")
     return error_regions

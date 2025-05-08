@@ -57,7 +57,7 @@ def kling_gupta_efficiency(y_true, y_pred):
     beta = np.mean(y_pred) / np.mean(y_true)
     kg = 1 - np.sqrt((r - 1)**2 + (alpha - 1)**2 + (beta - 1)**2)
 
-    print(f"r: {r}, alpha: {alpha}, beta: {beta}")
+    #print(f"r: {r}, alpha: {alpha}, beta: {beta}")
     return kg, r, alpha, beta
 
 

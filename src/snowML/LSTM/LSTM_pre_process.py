@@ -19,8 +19,8 @@ Functions:
 import pandas as pd
 import numpy as np
 import torch
-from snowML.datapipe import data_utils as du
-from snowML.datapipe import set_data_constants as sdc
+from snowML.datapipe.utils import data_utils as du
+from snowML.datapipe.utils import set_data_constants as sdc
 
 
 def z_score_normalize(df, global_means, global_stds):

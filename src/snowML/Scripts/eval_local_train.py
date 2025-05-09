@@ -1,17 +1,14 @@
 """ Script to eval from a series of lcally trained models """
 
-import mlflow 
-import pandas as pd
-from snowML.LSTM import LSTM_evaluate as evaluate
+# pylint: disable=C0103
 import json
 import os
-
-import importlib
-importlib.reload(evaluate)
+from snowML.LSTM import LSTM_evaluate as evaluate
 
 
-# Define constants needed to retrieve model 
-mlflow_tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML" 
+
+# Define constants needed to retrieve model
+mlflow_tracking_uri = "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML"
 model_uri_prefix = "s3://sues-test/496/16a66fee27f24d3d814c5ca0b5e6bec4/artifacts/model"
 run_id = "16a66fee27f24d3d814c5ca0b5e6bec4" # peaceful-croc-134
 
@@ -20,22 +17,22 @@ def eval_huc (huc_id):
     model_uri = evaluate.get_model_uri(model_uri_prefix, huc_id)
     print(model_uri)
     model_dawgs, df_dict_test, params  = evaluate.set_up(
-        [huc_id], 
-        run_id, 
-        model_uri, 
-        mlflow_tracking_uri, 
+        [huc_id],
+        run_id,
+        model_uri,
+        mlflow_tracking_uri,
         recur_predict = False)
 
     metric_dict_test, _, data, _, y_te_pred, _, y_te_true, _, train_size = evaluate.eval_from_saved_model(
         model_dawgs, df_dict_test, huc_id, params)
-    
+
     results_df = join_results(data, y_te_pred, train_size, params["lookback"])
 
     save_results(metric_dict_test, results_df, huc_id)
 
     return metric_dict_test, results_df
 
-def join_results(data, y_te_pred, train_size, lookback): 
+def join_results(data, y_te_pred, train_size, lookback):
     results = data.iloc[train_size + lookback:].copy()
     results["mean_swe_predict"] = y_te_pred.flatten()
     return results[["mean_swe", "mean_swe_predict"]]
@@ -48,14 +45,13 @@ def save_results(md, results_df, huc):
     f_dict = f"{folder}/metric_dict_{huc}.json"
     f_df = f"{folder}/predictions_{huc}.csv"
 
-    results_df.to_csv(f_df)  
+    results_df.to_csv(f_df)
 
     # Save md as a JSON file
     md_clean = {k: float(v) for k, v in md.items()}
     with open(f_dict, 'w') as f:
         json.dump(md_clean, f, indent=4)
 
-def eval_all(huc_list): 
-    for huc in huc_list: 
+def eval_all(huc_list):
+    for huc in huc_list:
         eval_huc(huc)
-

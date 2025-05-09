@@ -22,10 +22,8 @@ Functions:
 
 import s3fs
 import pandas as pd
-from snowML.datapipe import data_utils as du
-from snowML.datapipe import set_data_constants as sdc
-from snowML.datapipe import snow_types as st
-from snowML.datapipe import get_dem as gd
+from snowML.datapipe.utils import data_utils as du
+from snowML.datapipe.utils import set_data_constants as sdc
 
 
 def gather_gold_files(huc_id, var_list = None, bucket_dict = None):
@@ -144,6 +142,20 @@ def huc_model_wrf(huc_id, bucket_dict, var_list = None):
 
     return model_df
 
+def get_static(huc_id, bucket_dict): 
+    f = "Static_No_Geo_Region_17.csv"
+    b = bucket_dict.get("silver")
+    df_static = du.s3_to_df(f, b)
+    df_static_huc = df_static[df_static["huc_id"] == int(huc_id)]
+    return df_static_huc 
+
+def add_lagged_swe(df, num_list): 
+    col_names = [f"mean_swe_lag_{num}" for num in num_list]
+    for num, col in zip(num_list, col_names):
+        df[col] = df["mean_swe"].shift(num)
+    return df
+
+
 def huc_model(huc_id, var_list = None, bucket_dict = None, overwrite_mod = False):
     """
     Processes data for a given HUC (Hydrologic Unit Code) and prepares it 
@@ -170,20 +182,30 @@ def huc_model(huc_id, var_list = None, bucket_dict = None, overwrite_mod = False
         print(f"{f_out} already exists, skipping processing")
         return None
 
+    # Add static variables 
     model_df = huc_model_wrf(huc_id, bucket_dict, var_list = var_list)
-    huc_lev = str(len(str(huc_id))).zfill(2)
+    df_static = get_static(huc_id, bucket_dict)
+    model_df['Mean Elevation'] = float(df_static.iloc[0]["Mean Elevation"])
+    model_df['Predominant Snow'] = str(df_static.iloc[0]["Predominant_Snow"])
+    model_df['Mean Forest Cover'] = float(df_static.iloc[0]["Mean_Forest_Cover"])
 
-    # add mean elevation for huc to model_df
-    mean_elevation = gd.process_dem_all(huc_id, huc_lev, plot = False)
-    model_df['Mean Elevation'] = mean_elevation
-   
-
-    # add snow_types for huc
-    snow_types, _, _ = st.process_all(huc_id, huc_lev)
-    snow_types = snow_types.loc[[0]].copy()
-    # Broadcasting the values from snow_types to model_df
-    snow_types_broadcasted = pd.DataFrame([snow_types.iloc[0]] * len(snow_types),
-            columns=snow_types.columns, index=model_df.index)
-    df_final = pd.concat([model_df, snow_types_broadcasted], axis=1)
+    # Add lagged swe values 
+    num_list = [7, 30, 60]
+    df_final = add_lagged_swe(model_df, num_list)
+    
     du.dat_to_s3(df_final, bucket_dict.get("model-ready"), f_out, file_type = "csv")
     return df_final
+
+def huc_model_multi(huc_list, var_list = None, bucket_dict = None, overwrite_mod = False): 
+    count = 0
+    for huc_id in huc_list: 
+        count += 1
+        huc_model(
+            huc_id, 
+            var_list = var_list, 
+            bucket_dict = bucket_dict, 
+            overwrite_mod = overwrite_mod)
+        if count % 10 == 0: 
+            print(f"Finished processing {count} hucs")
+
+

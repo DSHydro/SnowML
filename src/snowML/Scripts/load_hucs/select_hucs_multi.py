@@ -3,8 +3,8 @@
 
 import random
 import json
-from snowML.datapipe import snow_types as st
-from snowML.datapipe import get_geos as gg
+from snowML.datapipe.utils import snow_types as st
+from snowML.datapipe.utils import get_geos as gg
 
 # Define constants
 

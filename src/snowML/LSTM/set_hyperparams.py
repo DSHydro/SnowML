@@ -15,7 +15,7 @@ def create_hyper_dict():
         "batch_size": 32,
         "n_steps": 1,
         "num_workers": 8,
-        "var_list": ["mean_pr", "mean_tair", "Mean Elevation"],
+        "var_list": ["mean_pr", "mean_tair", "Mean Elevation", "Mean Forest Cover"],
         "expirement_name": "Forest Cover",
         "loss_type": "mse",
         "mse_lambda_start": 1, 

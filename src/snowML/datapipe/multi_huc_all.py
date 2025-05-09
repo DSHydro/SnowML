@@ -1,11 +1,13 @@
 # Model to run end to end pipeline
 # pylint: disable=C0103
 
-from snowML.datapipe import data_utils as du
-from snowML.datapipe import set_data_constants as sdc
+import pandas as pd
+import geopandas as gpd
+from snowML.datapipe.utils import data_utils as du
+from snowML.datapipe.utils import set_data_constants as sdc
+from snowML.datapipe.utils import get_geos as gg
 from snowML.datapipe import bronze_to_gold as btg
 from snowML.datapipe import gold_to_model as gtm
-from snowML.datapipe import get_geos as gg
 
 
 def process_multi_huc (huc_id_start,
@@ -51,4 +53,19 @@ def process_multi_huc (huc_id_start,
         except Exception as e:
             print(f"Error processing huc{huc_id}: {e}, omitting from dataset")
     return model_df
+
+
+def create_geos(huc_list):
+    # Create an empty GeoDataFrame with appropriate columns and CRS
+    results_gdf = gpd.GeoDataFrame(columns=["geometry"], geometry="geometry", crs="EPSG:4326")
+
+    for huc_id in huc_list:
+        level = str(len(str(huc_id))).zfill(2)
+        new_gdf = gg.get_geos(huc_id, level)
+        results_gdf = pd.concat([results_gdf, new_gdf], ignore_index=True)
+
+    return results_gdf
+
+
+
     

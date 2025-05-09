@@ -40,7 +40,7 @@ def z_score_normalize(df, global_means, global_stds):
     df_cols = df.columns
 
     columns_to_normalize = ["mean_pr", "mean_tair", "mean_vs",
-            "mean_srad", "mean_hum", "Mean Elevation"]
+            "mean_srad", "mean_hum", "Mean Elevation", "Mean Forest Cover"]
 
     for column in columns_to_normalize:
         if column in df_cols:

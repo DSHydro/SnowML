@@ -1,4 +1,4 @@
-# Model to run end to end pipeline
+# Module to run end to end pipeline
 # pylint: disable=C0103
 
 
@@ -10,16 +10,12 @@ from snowML.datapipe.utils import get_geos as gg
 from snowML.datapipe import bronze_to_gold as btg
 from snowML.datapipe import to_model_ready as gtm
 
-def process_multi_huc (huc_id_start,
-                       final_huc_lev,
+def process_multi_huc (geos,
                        bucket_dict = None,
                        var_list = None,
                        overwrite_gold = False,
                        overwrite_mod = False):
-    # verify inputs
-    huc_lev_permitted = ['10', '12']
-    assert final_huc_lev in huc_lev_permitted, f"Type must be one of {huc_lev_permitted}"
-
+    
     # some set up
     if bucket_dict is None:
         bucket_dict = sdc.create_bucket_dict("prod")
@@ -28,7 +24,6 @@ def process_multi_huc (huc_id_start,
         var_list = list(var_dict.keys())
 
     # get geos
-    geos = gg.get_geos(huc_id_start, final_huc_lev)
     num_geos = geos.shape[0]
     print(f"Number of geos to process is {num_geos}")
 
@@ -55,7 +50,7 @@ def process_multi_huc (huc_id_start,
     return model_df
 
 
-def create_geos(huc_list):
+def compile_geos(huc_list):
     # Create an empty GeoDataFrame with appropriate columns and CRS
     results_gdf = gpd.GeoDataFrame(columns=["geometry"], geometry="geometry", crs="EPSG:4326")
 

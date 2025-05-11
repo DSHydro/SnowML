@@ -9,7 +9,7 @@ def create_hyper_dict():
         "num_class": 1,
         "num_layers": 1,
         "dropout": 0.5,
-        "learning_rate":  1e-3, #3e-4, # 3e-3
+        "learning_rate": 3e-4, # 3e-3, 1e-3,
         "n_epochs": 30,
         "lookback": 180,
         "batch_size": 32,
@@ -24,7 +24,7 @@ def create_hyper_dict():
         "train_size_fraction": 1, 
         "mlflow_tracking_uri": 
         "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML",
-        "recursive_predict": False, 
+        "recursive_predict": True, 
         "lag_days": 7,
         "lag_swe_var_idx": 3,
         "filter_dates": ["1984-10-01", "2021-09-30"]

@@ -31,8 +31,8 @@ import json
 import s3fs
 import requests
 import xarray as xr
-from snowML.datapipe import data_utils as du
-from snowML.datapipe import set_data_constants as sdc
+from snowML.datapipe.utils import data_utils as du
+from snowML.datapipe.utils import set_data_constants as sdc
 
 # define constants
 VAR_DICT = sdc.create_var_dict()

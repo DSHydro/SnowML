@@ -15,7 +15,7 @@ def create_hyper_dict():
         "batch_size": 32,
         "n_steps": 1,
         "num_workers": 8,
-        "var_list": ["mean_pr", "mean_tair", "Mean Elevation"],
+        "var_list": ["mean_pr", "mean_tair", "Mean Elevation", "mean_swe_lag_30"],
         "expirement_name": "Mar_Multi",
         "loss_type": "mse",
         "mse_lambda_start": 1, 
@@ -24,8 +24,8 @@ def create_hyper_dict():
         "train_size_fraction": 1, 
         "mlflow_tracking_uri": 
         "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML",
-        "recursive_predict": False, 
-        "lag_days": 7,
+        "recursive_predict": True, 
+        "lag_days": 30,
         "lag_swe_var_idx": 3,
         "filter_dates": ["1984-10-01", "2021-09-30"]
     }

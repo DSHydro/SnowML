@@ -4,8 +4,8 @@
 
 import random
 import json
-from snowML.datapipe import snow_types as st
-from snowML.datapipe import get_geos as gg
+from snowML.datapipe.utils import snow_types as st
+from snowML.datapipe.utils import get_geos as gg
 
 # Define constants
 
@@ -16,9 +16,9 @@ HUC_EPHEMERAL = [17030003, 17020010, 17110007]
 HUC_ALL =  HUC_MARITIME + HUC_MIXED + HUC_EPHEMERAL + HUC_MONTANE  
 INPUT_PAIRS = [[huc, '12'] for huc in HUC_ALL]
 
-TRAIN_SIZE_FRACTION = 0.6
-VAL_SIZE_FRACTION = 0.2
-TEST_SIZE_FRACTION = 0.2
+TRAIN_SIZE_FRACTION = 0.7
+VAL_SIZE_FRACTION = 0.3
+TEST_SIZE_FRACTION = 0
 
 
 
@@ -31,7 +31,7 @@ EXCLUDED_HUCS_CA = ["1711000501", "1711000502", "1711000503", "171100050101", "1
 EXCLUDED_HUCS_ADDTL = ['171100060305', '171100060401', '171100060402',
                         '171100060403', '171100060404', '171100060405',
                         '171100060406']
-EXCLUDED_HUCS = EXCLUDED_HUCS_CA + EXCLUDED_HUCS_ADDTL
+EXCLUDED_HUCS = EXCLUDED_HUCS_CA 
 
 
 
@@ -76,8 +76,8 @@ def split_by_huc(hucs, train_size_frac, val_size_frac):
     test_hucs = hucs[val_end:]
     return train_hucs, val_hucs, test_hucs
 
-def select_hucs(input_pairs=INPUT_PAIRS, f_out="hucs_data_maritime.json"):
-    hucs = assemble_huc_list(input_pairs)
+def select_hucs(snow_type, input_pairs=INPUT_PAIRS, f_out="MonMultiSplits.json"):
+    hucs = assemble_huc_list(snow_type, input_pairs)
     train_hucs, val_hucs, test_hucs = split_by_huc(hucs, TRAIN_SIZE_FRACTION, VAL_SIZE_FRACTION)
    # Combine the lists into a dictionary
     hucs_dict = {

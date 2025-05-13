@@ -4,6 +4,8 @@
 
 import pandas as pd
 import geopandas as gpd
+import sys
+from contextlib import redirect_stdout, redirect_stderr
 from snowML.datapipe.utils import data_utils as du
 from snowML.datapipe.utils import set_data_constants as sdc
 from snowML.datapipe.utils import get_geos as gg
@@ -34,12 +36,12 @@ def process_multi_huc (geos,
         row = geos.iloc[i]
         huc_id = row["huc_id"]
         if overwrite_gold:
-            print(f"Creating necessary gold files for {var}")
+            #print(f"Creating necessary gold files for {var}")
             btg.process_geos(geos, var)  # create gold files for all geos while var bronze open
         for var in var_list:
             f =  f"mean_{var}_in_{huc_id}.csv"
             if not du.isin_s3(b_gold, f):
-                print(f"Creating necessary gold files for {var}")
+                #print(f"Creating necessary gold files for {var}")
                 btg.process_geos(geos, var)  # create gold files for all geos while var bronze open
 
         #create model ready data
@@ -63,4 +65,11 @@ def compile_geos(huc_list):
 
 
 
-    
+def run_and_log(func, f_print, f_err, *args, **kwargs):
+    with open(f_print, 'w') as out, open(f_err, 'w') as err:
+        with redirect_stdout(out), redirect_stderr(err):
+            func(*args, **kwargs)
+
+
+def process_multi_huc_quiet(geos): 
+    run_and_log(process_multi_huc, "model_ready.txt", "model_ready_err.txt", geos)

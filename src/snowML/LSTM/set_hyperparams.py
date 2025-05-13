@@ -15,7 +15,7 @@ def create_hyper_dict():
         "batch_size": 32,
         "n_steps": 1,
         "num_workers": 8,
-        "var_list": ["mean_pr", "mean_tair", "Mean Elevation"],
+        "var_list": ["mean_pr", "mean_tair", "Mean Elevation", "mean_swe_lag_30"],
         "expirement_name": "Mon_Multi",
         "loss_type": "mse",
         "mse_lambda_start": 1, 
@@ -25,7 +25,7 @@ def create_hyper_dict():
         "mlflow_tracking_uri": 
         "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML",
         "recursive_predict": True, 
-        "lag_days": 7,
+        "lag_days": 30,
         "lag_swe_var_idx": 3,
         "filter_dates": ["1984-10-01", "2021-09-30"]
     }
@@ -34,10 +34,13 @@ def create_hyper_dict():
 def val_params(params):
     if params["recursive_predict"]:
         lag_var_name = params["var_list"][params["lag_swe_var_idx"]]
+        
         if "lag" not in lag_var_name:
-            print("Double check index of lagged variable for recursive predict")
-            return False
-        if str(params["lag_days"]) not in params["var_list"][params["lag_swe_var_idx"]]: 
-            print("Double check lagged days param matches variable ")
-            return False
+            raise ValueError("Double check index of lagged variable for recursive predict: 'lag' not in variable name.")
+        
+        if str(params["lag_days"]) not in lag_var_name:
+            raise ValueError("Double check lagged days param matches variable: "
+                             f"'{params['lag_days']}' not found in variable name '{lag_var_name}'.")
+    
     return True
+

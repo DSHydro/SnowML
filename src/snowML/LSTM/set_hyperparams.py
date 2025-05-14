@@ -17,7 +17,7 @@ def create_hyper_dict():
         "num_workers": 8,
         "var_list": ["mean_pr", "mean_tair"],
         "expirement_name": "Mar_Mixed_Loss",
-        "loss_type": "hybrid",
+        "loss_type": "custom",
         "mse_lambda_start": 1, 
         "mse_lambda_end": 0.5, 
         "train_size_dimension": "time",

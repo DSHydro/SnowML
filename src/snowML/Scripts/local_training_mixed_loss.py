@@ -116,7 +116,8 @@ def run_local_exp(hucs, params = None):
                 )
 
                 # validate
-                if (epoch % 5 == 0) or (epoch == params["n_epochs"] - 1):
+                if True: 
+                #if (epoch % 5 == 0) or (epoch == params["n_epochs"] - 1):
                     LSTM_tr.evaluate(
                         model_dawgs,
                         df_dict_small,

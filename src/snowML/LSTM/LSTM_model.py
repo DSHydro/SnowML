@@ -116,7 +116,7 @@ class HybridLoss(nn.Module):
 
 
 class CustomMSEKGE_Loss(nn.Module):
-    def __init__(self, delta=0.1, eps=1e-6):
+    def __init__(self, delta=0.01, eps=1e-6):
         """
         Custom loss: Uses MSE if MSE > delta, otherwise uses -KGE.
         """
@@ -140,23 +140,28 @@ class CustomMSEKGE_Loss(nn.Module):
         if mse > self.delta:
             return mse
 
-        # Compute batch-level means and stds
-        obs_mean = torch.mean(obs, dim=1, keepdim=True)
-        pred_mean = torch.mean(pred, dim=1, keepdim=True)
+        # Ensure tensors are at least 1D
+        if pred.ndim == 0 or obs.ndim == 0:
+            return torch.tensor(float("nan"), device=pred.device)
 
-        obs_std = torch.std(obs, dim=1, keepdim=True) + self.eps
-        pred_std = torch.std(pred, dim=1, keepdim=True) + self.eps
+        obs_mean = torch.mean(obs)
+        pred_mean = torch.mean(pred)
 
-        # Pearson correlation r
-        covariance = torch.mean((pred - pred_mean) * (obs - obs_mean), dim=1)
-        r = covariance / (obs_std.squeeze(1) * pred_std.squeeze(1) + self.eps)
+        obs_std = torch.std(obs) + self.eps  # Avoid division by zero
+        pred_std = torch.std(pred) + self.eps
 
-        alpha = (pred_std / obs_std).squeeze(1)
-        beta = (pred_mean / (obs_mean + self.eps)).squeeze(1)
+        # Compute Pearson correlation manually
+        covariance = torch.mean((pred - pred_mean) * (obs - obs_mean))
+        r = covariance / (obs_std * pred_std + self.eps)  # Avoid zero denominator
 
-        # KGE per sample, then mean over batch
-        kge = 1 - torch.sqrt((r - 1)**2 + (alpha - 1)**2 + (beta - 1)**2)
-        mean_kge = torch.mean(kge)
+        # Clamp r within [-1, 1] to prevent invalid values
+        r = torch.clamp(r, -1 + self.eps, 1 - self.eps)
 
-        return -mean_kge
+        alpha = pred_std / obs_std
+        beta = pred_mean / (obs_mean + self.eps)
+
+        # Compute KGE
+        kge = 1 - torch.sqrt((r - 1) ** 2 + (alpha - 1) ** 2 + (beta - 1) ** 2)
+    
+        return -kge
 

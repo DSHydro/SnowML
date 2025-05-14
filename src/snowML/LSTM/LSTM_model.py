@@ -112,3 +112,51 @@ class HybridLoss(nn.Module):
         hybrid_loss = -kge + self.lambda_mse * mse
 
         return hybrid_loss
+
+
+
+class CustomMSEKGE_Loss(nn.Module):
+    def __init__(self, delta=0.1, eps=1e-6):
+        """
+        Custom loss: Uses MSE if MSE > delta, otherwise uses -KGE.
+        """
+        super(CustomMSEKGE_Loss, self).__init__()
+        self.delta = delta
+        self.eps = eps
+        self.mse_loss = nn.MSELoss()
+
+    def forward(self, pred, obs):
+        """
+        Args:
+            pred (torch.Tensor): Predictions, shape [batch_size, seq_len]
+            obs (torch.Tensor): Ground truth, same shape
+
+        Returns:
+            torch.Tensor: Scalar loss
+        """
+        # Compute batch MSE
+        mse = self.mse_loss(pred, obs)
+
+        if mse > self.delta:
+            return mse
+
+        # Compute batch-level means and stds
+        obs_mean = torch.mean(obs, dim=1, keepdim=True)
+        pred_mean = torch.mean(pred, dim=1, keepdim=True)
+
+        obs_std = torch.std(obs, dim=1, keepdim=True) + self.eps
+        pred_std = torch.std(pred, dim=1, keepdim=True) + self.eps
+
+        # Pearson correlation r
+        covariance = torch.mean((pred - pred_mean) * (obs - obs_mean), dim=1)
+        r = covariance / (obs_std.squeeze(1) * pred_std.squeeze(1) + self.eps)
+
+        alpha = (pred_std / obs_std).squeeze(1)
+        beta = (pred_mean / (obs_mean + self.eps)).squeeze(1)
+
+        # KGE per sample, then mean over batch
+        kge = 1 - torch.sqrt((r - 1)**2 + (alpha - 1)**2 + (beta - 1)**2)
+        mean_kge = torch.mean(kge)
+
+        return -mean_kge
+

@@ -66,7 +66,6 @@ def process_list (huc_list, save_ttl, var_name):
                 print("unknown variable")
                 row = pd.DataFrame()
             results_df = pd.concat([results_df, row], ignore_index=True)
-
     results_df.set_index("huc_id", inplace=True)
     results_df.index = results_df.index.astype(str)
     results_df.sort_index(inplace=True)
@@ -80,20 +79,55 @@ def get_region_ls(region = 17):
     print(f"There are {len(ls)} huc08 units to process")
     return ls
 
+def drop_CA_hucs(geos):
+    ca_rows = geos[geos["huc_name"] == "Canada"]
+    geos_small = geos[geos["huc_name"] != "Canada"]
+    excluded_hucs = ca_rows["huc_id"].tolist()
+    return geos_small, excluded_hucs
+
+
 def process_regions(region_ls, var_name, region = 17):
     save_ttl = SAVE_DICT[var_name]
     save_ttl = save_ttl + "_" + str(region)
     error_regions = []
+    canada_regions = []
     count = 0
     for reg in region_ls:
         count += 1
         print(f"processing region no {count} : {reg}")
-        geos = gg.get_geos(reg, '12')
-        huc_list = list(geos["huc_id"])
+        geos = gg.get_geos_with_name(reg, '12')
+        geos_small, excluded_hucs = drop_CA_hucs(geos)
+        huc_list = list(geos_small["huc_id"])
+        canada_regions = canada_regions + excluded_hucs
         try:
-            results_df = process_list(huc_list, save_ttl, var_name)
+            process_list(huc_list, save_ttl, var_name)
         except:
             error_regions.append(reg)
 
     print(f"The following regions had errors {error_regions}")
-    return error_regions
+    print(f"The following hucs were excluded as being in Canada {canada_regions}")
+    return error_regions, canada_regions
+
+
+def process_single_hucs(huc_ls, var_name, region = 17):
+    save_ttl = SAVE_DICT[var_name]
+    save_ttl = save_ttl + "_" + str(region)
+    error_hucs = []
+    canada_hucs = []
+    count = 0
+    for huc in huc_ls:
+        count += 1
+        print(f"processing huc no {count} : {huc}")
+        geos = gg.get_geos_with_name(huc, '12')
+        geos_small, excluded_hucs = drop_CA_hucs(geos)
+        huc_list = list(geos_small["huc_id"])
+        canada_hucs = canada_hucs + excluded_hucs
+        try:
+            process_list(huc_list, save_ttl, var_name)
+        except:
+            error_hucs.append(huc)
+
+    print(f"The following hucs had errors {error_hucs}")
+    print(f"The following hucs were excluded as being in Canada {canada_hucs}")
+    return error_hucs, canada_hucs
+

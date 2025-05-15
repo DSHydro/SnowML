@@ -17,6 +17,7 @@ from snowML.datapipe.utils import data_utils as du
 
 import importlib
 importlib.reload(pp)
+importlib.reload(sh)
 
 def set_ML_server(params):
     """
@@ -131,4 +132,4 @@ def run_local_exp(hucs, params = None):
             # log the model
             #mlflow.pytorch.log_model(model_dawgs, artifact_path=f"model_{huc}", pickle_module=cloudpickle)
             mlflow.pytorch.log_model(model_dawgs, artifact_path=f"model_{huc}")
-            du.elapsed(time_start)
+            #du.elapsed(time_start)

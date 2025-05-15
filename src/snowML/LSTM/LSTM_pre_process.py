@@ -49,12 +49,15 @@ def z_score_normalize(df, global_means, global_stds):
     return normalized_df
 
 
-def load_df(huc, var_list, filter_dates = None, bucket_dict=None):
+def load_df(huc, var_list, UCLA = False, filter_dates = None, bucket_dict=None):
     if bucket_dict is None:
         bucket_dict = sdc.create_bucket_dict("prod")
     bucket_name = bucket_dict["model-ready"]
 
-    file_name = f"model_ready_huc{huc}.csv"
+    if UCLA: 
+        file_name = f"model_ready_huc{huc}_ucla.csv"
+    else: 
+        file_name = f"model_ready_huc{huc}.csv"
     df = du.s3_to_df(file_name, bucket_name)
     df['day'] = pd.to_datetime(df['day'])
     df.set_index('day', inplace=True)  # Set 'day' as the index
@@ -79,7 +82,7 @@ def load_df(huc, var_list, filter_dates = None, bucket_dict=None):
 
     return df
 
-def pre_process(huc_list, var_list, filter_dates = None, bucket_dict=None):
+def pre_process(huc_list, var_list, UCLA = False, filter_dates = None, bucket_dict=None):
     """
     Pre-processes data for LSTM model training by loading, normalizing, and 
     organizing data from multiple HUCs.
@@ -105,7 +108,7 @@ def pre_process(huc_list, var_list, filter_dates = None, bucket_dict=None):
 
     # Step 1: Load all dataframes and collect them for global mean and std computation
     for huc in huc_list:
-        df = load_df(huc, var_list, filter_dates = filter_dates, bucket_dict = bucket_dict)
+        df = load_df(huc, var_list, UCLA = UCLA, filter_dates = filter_dates, bucket_dict = bucket_dict)
         all_dfs.append(df)  # Collect DataFrames for global normalization
         df_dict[huc] = df  # Store DataFrame in dictionary
 
@@ -126,7 +129,7 @@ def pre_process(huc_list, var_list, filter_dates = None, bucket_dict=None):
     return df_dict, global_means, global_stds
 
 
-def pre_process_separate(huc_list, var_list, filter_dates = None, bucket_dict=None):
+def pre_process_separate(huc_list, var_list, UCLA = False, filter_dates = None, bucket_dict=None):
     """
     Pre-processes data for LSTM model training by loading, normalizing, and 
     organizing data from multiple HUCs. Normalize each huc only against itself.
@@ -148,7 +151,7 @@ def pre_process_separate(huc_list, var_list, filter_dates = None, bucket_dict=No
 
     # Step 1: Load all dataframes
     for huc in huc_list:
-        df = load_df(huc, var_list, filter_dates = filter_dates, bucket_dict = bucket_dict)
+        df = load_df(huc, var_list, UCLA = UCLA, filter_dates = filter_dates, bucket_dict = bucket_dict)
         all_dfs.append(df)  # Collect DataFrames for global normalization
         df_dict[huc] = df  # Store DataFrame in dictionary
 

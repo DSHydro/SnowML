@@ -16,6 +16,8 @@ from snowML.LSTM import set_hyperparams as sh
 from snowML.LSTM import LSTM_pre_process as pp
 from snowML.datapipe.utils import data_utils as du
 
+import importlib
+importlib.reload(pp)
 
 def set_ML_server(params):
     """
@@ -85,7 +87,7 @@ def run_local_exp(hucs, params = None):
         sh.val_params(params)
 
     # normalize each df separately when local training
-    df_dict = pp.pre_process_separate(hucs, params["var_list"], filter_dates=params["filter_dates"])
+    df_dict = pp.pre_process_separate(hucs, params["var_list"], UCLA = params["UCLA"], filter_dates=params["filter_dates"])
     #print("df_dict is", df_dict)
     train_size_frac = params["train_size_fraction"]
 

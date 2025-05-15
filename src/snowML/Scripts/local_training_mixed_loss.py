@@ -18,6 +18,7 @@ from snowML.datapipe.utils import data_utils as du
 
 import importlib
 importlib.reload(pp)
+importlib.reload(sh)
 
 def set_ML_server(params):
     """

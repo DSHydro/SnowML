@@ -16,7 +16,7 @@ def create_hyper_dict():
         "n_steps": 1,
         "num_workers": 8,
         "var_list": ["mean_pr", "mean_tair"],
-        "expirement_name": "Mar_Mixed_Loss",
+        "expirement_name": "Tum_UCLA",
         "loss_type": "mse",
         "mse_lambda_start": 1, 
         "mse_lambda_end": 0.5, 

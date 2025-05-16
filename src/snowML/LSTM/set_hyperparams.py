@@ -16,7 +16,7 @@ def create_hyper_dict():
         "n_steps": 1,
         "num_workers": 8,
         "var_list": ["mean_pr", "mean_tair"],
-        "expirement_name": "Mar_UCLA",
+        "expirement_name": "Ephem-MixedLoss",
         "loss_type": "mse",
         "mse_lambda_start": 1, 
         "mse_lambda_end": 0.5, 
@@ -28,7 +28,7 @@ def create_hyper_dict():
         "lag_days": 30,
         "lag_swe_var_idx": 3,
         "filter_dates": ["1984-10-01", "2021-09-30"], 
-        "UCLA": True,
+        "UCLA": False,
     }
     return param_dict
 

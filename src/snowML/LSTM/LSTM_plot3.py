@@ -8,7 +8,10 @@ import matplotlib.dates as mdates
 
 def assemble_plot_dict(y_vals, color, label, n_offset=180, sparse = False):
     plot_dict = {}
-    plot_dict["y_axis_vals"] = np.concatenate([np.full(n_offset, np.nan), y_vals.flatten()])
+    try: 
+        plot_dict["y_axis_vals"] = np.concatenate([np.full(n_offset, np.nan), y_vals.flatten()])
+    except: 
+        plot_dict["y_axis_vals"] = np.concatenate([np.full(n_offset, np.nan), y_vals])
     plot_dict["color"] = color
     plot_dict["label"] = label
     plot_dict["sparse"] = sparse

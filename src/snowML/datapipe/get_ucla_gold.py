@@ -137,6 +137,7 @@ def get_mean(year, coords, geos):
 
 
 def get_gold_df(huc, year_start, year_end, overwrite = False):
+    error_years = []
     time_start = time.time()
     geos = gg.get_geos(huc, str(len(str(huc))).zfill(2))
     coords = get_bounds(geos)
@@ -147,7 +148,7 @@ def get_gold_df(huc, year_start, year_end, overwrite = False):
     b_gold = "snowml-gold"  # TO DO - Make dynamic
     if du.isin_s3(b_gold, f"{f_gold}.csv") and not overwrite:
         print(f"File{f_gold} already exists in {b_gold}, skipping")
-        return results_df
+        return results_df, []
     
     else: 
         for yr in range(year_start, year_end):
@@ -156,23 +157,21 @@ def get_gold_df(huc, year_start, year_end, overwrite = False):
                 results_df = pd.concat([results_df, mean_df], axis=0)
             except:
                 print(f"Error processing year_{yr}, skipping")
+                error_years.append(f"{huc}_{yr}")
         du.dat_to_s3(results_df, b_gold, f_gold, file_type="csv")
         du.elapsed(time_start)
-    return results_df
+        
+    return results_df, error_years
 
 def get_gold_multi(huc_list, year_start, year_end, overwrite = False):
+    error_years = []
+    count = 0
     for huc in huc_list:
-        get_gold_df(huc, year_start, year_end, overwrite = overwrite)
-    
-    for yr in range(year_start, year_end): 
-        try: 
-            mean_df = get_mean(yr, coords, geos)
-            results_df = pd.concat([results_df, mean_df], axis=0)
-        except: 
-            print(f"Error processing year_{yr}, skipping")
-    save_gold_df(huc, results_df)
-    du.elapsed(time_start)
-    return results_df
+        count += 1
+        print(f"processing huc {count}")
+        results_df, new_error_years = get_gold_df(huc, year_start, year_end, overwrite = overwrite)
+        error_years = error_years + new_error_years   
+    return error_years
 
 def save_gold_df(huc, gold_df): 
     f_gold = f"mean_swe_ucla_2_in_{huc}"

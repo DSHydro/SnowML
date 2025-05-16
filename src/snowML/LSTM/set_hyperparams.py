@@ -28,6 +28,7 @@ def create_hyper_dict():
         "lag_days": 30,
         "lag_swe_var_idx": 3,
         "filter_dates": ["1984-10-01", "2021-09-30"], 
+        "custom delta": .01, 
         "UCLA": False,
     }
     return param_dict

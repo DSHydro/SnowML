@@ -72,11 +72,11 @@ def initialize_model(params):
                                             total_epochs=params["n_epochs"])
         #print("We are using hybrid loss")
     elif params["loss_type"] == "custom": 
-        loss_fn_dawgs = LSTM_mod.CustomMSEKGE_Loss()
-        #print("We are using custome kge/mse loss")
+        loss_fn_dawgs = LSTM_mod.CustomMSEKGE_Loss(delta=params["custom delta"])
+        print("We are using custome kge/mse loss with delta", params["custom delta"])
     else: # MAE loss
         loss_fn_dawgs= torch.nn.L1Loss()
-        #print("We are using MAE loss")
+        print("We are using MAE loss")
 
     return model_dawgs, optimizer_dawgs, loss_fn_dawgs
 

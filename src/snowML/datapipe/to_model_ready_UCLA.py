@@ -30,15 +30,18 @@ def load_UCLA(huc):
     df_UCLA.rename(columns={"SWE_Post": "mean_swe"}, inplace=True)
     return df_UCLA
 
-def process_one_huc(huc): 
-    df_UA, col_order = load_UA(huc)
-    df_model_slim = drop_swe_columns(df_UA)
-    df_UCLA = load_UCLA(huc)
-    df_model = df_UCLA.join(df_model_slim, how="inner")
-    num_list = [7, 30, 60]
-    df_model = add_lagged_swe(df_model, num_list)
-    df_model_final = df_model[col_order]
+def process_one_huc(huc, overwrite = False): 
     f_out = f"model_ready_huc{huc}_ucla"
     b_mr = "snowml-model-ready"  # TO DO - Make Dynamic 
-    du.dat_to_s3(df_model_final, b_mr, f_out, file_type="csv")
-    return df_model_final
+    if du.isin_s3(b_mr, f_out + ".csv") and not overwrite: 
+        print(f"{f_out} exists, skipping")
+    else: 
+        df_UA, col_order = load_UA(huc)
+        df_model_slim = drop_swe_columns(df_UA)
+        df_UCLA = load_UCLA(huc)
+        df_model = df_UCLA.join(df_model_slim, how="inner")
+        num_list = [7, 30, 60]
+        df_model = add_lagged_swe(df_model, num_list)
+        df_model_final = df_model[col_order]
+        du.dat_to_s3(df_model_final, b_mr, f_out, file_type="csv")
+   

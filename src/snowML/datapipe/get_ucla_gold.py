@@ -21,8 +21,10 @@ from snowML.datapipe import get_bronze as gb
 
 # define constants
 VAR_DICT = sdc.create_var_dict()
-
+EARTHACCESS_USER = "suetboyd"
+EARTHACCESS_LOGIN = "LTsuey78****"
 earthaccess.login()
+
 
 import importlib
 importlib.reload(du)
@@ -40,6 +42,7 @@ def format_nsidc_url(north, west, yr):
     Returns:
     - str: Formatted URL
     """
+    
     yr_end = str(yr + 1)[-2:]
     url_template = du.get_url_pattern("swe_ucla")
     return url_template.format(north=north, west=west, Yr=yr, Yr_end=yr_end)

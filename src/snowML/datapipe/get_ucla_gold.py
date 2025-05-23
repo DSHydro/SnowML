@@ -23,8 +23,6 @@ from snowML.datapipe import get_bronze as gb
 VAR_DICT = sdc.create_var_dict()
 EARTHACCESS_USER = "suetboyd"
 EARTHACCESS_LOGIN = "LTsuey78****"
-earthaccess.login()
-
 
 import importlib
 importlib.reload(du)
@@ -48,10 +46,43 @@ def format_nsidc_url(north, west, yr):
     return url_template.format(north=north, west=west, Yr=yr, Yr_end=yr_end)
 
 
+def url_to_ds_earthaccess(url, username=EARTHACCESS_USER, password=EARTHACCESS_LOGIN, timeout=60):
+    """
+    Download a dataset from Earthdata using earthaccess and open it as an xarray Dataset.
+    
+    Parameters:
+    - url (str): The URL to download from.
+    - username (str): Earthdata username.
+    - password (str): Earthdata password.
+    - timeout (int): Timeout in seconds (not currently used by earthaccess).
+    
+    Returns:
+    - xarray.Dataset or None
+    """
+    try:
+        # Set required env vars for Earthaccess to pick up
+        os.environ["EARTHDATA_USERNAME"] = username
+        os.environ["EARTHDATA_PASSWORD"] = password
+
+        # Login using the environment variables
+        earthaccess.login(strategy="password")
+
+        # Download the file from Earthdata
+        file_path = earthaccess.download(url)[0]
+
+        # Open the dataset using xarray
+        ds = xr.open_dataset(file_path, engine="netcdf4", chunks={"day": -1, "lat": None, "lon": None})
+        return ds
+
+    except Exception as e:
+        print(f"Failed to download or open dataset: {e}")
+        return None
+
 def get_one_file(north, west, yr):
     url = format_nsidc_url(north, west, yr)
     print(url)
-    ds = gb.url_to_ds(url, "")
+    ds = url_to_ds_earthaccess(url)
+    print(ds.head())
     return ds
 
 
@@ -61,7 +92,6 @@ def get_one_year(yr, begin_north, end_north, begin_west, end_west):
     for north in range(begin_north, end_north + 1):
         for west in range(begin_west, end_west + 1):
             ds = get_one_file(north, west, yr)
-
             # Select the first stat and remove the Stats dimension
             ds = ds.isel(Stats=0)
             # remove the SCA Variable
@@ -155,12 +185,12 @@ def get_gold_df(huc, year_start, year_end, overwrite = False):
     
     else: 
         for yr in range(year_start, year_end):
-            try:
-                mean_df = get_mean(yr, coords, geos)
-                results_df = pd.concat([results_df, mean_df], axis=0)
-            except:
-                print(f"Error processing year_{yr}, skipping")
-                error_years.append(f"{huc}_{yr}")
+            #try:
+            mean_df = get_mean(yr, coords, geos)
+            results_df = pd.concat([results_df, mean_df], axis=0)
+            #except:
+            #print(f"Error processing year_{yr}, skipping")
+            #error_years.append(f"{huc}_{yr}")
         du.dat_to_s3(results_df, b_gold, f_gold, file_type="csv")
         du.elapsed(time_start)
         

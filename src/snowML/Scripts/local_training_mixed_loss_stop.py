@@ -21,6 +21,7 @@ from snowML.LSTM import LSTM_plot3 as plot3
 
 importlib.reload(pp)
 importlib.reload(sh)
+importlib.reload(LSTM_tr)
 
 def set_ML_server(params):
     """
@@ -125,7 +126,7 @@ def run_local_exp(hucs, params = None):
                 )
 
                 # evaluate and inspect train_kge
-                kge_tr, metric_dict_test, metric_dict_te, recur, metric_dict_train = LSTM_tr.evaluate(
+                kge_tr, metric_dict_test, metric_dict_te_recur, metric_dict_train, data, y_te_true, y_te_pred, y_te_pred_recur, tr_size = LSTM_tr.evaluate(
                     model_dawgs,
                     df_dict_small,
                     params,
@@ -158,8 +159,8 @@ def run_local_exp(hucs, params = None):
                 else:
                     plot_dict_te_recur = None
                 y_dict_list = [plot_dict_true, plot_dict_te, plot_dict_te_recur ]
-                ttl = f"SWE_Actual_vs_Predicted_for_huc_{selected_key}"
-                x_axis_vals = data.index[train_size:]
+                ttl = f"SWE_Actual_vs_Predicted_for_huc_{huc}"
+                x_axis_vals = data.index[tr_size:]
                 plot3.plot3(x_axis_vals, y_dict_list, ttl, metrics_dict = combined_dict)
 
 

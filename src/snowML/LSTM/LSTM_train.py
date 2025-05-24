@@ -247,4 +247,4 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
         for m_dict in [metric_dict_test, metric_dict_te_recur, metric_dict_train]:
             met.log_print_metrics(m_dict, selected_key, epoch)
         
-    return kge_tr
+    return kge_tr, metric_dict_test, metric_dict_te, recur, metric_dict_train

@@ -125,7 +125,7 @@ def run_local_exp(hucs, params = None):
                 )
 
                 # evaluate and inspect train_kge
-                kge_tr = LSTM_tr.evaluate(
+                kge_tr, metric_dict_test, metric_dict_te, recur, metric_dict_train = LSTM_tr.evaluate(
                     model_dawgs,
                     df_dict_small,
                     params,
@@ -137,29 +137,30 @@ def run_local_exp(hucs, params = None):
                         print(f"Ending training after epoch {epoch}, training target reached")
                     break
         
-        # store plots for final epooch
-        if params["recursive_predict"]:
-            combined_dict = {**metric_dict_test, **metric_dict_te_recur}
-        else:
-            combined_dict = metric_dict_test
-            #met.log_print_metrics(combined_dict, selected_key, epoch)
-            if params["UCLA"]:
-                plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
-                    'SWE Estimates UCLA Data')
-            else:
-                plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
-                    'SWE Estimates UA Data (Physics Based Model)')
-            plot_dict_te = plot3.assemble_plot_dict(y_te_pred, "green",
-                'SWE Estimates Prediction') 
+            # store plots for final epooch
             if params["recursive_predict"]:
-                plot_dict_te_recur = plot3.assemble_plot_dict(y_te_pred_recur, "black",
-                    'SWE Estimates Recursive Prediction')
+                combined_dict = {**metric_dict_test, **metric_dict_te_recur}
             else:
-                plot_dict_te_recur = None
-            y_dict_list = [plot_dict_true, plot_dict_te, plot_dict_te_recur ]
-            ttl = f"SWE_Actual_vs_Predicted_for_huc_{selected_key}"
-            x_axis_vals = data.index[train_size:]
-            plot3.plot3(x_axis_vals, y_dict_list, ttl, metrics_dict = combined_dict)
+                print("Plotting . . . ")
+                combined_dict = metric_dict_test
+                #met.log_print_metrics(combined_dict, selected_key, epoch)
+                if params["UCLA"]:
+                    plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
+                        'SWE Estimates UCLA Data')
+                else:
+                    plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
+                        'SWE Estimates UA Data (Physics Based Model)')
+                plot_dict_te = plot3.assemble_plot_dict(y_te_pred, "green",
+                    'SWE Estimates Prediction') 
+                if params["recursive_predict"]:
+                    plot_dict_te_recur = plot3.assemble_plot_dict(y_te_pred_recur, "black",
+                        'SWE Estimates Recursive Prediction')
+                else:
+                    plot_dict_te_recur = None
+                y_dict_list = [plot_dict_true, plot_dict_te, plot_dict_te_recur ]
+                ttl = f"SWE_Actual_vs_Predicted_for_huc_{selected_key}"
+                x_axis_vals = data.index[train_size:]
+                plot3.plot3(x_axis_vals, y_dict_list, ttl, metrics_dict = combined_dict)
 
 
         # log the model

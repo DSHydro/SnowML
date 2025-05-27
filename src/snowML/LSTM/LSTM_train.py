@@ -110,16 +110,16 @@ def fine_tune(model, optimizer, loss_fn, df_train, params, epoch):
         optimizer.step()
 
 
-def predict(model_dawgs, data, X_te, params, X_tr=None): 
+def predict(model_dawgs, data, X_te, params, X_tr=None):
     with torch.no_grad():
         y_te_pred = model_dawgs(X_te).cpu().numpy()
-    
-        if X_tr is not None: 
+
+        if X_tr is not None:
             y_tr_pred = model_dawgs(X_tr).cpu().numpy()
-        else: 
-            y_tr_pred = None  
-    
-        if params["recursive_predict"]: 
+        else:
+            y_tr_pred = None
+
+        if params["recursive_predict"]:
             # Index of the lagged SWE variable in the input features
             lagged_swe_idx = params['lag_swe_var_idx']
 
@@ -183,11 +183,11 @@ def predict_prep(model_dawgs, df_dict, selected_key, params):
         X_test, y_test = pp.create_tensor(test_main,
                                     params['lookback'],
                                     params['var_list'])
-        
+    
         y_train = y_train.numpy()
         y_test = y_test.numpy()
         y_tr_pred, y_te_pred, y_te_pred_recur = predict(model_dawgs, data, X_test, params, X_tr=X_train)
-            
+
     else: # split along entire huc
         X_test, y_test = pp.create_tensor(data, params['lookback'], params['var_list'])
         y_test = y_test.numpy()
@@ -238,34 +238,13 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
         # train metrics if avail
         if params["train_size_dimension"] == "time":
             metric_dict_train = met.calc_metrics(y_tr_true, y_tr_pred, metric_type = "train")
+            kge_tr = metric_dict_train["train_kge"]
         else:
             metric_dict_train = None
+            kge_tr = None
 
         #Log and print metrics
         for m_dict in [metric_dict_test, metric_dict_te_recur, metric_dict_train]:
             met.log_print_metrics(m_dict, selected_key, epoch)
-
-        # store plots for final epooch
-        if epoch == params["n_epochs"] - 1:
-            if params["recursive_predict"]:
-                combined_dict = {**metric_dict_test, **metric_dict_te_recur}
-            else: 
-                combined_dict = metric_dict_test
-            #met.log_print_metrics(combined_dict, selected_key, epoch)
-            if params["UCLA"]:
-                plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
-                    'SWE Estimates UCLA Data')
-            else: 
-                plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
-                    'SWE Estimates UA Data (Physics Based Model)')
-            plot_dict_te = plot3.assemble_plot_dict(y_te_pred, "green",
-                'SWE Estimates Prediction') 
-            if params["recursive_predict"]:     
-                plot_dict_te_recur = plot3.assemble_plot_dict(y_te_pred_recur, "black",
-                    'SWE Estimates Recursive Prediction')
-            else: 
-                plot_dict_te_recur = None
-            y_dict_list = [plot_dict_true, plot_dict_te, plot_dict_te_recur ]
-            ttl = f"SWE_Actual_vs_Predicted_for_huc_{selected_key}"
-            x_axis_vals = data.index[train_size:]
-            plot3.plot3(x_axis_vals, y_dict_list, ttl, metrics_dict = combined_dict)
+        
+    return kge_tr, metric_dict_test, metric_dict_te_recur, metric_dict_train, data, y_te_true, y_te_pred, y_te_pred_recur, train_size

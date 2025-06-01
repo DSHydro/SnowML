@@ -6,6 +6,8 @@ import warnings
 import time
 import io
 import os
+import sys
+import shutil
 import json
 import s3fs
 import requests
@@ -21,13 +23,16 @@ from snowML.datapipe import get_bronze as gb
 
 # define constants
 VAR_DICT = sdc.create_var_dict()
-EARTHACCESS_USER = "suetboyd"
-EARTHACCESS_LOGIN = "LTsuey78****"
-earthaccess.login()
+MY_EARTHACCESS_USER = "suetboyd"
+MY_EARTHACCESS_LOGIN = "LTsuey78****"
 
+# LOG IN TO EARTHEACCESS 
+# Set once per session (or omit entirely if using .netrc)
+os.environ.setdefault("EARTHDATA_USERNAME", "MY_EARTHACCESS_USER")
+os.environ.setdefault("EARTHDATA_PASSWORD", "MY_EARTHACCESS_LOGIN")
+# Login once when module is imported
+earthaccess.login(strategy="password")
 
-import importlib
-importlib.reload(du)
 
 
 def format_nsidc_url(north, west, yr):
@@ -48,10 +53,29 @@ def format_nsidc_url(north, west, yr):
     return url_template.format(north=north, west=west, Yr=yr, Yr_end=yr_end)
 
 
+def url_to_ds_earthaccess(url, timeout=60):
+    try:
+        
+        file_path = earthaccess.download(url)[0]
+        ds = xr.open_dataset(file_path, engine="netcdf4", chunks={"day": -1, "lat": None, "lon": None})
+        
+        #  Load the data into memory, then remove the file and its containing temporary directory
+        ds.load()  # Fully load the dataset into memory
+        temp_dir = os.path.dirname(file_path)
+        shutil.rmtree(temp_dir)
+        
+        return ds
+
+    except Exception as e:
+        print(f"Failed to download or open dataset: {e}")
+        return None
+
+
+
 def get_one_file(north, west, yr):
     url = format_nsidc_url(north, west, yr)
-    print(url)
-    ds = gb.url_to_ds(url, "")
+    print(yr, url)
+    ds = url_to_ds_earthaccess(url)
     return ds
 
 
@@ -61,7 +85,6 @@ def get_one_year(yr, begin_north, end_north, begin_west, end_west):
     for north in range(begin_north, end_north + 1):
         for west in range(begin_west, end_west + 1):
             ds = get_one_file(north, west, yr)
-
             # Select the first stat and remove the Stats dimension
             ds = ds.isel(Stats=0)
             # remove the SCA Variable
@@ -166,7 +189,7 @@ def get_gold_df(huc, year_start, year_end, overwrite = False):
         
     return results_df, error_years
 
-def get_gold_multi(huc_list, year_start, year_end, overwrite = False):
+def get_gold_multi(huc_list, year_start=1984, year_end=2021, overwrite = False):
     error_years = []
     count = 0
     for huc in huc_list:
@@ -180,4 +203,32 @@ def save_gold_df(huc, gold_df):
     f_gold = f"mean_swe_ucla_2_in_{huc}"
     b_gold = "snowml-gold"  # TO DO - Make dynamic
     du.dat_to_s3(gold_df, b_gold, f_gold, file_type="csv")
+
+def get_gold_df_from_gdf(geos, geos_name, year_start, year_end, overwrite = False):
+    error_years = []
+    time_start = time.time()
+    coords = get_bounds(geos)
+    results_df = pd.DataFrame()
+
+    # check if file exists
+    f_gold = f"mean_swe_ucla_2_in_{geos_name}"
+    b_gold = "snowml-gold"  # TO DO - Make dynamic
+    if du.isin_s3(b_gold, f"{f_gold}.csv") and not overwrite:
+        print(f"File{f_gold} already exists in {b_gold}, skipping")
+        return results_df, []
+    
+    else: 
+        for yr in range(year_start, year_end):
+            #try:
+            mean_df = get_mean(yr, coords, geos)
+            results_df = pd.concat([results_df, mean_df], axis=0)
+            #except:
+                #print(f"Error processing year_{yr}, skipping")
+                #error_years.append(f"{geos_name}_{yr}")
+        du.dat_to_s3(results_df, b_gold, f_gold, file_type="csv")
+        du.elapsed(time_start)
+        save_gold_df(geos_name, results_df)
+
+        
+    return results_df, error_years
 

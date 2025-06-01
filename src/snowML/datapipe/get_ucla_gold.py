@@ -6,6 +6,8 @@ import warnings
 import time
 import io
 import os
+import sys
+import shutil
 import json
 import s3fs
 import requests
@@ -21,11 +23,16 @@ from snowML.datapipe import get_bronze as gb
 
 # define constants
 VAR_DICT = sdc.create_var_dict()
-EARTHACCESS_USER = "suetboyd"
-EARTHACCESS_LOGIN = "LTsuey78****"
+MY_EARTHACCESS_USER = "suetboyd"
+MY_EARTHACCESS_LOGIN = "LTsuey78****"
 
-import importlib
-importlib.reload(du)
+# LOG IN TO EARTHEACCESS 
+# Set once per session (or omit entirely if using .netrc)
+os.environ.setdefault("EARTHDATA_USERNAME", "MY_EARTHACCESS_USER")
+os.environ.setdefault("EARTHDATA_PASSWORD", "MY_EARTHACCESS_LOGIN")
+# Login once when module is imported
+earthaccess.login(strategy="password")
+
 
 
 def format_nsidc_url(north, west, yr):
@@ -46,43 +53,29 @@ def format_nsidc_url(north, west, yr):
     return url_template.format(north=north, west=west, Yr=yr, Yr_end=yr_end)
 
 
-def url_to_ds_earthaccess(url, username=EARTHACCESS_USER, password=EARTHACCESS_LOGIN, timeout=60):
-    """
-    Download a dataset from Earthdata using earthaccess and open it as an xarray Dataset.
-    
-    Parameters:
-    - url (str): The URL to download from.
-    - username (str): Earthdata username.
-    - password (str): Earthdata password.
-    - timeout (int): Timeout in seconds (not currently used by earthaccess).
-    
-    Returns:
-    - xarray.Dataset or None
-    """
+def url_to_ds_earthaccess(url, timeout=60):
     try:
-        # Set required env vars for Earthaccess to pick up
-        os.environ["EARTHDATA_USERNAME"] = username
-        os.environ["EARTHDATA_PASSWORD"] = password
-
-        # Login using the environment variables
-        earthaccess.login(strategy="password")
-
-        # Download the file from Earthdata
+        
         file_path = earthaccess.download(url)[0]
-
-        # Open the dataset using xarray
         ds = xr.open_dataset(file_path, engine="netcdf4", chunks={"day": -1, "lat": None, "lon": None})
+        
+        #  Load the data into memory, then remove the file and its containing temporary directory
+        ds.load()  # Fully load the dataset into memory
+        temp_dir = os.path.dirname(file_path)
+        shutil.rmtree(temp_dir)
+        
         return ds
 
     except Exception as e:
         print(f"Failed to download or open dataset: {e}")
         return None
 
+
+
 def get_one_file(north, west, yr):
     url = format_nsidc_url(north, west, yr)
-    print(url)
+    print(yr, url)
     ds = url_to_ds_earthaccess(url)
-    print(ds.head())
     return ds
 
 
@@ -185,18 +178,18 @@ def get_gold_df(huc, year_start, year_end, overwrite = False):
     
     else: 
         for yr in range(year_start, year_end):
-            #try:
-            mean_df = get_mean(yr, coords, geos)
-            results_df = pd.concat([results_df, mean_df], axis=0)
-            #except:
-            #print(f"Error processing year_{yr}, skipping")
-            #error_years.append(f"{huc}_{yr}")
+            try:
+                mean_df = get_mean(yr, coords, geos)
+                results_df = pd.concat([results_df, mean_df], axis=0)
+            except:
+                print(f"Error processing year_{yr}, skipping")
+                error_years.append(f"{huc}_{yr}")
         du.dat_to_s3(results_df, b_gold, f_gold, file_type="csv")
         du.elapsed(time_start)
         
     return results_df, error_years
 
-def get_gold_multi(huc_list, year_start, year_end, overwrite = False):
+def get_gold_multi(huc_list, year_start=1984, year_end=2021, overwrite = False):
     error_years = []
     count = 0
     for huc in huc_list:

@@ -18,7 +18,7 @@ Snow Classification Data Reference:
 - Liston, G. E., and M. Sturm, 2021: Global Seasonal-Snow Classification, Version 1. National Snow and Ice Data Center, https://doi.org/10.5067/99FTCYYYLAQ0.
 
 ## Cedar Elevation Map 
-![Elevation Map](../basic_maps/dem_huc17020009.png)
+![Elevation Map](../basic_maps/Snow_classes_in_Cedar.png)
 
 Elevation Data Reference 
 - Copernicus Global Digital Elevation Models, at 90 m scale (COP90)

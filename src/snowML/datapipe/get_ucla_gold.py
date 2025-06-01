@@ -6,6 +6,8 @@ import warnings
 import time
 import io
 import os
+import sys
+import shutil
 import json
 import s3fs
 import requests
@@ -21,13 +23,16 @@ from snowML.datapipe import get_bronze as gb
 
 # define constants
 VAR_DICT = sdc.create_var_dict()
-EARTHACCESS_USER = "suetboyd"
-EARTHACCESS_LOGIN = "LTsuey78****"
-earthaccess.login()
+MY_EARTHACCESS_USER = "suetboyd"
+MY_EARTHACCESS_LOGIN = "LTsuey78****"
 
+# LOG IN TO EARTHEACCESS 
+# Set once per session (or omit entirely if using .netrc)
+os.environ.setdefault("EARTHDATA_USERNAME", "MY_EARTHACCESS_USER")
+os.environ.setdefault("EARTHDATA_PASSWORD", "MY_EARTHACCESS_LOGIN")
+# Login once when module is imported
+earthaccess.login(strategy="password")
 
-import importlib
-importlib.reload(du)
 
 
 def format_nsidc_url(north, west, yr):
@@ -48,10 +53,29 @@ def format_nsidc_url(north, west, yr):
     return url_template.format(north=north, west=west, Yr=yr, Yr_end=yr_end)
 
 
+def url_to_ds_earthaccess(url, timeout=60):
+    try:
+        
+        file_path = earthaccess.download(url)[0]
+        ds = xr.open_dataset(file_path, engine="netcdf4", chunks={"day": -1, "lat": None, "lon": None})
+        
+        #  Load the data into memory, then remove the file and its containing temporary directory
+        ds.load()  # Fully load the dataset into memory
+        temp_dir = os.path.dirname(file_path)
+        shutil.rmtree(temp_dir)
+        
+        return ds
+
+    except Exception as e:
+        print(f"Failed to download or open dataset: {e}")
+        return None
+
+
+
 def get_one_file(north, west, yr):
     url = format_nsidc_url(north, west, yr)
-    print(url)
-    ds = gb.url_to_ds(url, "")
+    print(yr, url)
+    ds = url_to_ds_earthaccess(url)
     return ds
 
 
@@ -61,7 +85,6 @@ def get_one_year(yr, begin_north, end_north, begin_west, end_west):
     for north in range(begin_north, end_north + 1):
         for west in range(begin_west, end_west + 1):
             ds = get_one_file(north, west, yr)
-
             # Select the first stat and remove the Stats dimension
             ds = ds.isel(Stats=0)
             # remove the SCA Variable
@@ -166,7 +189,7 @@ def get_gold_df(huc, year_start, year_end, overwrite = False):
         
     return results_df, error_years
 
-def get_gold_multi(huc_list, year_start, year_end, overwrite = False):
+def get_gold_multi(huc_list, year_start=1984, year_end=2021, overwrite = False):
     error_years = []
     count = 0
     for huc in huc_list:

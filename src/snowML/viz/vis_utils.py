@@ -218,13 +218,14 @@ def map_snow_types(ds, geos, huc, huc_lev = '12', class_colors = None, output_di
     plt.close(fig)  # Close the figure to free memory
     print(f"Map saved to {file_path}")
 
-def plot_dem(dem_ds, geos, huc_id):
+def plot_dem(dem_ds, geos, huc_id, f_out = None):
     _, ax = plt.subplots(figsize=(10, 6))
     dem_ds.plot(ax=ax, cmap='terrain')
     # Plot geometries in black outline
     geos.plot(ax=ax, edgecolor='black', facecolor='none', linewidth=2, zorder=5)
     ax.set_title(f"Digital Elevation Model (DEM) for huc {huc_id}")
-    f_out = f"docs/basic_maps/dem_huc{huc_id}" # TO DO: Fix path to be dynamic
+    if f_out is None: 
+        f_out = f"docs/basic_maps/dem_huc{huc_id}" # TO DO: Fix path to be dynamic
     plt.savefig(f_out, dpi=300, bbox_inches="tight")
     print(f"Map saved to {f_out}")
     plt.close()

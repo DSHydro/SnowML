@@ -9,9 +9,23 @@ import earthaccess
 import numpy as np
 import pandas as pd
 import s3fs
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 import matplotlib.pyplot as plt
 from snowML.datapipe.utils import set_data_constants as sdc
 from snowML.datapipe.utils import get_geos as gg
+
+
+
+
+def get_files_ASO():
+    """ Retrieves files for post-2019 lidar from "https://data.airbornesnowobservatories.com"""
+    pass
+
+
+
+
 
 
 def get_files():

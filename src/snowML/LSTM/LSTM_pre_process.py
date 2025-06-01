@@ -77,8 +77,7 @@ def load_df(huc, var_list, UCLA = False, filter_dates = None, bucket_dict=None):
     if num_dropped > 0:
         print(f"Number of rows dropped: {num_dropped}")
 
-    if filter_dates is not None:
-        df = df.loc[filter_dates[0]:filter_dates[1]]
+   
 
     return df
 

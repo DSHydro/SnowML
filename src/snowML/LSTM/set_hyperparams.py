@@ -30,6 +30,7 @@ def create_hyper_dict():
         "filter_dates": ["1984-10-01", "2021-09-30"], 
         "custom delta": .04, 
         "UCLA": False,
+        "Stop_Loss": "True"
         "KGE_target": .9
     }
     return param_dict

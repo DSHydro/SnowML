@@ -1,12 +1,9 @@
-# pylint: disable=C0103, R0913, R0914, R0917
+# pylint: disable=C0103, R0913, R0914
 
 import random
 import torch
 import numpy as np
 from snowML.LSTM import LSTM_pre_process as pp
-#from snowML.LSTM import LSTM_plot
-#from snowML.LSTM import LSTM_plot2
-from snowML.LSTM import LSTM_plot3 as plot3
 from snowML.LSTM import LSTM_metrics as met
 from snowML.LSTM import LSTM_predict_recursive as recur
 
@@ -183,7 +180,7 @@ def predict_prep(model_dawgs, df_dict, selected_key, params):
         X_test, y_test = pp.create_tensor(test_main,
                                     params['lookback'],
                                     params['var_list'])
-    
+
         y_train = y_train.numpy()
         y_test = y_test.numpy()
         y_tr_pred, y_te_pred, y_te_pred_recur = predict(model_dawgs, data, X_test, params, X_tr=X_train)
@@ -246,5 +243,36 @@ def evaluate(model_dawgs, df_dict, params, epoch, selected_keys = None):
         #Log and print metrics
         for m_dict in [metric_dict_test, metric_dict_te_recur, metric_dict_train]:
             met.log_print_metrics(m_dict, selected_key, epoch)
-        
+
     return kge_tr, metric_dict_test, metric_dict_te_recur, metric_dict_train, data, y_te_true, y_te_pred, y_te_pred_recur, train_size
+
+# evaluate_multi_run
+def evaluate_mr(model_dawgs, df_dict, selected_key, params, epoch, run):
+    data, y_tr_pred, y_te_pred, y_tr_true, y_te_true, y_te_pred_recur, train_size = predict_prep(
+            model_dawgs, df_dict, selected_key, params)
+
+    # test metrics
+    metric_dict_test = met.calc_metrics(y_te_true, y_te_pred, metric_type = f"test_{run}")
+
+    # test_metrics_recur if avail
+    if params["recursive_predict"]:
+        metric_dict_te_recur = met.calc_metrics(y_te_true, y_te_pred_recur, metric_type = f"test_recur_{run}")
+    else:
+        metric_dict_te_recur = None
+
+    # train metrics if avail
+    if params["train_size_dimension"] == "time":
+        metric_dict_train = met.calc_metrics(y_tr_true, y_tr_pred, metric_type = f"train_{run}")
+        kge_tr = metric_dict_train["train_kge"]
+    else:
+        metric_dict_train = None
+        kge_tr = None
+
+    #Log and print metrics
+    for m_dict in [metric_dict_test, metric_dict_te_recur, metric_dict_train]:
+        met.log_print_metrics(m_dict, selected_key, epoch)
+
+    return kge_tr, metric_dict_test, metric_dict_te_recur, metric_dict_train, data, y_te_true, y_te_pred, y_te_pred_recur, train_size
+
+
+

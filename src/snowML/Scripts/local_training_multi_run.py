@@ -1,13 +1,12 @@
 
-""" Script to run an expiriment with local training on target huc(s) only
-using mixed loss function as specified, and early stop if kge target reached """
+""" Script to run an expiriment with local training on target huc, 
+multiple runs for the smae huc using varioius loss functions."""
 
 # # pylint: disable=C0103
 
 
 
 #import time
-import importlib
 import torch
 from torch import optim
 import mlflow
@@ -17,11 +16,6 @@ from snowML.LSTM import set_hyperparams as sh
 from snowML.LSTM import LSTM_pre_process as pp
 from snowML.LSTM import LSTM_plot3 as plot3
 
-
-
-importlib.reload(pp)
-importlib.reload(sh)
-importlib.reload(LSTM_tr)
 
 def set_ML_server(params):
     """
@@ -85,13 +79,13 @@ def initialize_model(params):
     return model_dawgs, optimizer_dawgs, loss_fn_dawgs
 
 
-def run_local_exp(hucs, params = None):
+def run_local_exp(huc, runs, params = None):
     if params is None:
         params = sh.create_hyper_dict()
         sh.val_params(params)
 
     # normalize each df separately when local training
-    df_dict = pp.pre_process_separate(hucs, params["var_list"], UCLA = params["UCLA"], filter_dates=params["filter_dates"])
+    df_dict = pp.pre_process_separate([huc], params["var_list"], UCLA = params["UCLA"], filter_dates=params["filter_dates"])
     #print("df_dict is", df_dict)
     train_size_frac = params["train_size_fraction"]
 
@@ -102,10 +96,10 @@ def run_local_exp(hucs, params = None):
         # log all the params
         mlflow.log_params(params)
         # log the hucs & train size fraction
-        mlflow.log_param("hucs", hucs)
+        mlflow.log_param("hucs", huc)
 
-        for huc in df_dict.keys():
-            #time_start = time.time()
+        for run in range(runs):
+        #time_start = time.time()
             print(f"Training on HUC {huc}")
             df = df_dict[huc]
             df_dict_small = {huc: df}
@@ -126,41 +120,44 @@ def run_local_exp(hucs, params = None):
                 )
 
                 # evaluate and inspect train_kge
-                kge_tr, metric_dict_test, metric_dict_te_recur, metric_dict_train, data, y_te_true, y_te_pred, y_te_pred_recur, tr_size = LSTM_tr.evaluate(
+                kge_tr, metric_dict_test, metric_dict_te_recur, metric_dict_train, data, y_te_true, y_te_pred, y_te_pred_recur, tr_size = LSTM_tr.evaluate_mr(
                     model_dawgs,
                     df_dict_small,
+                    huc,
                     params,
-                    epoch)
+                    epoch,
+                    run)
 
                 if (kge_tr >= params["KGE_target"] and params["Stop_Loss"]):
                     stop = True
-                    if stop:
-                        print(f"Ending training after epoch {epoch}, training target reached")
+                if stop:
+                    print(f"Ending training after epoch {epoch}, training target reached")
                     break
 
-            # store plots for final epooch
-            print("Plotting . . . ")
-            if params["recursive_predict"]:
-                combined_dict = {**metric_dict_test, **metric_dict_te_recur}
-            else:
-                combined_dict = metric_dict_test
-            if params["UCLA"]:
-                plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
-                    'SWE Estimates UCLA Data')
-            else:
-                plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
-                    'SWE Estimates UA Data (Physics Based Model)')
-            plot_dict_te = plot3.assemble_plot_dict(y_te_pred, "green",
+        # store plots for final epooch
+        print("Plotting . . . ")
+        if params["recursive_predict"]:
+            combined_dict = {**metric_dict_test, **metric_dict_te_recur}
+        else:
+            combined_dict = metric_dict_test
+        #met.log_print_metrics(combined_dict, selected_key, epoch)
+        if params["UCLA"]:
+            plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
+                'SWE Estimates UCLA Data')
+        else:
+            plot_dict_true = plot3.assemble_plot_dict(y_te_true, "blue",
+                'SWE Estimates UA Data (Physics Based Model)')
+        plot_dict_te = plot3.assemble_plot_dict(y_te_pred, "green",
                 'SWE Estimates Prediction') 
-            if params["recursive_predict"]:
-                plot_dict_te_recur = plot3.assemble_plot_dict(y_te_pred_recur, "black",
-                        'SWE Estimates Recursive Prediction')
-            else:
-                plot_dict_te_recur = None
-            y_dict_list = [plot_dict_true, plot_dict_te, plot_dict_te_recur ]
-            ttl = f"SWE_Actual_vs_Predicted_for_huc_{huc}"
-            x_axis_vals = data.index[tr_size:]
-            plot3.plot3(x_axis_vals, y_dict_list, ttl, metrics_dict = combined_dict)
+        if params["recursive_predict"]:
+            plot_dict_te_recur = plot3.assemble_plot_dict(y_te_pred_recur, "black",
+                'SWE Estimates Recursive Prediction')
+        else:
+            plot_dict_te_recur = None
+        y_dict_list = [plot_dict_true, plot_dict_te, plot_dict_te_recur ]
+        ttl = f"SWE_Actual_vs_Predicted_for_huc_{huc}"
+        x_axis_vals = data.index[tr_size:]
+        plot3.plot3(x_axis_vals, y_dict_list, ttl, metrics_dict = combined_dict)
 
 
         # log the model

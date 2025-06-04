@@ -16,7 +16,7 @@ def create_hyper_dict():
         "n_steps": 1,
         "num_workers": 8,
         "var_list": ["mean_pr", "mean_tair"],
-        "expirement_name": "Mar_Mixed_Loss_Stop",
+        "expirement_name": "Multi_Run",
         "loss_type": "mse",
         "mse_lambda_start": 1, 
         "mse_lambda_end": 0.5, 
@@ -30,7 +30,7 @@ def create_hyper_dict():
         "filter_dates": ["1984-10-01", "2021-09-30"], 
         "custom delta": .04, 
         "UCLA": False,
-        "Stop_Loss": "True"
+        "Stop_Loss": False,
         "KGE_target": .9
     }
     return param_dict

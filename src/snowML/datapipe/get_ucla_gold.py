@@ -15,6 +15,7 @@ import xarray as xr
 import rioxarray as rxr
 import pandas as pd
 import earthaccess
+import tempfile
 from snowML.datapipe.utils import data_utils as du
 from snowML.datapipe.utils import get_geos as gg 
 from snowML.datapipe.utils import set_data_constants as sdc
@@ -55,8 +56,8 @@ def format_nsidc_url(north, west, yr):
 
 def url_to_ds_earthaccess(url, timeout=60):
     try:
-        
-        file_path = earthaccess.download(url)[0]
+        temp_dir = tempfile.mkdtemp()
+        file_path = earthaccess.download(url, local_path=temp_dir)[0]
         ds = xr.open_dataset(file_path, engine="netcdf4", chunks={"day": -1, "lat": None, "lon": None})
         
         #  Load the data into memory, then remove the file and its containing temporary directory

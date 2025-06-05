@@ -16,6 +16,10 @@ from snowML.LSTM import set_hyperparams as sh
 from snowML.LSTM import LSTM_pre_process as pp
 from snowML.LSTM import LSTM_plot3 as plot3
 
+import importlib
+importlib.reload(LSTM_tr)
+importlib.reload(sh)
+
 
 def set_ML_server(params):
     """

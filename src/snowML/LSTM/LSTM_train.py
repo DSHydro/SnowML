@@ -263,7 +263,7 @@ def evaluate_mr(model_dawgs, df_dict, selected_key, params, epoch, run):
     # train metrics if avail
     if params["train_size_dimension"] == "time":
         metric_dict_train = met.calc_metrics(y_tr_true, y_tr_pred, metric_type = f"train_{run}")
-        kge_tr = metric_dict_train["train_kge"]
+        kge_tr = metric_dict_train[f"train_{run}_kge"] 
     else:
         metric_dict_train = None
         kge_tr = None

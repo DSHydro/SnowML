@@ -22,6 +22,10 @@ Comment: Relatively good correspondence between all three datasets.  UA a slight
   
 ## Shapefile Comparison 
 **Visual of Shape File Used in DHSVM Compared with Huc12 geos in 1711001201 but excluding 17110012010**
+![](../basic_maps/CedarShapes.png)
+
+**Mean SWE Estimate Comparison - DHSVM Shapefile compared with aggregating over HUC12 shapes**
+![](../basic_maps/Mean_SWE_UA_Different_Calculation_Methods_Cedar.png)
 
 **Similarity of Mean SWE Estimates**
 | Dataset 1 | Dataset 2 | Pearson Corr | Ratio_var | Ratio_means | R-squared |
@@ -34,16 +38,9 @@ Comment: Estimating by HUC and aggregating should get very close to results usin
 
 ![](../basic_maps/Snow_classes_in_Cedar.png)
 
-Snow Classification Data Reference: 
-- Sturm, M., and G. E. Liston, 2021: Revisiting the global seasonal snow classification: An updated dataset for Earth System applications.  Journal of Hydrometeorology, 22, 2917-2938, https://doi.org/10.1175/JHM-D-21-0070.1.
-- Liston, G. E., and M. Sturm, 2021: Global Seasonal-Snow Classification, Version 1. National Snow and Ice Data Center, https://doi.org/10.5067/99FTCYYYLAQ0.
+Comment:  Estimating all of Cedar will bring in a lot of area dominated by Ephemeral snow, which we know is harder to estimate.  Since total SWE is dominated by the HUCs that are not ephemeral snow, however (see next map) this may be manageable. 
 
 ## SWE Contribution by HUC 
 ![](../basic_maps/Total_SWE_contribution_by_huc_using_UA_data_for_Cedar.png)
 
-## Cedar Elevation Map 
-![Elevation Map]()
 
-Elevation Data Reference 
-- Copernicus Global Digital Elevation Models, at 90 m scale (COP90)
-- European Space Agency (2024).  <i>Copernicus Global Digital Elevation Model</i>.  Distributed by OpenTopography. 

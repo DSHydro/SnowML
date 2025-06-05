@@ -38,7 +38,7 @@ Comment: Estimating by HUC and aggregating should get very close to results usin
 
 ![](../basic_maps/Snow_classes_in_Cedar.png)
 
-Comment:  Estimating all of Cedar will bring in a lot of area dominated by Ephemeral snow, which we know is harder to estimate.  Since total SWE is dominated by the HUCs that are not ephemeral snow, however (see next map) this may be manageable. 
+Comment:  Estimating all of Cedar will bring in a lot of area dominated by Ephemeral snow, which we know is harder to estimate.  Since total SWE is dominated by the HUCs that are not ephemeral snow, however (see next chart) this may be manageable. 
 
 ## SWE Contribution by HUC 
 ![](../basic_maps/Total_SWE_contribution_by_huc_using_UA_data_for_Cedar.png)

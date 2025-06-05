@@ -8,7 +8,7 @@
 - Ephemeral: 11 (8 of these are 100% Ephem)
 
 ## SWE Estimates Various Sources 
-![](../basic_maps/Mean_Swe_Various_Sources_Green.png)
+![](../basic_maps/Mean_Swe_Various_Sources_for_Green.png)
 
 **Similarity of Mean SWE Estimates**
 | Dataset 1 | Dataset 2 | Pearson Corr | Ratio_var | Ratio_means | R-squared |

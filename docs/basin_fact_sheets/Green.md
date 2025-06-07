@@ -34,7 +34,7 @@ Comment: Relatively good correspondence between all three datasets.  UA a slight
 | UA        | UA_huc    | 0.999         | 0.930     | 0.916        | 0.989     |
 
 
-Comment: Estimating by HUC and aggregating should get close to results using shapefile directly.  
+Comment: Estimating by HUC and aggregating should get close to results using shapefile directly but differences are material.   
 
 ## Green Map with Snow Classification 
 

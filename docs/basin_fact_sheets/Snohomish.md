@@ -11,7 +11,7 @@
 ![](../basic_maps/Mean_Swe_Various_Sources_for_Snohomish.png)
 
 
-**Similarity of Mean SWE Estimates*(
+**Similarity of Mean SWE Estimates**
 
 | Dataset 1 | Dataset 2 | Pearson Corr | Ratio_var | Ratio_means | R-squared |
 |-----------|-----------|---------------|-----------|--------------|-----------|
@@ -22,7 +22,7 @@
 Comment: Lots of summer snow in DHSVM model.  UCLA better match than UA; neither great.  
 
 ## Shapefile Comparison
-Visual of Shape File Used in DHSVM Compared with Huc12 geos in 1711001201 but excluding 17110012010
+Visual of Shape File Used in DHSVM Compared with Huc12 geos in 1711001201 but excluding 17110012010 <br>
 Blue = shapefile from DHSVM model; Red = shapefile built from HUC geometries 
 ![](../basic_maps/Snohomish_Shapes.png)
 
@@ -35,9 +35,6 @@ TO BE INSERTED
 
 Comment: Estimating by HUC and aggregating should get very close to results using shapefile directly.
 
-Cedar Map with Snow Classification
+## Snoho Map with Snow Classification
 
-
-Comment: Estimating all of Green will bring in a lot of area dominated by Ephemeral snow, which we know is harder to estimate. Since total SWE is dominated by the HUCs that are not ephemeral snow, however (see next chart) this may be manageable.
-
-SWE Contribution by HUC
+TO BE INSERTED

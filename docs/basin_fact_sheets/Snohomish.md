@@ -37,4 +37,4 @@ Comment: Estimating by HUC and aggregating should get very close to results usin
 
 ## Snoho Map with Snow Classification
 
-TO BE INSERTED
+![](../basic_maps/Snow_classes_for_huc10in_Snoho.png)

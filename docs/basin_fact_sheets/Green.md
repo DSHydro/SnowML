@@ -1,4 +1,4 @@
-# Green (HSVM Model) 
+# Green (DHSVM Model) 
 
 
 **Name:**             Green <br>

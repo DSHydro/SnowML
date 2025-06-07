@@ -35,7 +35,7 @@ Comment: Estimating by HUC and aggregating should get close to results using sha
 
 ## Green Map with Snow Classification 
 
-![](../basic_maps/Snow_classes_in_Green.png)
+![](../basic_maps/Snow_classes_for_huc08in_Green.png)
 
 Comment:  Estimating all of Green will bring in a lot of area dominated by Ephemeral snow, which we know is harder to estimate.  Total SWE is dominated by the HUCs that are not ephemeral snow, however (see next chart) this may be manageable, although Green has more contribution from Ephemeral snow than Cedar.   
 

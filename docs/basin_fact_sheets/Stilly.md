@@ -29,7 +29,7 @@ Comment:
 
 I was unable to successful conver the shapefile given to a CRS.  But eyeballing it appears to be roughly the shape of 17110008 but excluding 171100080304
 
-![](../basic_maps/Stilly2.png)
+![](../basic_maps/Stilly_Filtered.png)
 
 
 **Mean SWE Estimate Comparison - DHSVM Shapefile compared with aggregating over HUC12 shapes**

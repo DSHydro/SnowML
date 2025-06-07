@@ -1,4 +1,4 @@
-# Cedar (HSVM Model) 
+# Cedar (DHSVM Model) 
 
 
 **Name:**             Cedar <br>
@@ -18,13 +18,15 @@
 | DHSVM     | UCLA      | 0.907         | 1.161     | 1.231        | 0.799     |
 | UA        | UCLA      | 0.892         | 1.167     | 1.120        | 0.788     |
 
-Comment: Relatively good correspondence between all three datasets.  UA a slightly better match to DHSCV than UCLA.  
+Comment: Relatively good correspondence between all three datasets.  UA a slightly better match to DHSCM than UCLA.  
   
 ## Shapefile Comparison 
 **Visual of Shape File Used in DHSVM Compared with Huc12 geos in 1711001201 but excluding 17110012010**
+Blue = Shapefile from DHSVM model; Red = Shapefule constructed from Hucs
 ![](../basic_maps/CedarShapes.png)
 
 **Mean SWE Estimate Comparison - DHSVM Shapefile compared with aggregating over HUC12 shapes**
+
 ![](../basic_maps/Mean_SWE_UA_Different_Calculation_Methods_Cedar.png)
 
 **Similarity of Mean SWE Estimates**
@@ -32,7 +34,7 @@ Comment: Relatively good correspondence between all three datasets.  UA a slight
 |-----------|-----------|---------------|-----------|--------------|-----------|
 | UA        | UA_huc    | 0.999         | 1.123     | 1.139        | 0.979     |
 
-Comment: Estimating by HUC and aggregating should get very close to results using shapefile directly.  
+Comment: Estimating by HUC and aggregating should get close to results using shapefile directly.  
 
 ## Cedar Map with Snow Classification 
 

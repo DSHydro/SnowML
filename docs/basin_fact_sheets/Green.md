@@ -29,7 +29,10 @@ Comment: Relatively good correspondence between all three datasets.  UA a slight
 
 **Similarity of Mean SWE Estimates**
 
-**TO BE INSERTED** 
+| Dataset 1 | Dataset 2 | Pearson Corr | Ratio_var | Ratio_means | R-squared |
+|-----------|-----------|---------------|-----------|--------------|-----------|
+| UA        | UA_huc    | 0.999         | 0.930     | 0.916        | 0.989     |
+
 
 Comment: Estimating by HUC and aggregating should get close to results using shapefile directly.  
 

@@ -33,6 +33,7 @@ I was unable to successful conver the shapefile given to a CRS.  But eyeballing 
 
 
 **Mean SWE Estimate Comparison - DHSVM Shapefile compared with aggregating over HUC12 shapes**
+
 n/a - cannot calculate UCLA SWE using DHSVM shapefile without ability to convert to a known coordinate system 
 
 # Stilly Map with Snow Classification 

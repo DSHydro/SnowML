@@ -31,10 +31,13 @@ Blue = shapefile from DHSVM model; Red = shapefile built from HUC geometries
 ![](../basic_maps/Mean_SWE_UA_Different_Calculation_Methods_for_Snohomish.png)
 Similarity of Mean SWE Estimates
 
-TO BE INSERTED
+| Dataset 1 | Dataset 2 | Pearson Corr | Ratio_var | Ratio_means | R-squared |
+|-----------|-----------|---------------|-----------|--------------|-----------|
+| UA        | UA_huc    | 1.000         | 1.040     | 1.046        | 0.997     |
+
 
 Comment: Estimating by HUC and aggregating should get very close to results using shapefile directly.
 
 ## Snoho Map with Snow Classification
 
-TO BE INSERTED
+![](../basic_maps/Snow_classes_for_huc10in_Snoho.png)

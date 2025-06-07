@@ -34,7 +34,7 @@ Blue = Shapefile from DHSVM model; Red = Shapefule constructed from Hucs
 |-----------|-----------|---------------|-----------|--------------|-----------|
 | UA        | UA_huc    | 0.999         | 1.123     | 1.139        | 0.979     |
 
-Comment: Estimating by HUC and aggregating should get close to results using shapefile directly.  
+Comment: Estimating by HUC and aggregating should get close to results using shapefile directly, but differences are material (e.g. mean ratio of 1.1)
 
 ## Cedar Map with Snow Classification 
 

@@ -6,3 +6,13 @@
 
 Maritime: 
 Ephemeral: 
+
+## SWE Estimates Various Sources 
+![]()
+
+
+**Similarity of Mean SWE Estimates**
+
+TO BE INSERTED 
+
+Comment:   

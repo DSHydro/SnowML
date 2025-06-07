@@ -22,7 +22,7 @@
 Comment: Lots of summer snow in DHSVM model.  UCLA better match to DHSVM than UA; neither great.  
 
 ## Shapefile Comparison
-Visual of Shape File Used in DHSVM Compared with Huc12 geos 
+Visual of Shape File Used in DHSVM Compared with Huc12 geos <br>
 Blue = shapefile from DHSVM model; Red = shapefile built from HUC geometries 
 ![](../basic_maps/Snohomish_Shapes.png)
 

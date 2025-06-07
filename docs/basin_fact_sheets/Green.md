@@ -18,7 +18,7 @@
 | UA        | UCLA      | 0.916         | 1.242     | 1.250        | 0.807     |
 
 
-Comment: Relatively good correspondence between all three datasets.  UA a slightly better match to DHSCV than UCLA.  
+Comment: Relatively good correspondence between all three datasets.  UA a slightly better match to DHSCM than UCLA.  
   
 ## Shapefile Comparison 
 **Visual of Shape File Used in DHSVM Compared with Huc12 geos in 1711001201 but excluding 17110012010**
@@ -31,13 +31,13 @@ Comment: Relatively good correspondence between all three datasets.  UA a slight
 
 **TO BE INSERTED** 
 
-Comment: Estimating by HUC and aggregating should get very close to results using shapefile directly.  
+Comment: Estimating by HUC and aggregating should get close to results using shapefile directly.  
 
-## Cedar Map with Snow Classification 
+## Green Map with Snow Classification 
 
 ![](../basic_maps/Snow_classes_in_Green.png)
 
-Comment:  Estimating all of Green will bring in a lot of area dominated by Ephemeral snow, which we know is harder to estimate.  Since total SWE is dominated by the HUCs that are not ephemeral snow, however (see next chart) this may be manageable. 
+Comment:  Estimating all of Green will bring in a lot of area dominated by Ephemeral snow, which we know is harder to estimate.  Total SWE is dominated by the HUCs that are not ephemeral snow, however (see next chart) this may be manageable, although Green has more contribution from Ephemeral snow than Cedar.   
 
 ## SWE Contribution by HUC 
 ![](../basic_maps/Total_SWE_contribution_by_huc_using_UA_data_for_Green.png)

@@ -216,8 +216,8 @@ def snow_class(geos):
     """
     results = pd.DataFrame()
     snow_class_names = map_snow_class_names()
-    #ds_conus = get_snow_class_data(geos = None)
-    ds_conus = snow_class_data_from_s3(geos = None)
+    ds_conus = get_snow_class_data(geos = None)
+    #ds_conus = snow_class_data_from_s3(geos = None)
     for i in range(geos.shape[0]):
         #print(f"processing geos {i+1} of {geos.shape[0]}")
         row = geos.iloc[[i]]

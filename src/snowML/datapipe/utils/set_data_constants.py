@@ -17,21 +17,24 @@ def create_bucket_dict(b_type):
     Creates a dictionary mapping bucket types to bucket names based on the specified type.
 
     Args:
-        b_type (str): The type of bucket configuration. Must be one of "prod" or "test".
+        b_type (str): The type of bucket configuration. Must be one of "prod", "test", or "sue-private".
 
     Returns:
         dict: A dictionary where the keys are bucket types and the values are bucket names.
 
     Raises:
-        AssertionError: If `b_type` is not one of the permitted types ("prod" or "test").
+        AssertionError: If `b_type` is not one of the permitted types ("prod", "test", "sue-private").
     """
-    permitted_types = ["prod", "test"]
+    permitted_types = ["prod", "test", "sue-private"]
     assert b_type in permitted_types, f"Type must be one of {permitted_types}"
     bucket_types = ["shape-bronze", "bronze", "silver", "gold", "model-ready"]
     if b_type == "prod":
         bucket_names = ["snowml-shape", "snowml-bronze", "snowml-silver", "snowml-gold", "snowml-model-ready"]
-    else: # if b_type is not prod, then b_type == "test"
-        bucket_names = ["sues-test"] * len(bucket_types)
+    elif b_type == "test":
+         bucket_names = ["datapipe-demo"] * len(bucket_types)
+    else: 
+        bucket_names = ["snowy-data-demo"] * len(bucket_types)
+    
     bucket_dict = dict(zip(bucket_types, bucket_names))
     return bucket_dict
 

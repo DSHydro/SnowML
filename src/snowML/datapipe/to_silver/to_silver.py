@@ -4,6 +4,7 @@
 import time
 import pandas as pd
 from snowML.datapipe.utils import data_utils as du
+from snowML.datapipe.utils import set_data_constants as sdc
 from snowML.datapipe.utils import get_geos as gg
 from snowML.datapipe.utils import snow_types as st
 from snowML.datapipe.utils import get_dem as dem
@@ -18,22 +19,23 @@ SAVE_DICT = {
     "forest_cover": "Forest_Cover", 
 }
 
-B = "snowml-silver" # Bucket Name.  To do, make dynamic
+VAR_DICT = sdc.create_bucket_dict("prod")
+B = VAR_DICT["silver"]
 
-def load_current_data(save_ttl):
+def load_current_data(save_ttl, bucket = B):
     f = save_ttl + ".csv"
-    df = du.s3_to_df(f, B)
+    df = du.s3_to_df(f, bucket)
     return df
 
 
-def process_list (huc_list, save_ttl, var_name):
+def process_list (huc_list, save_ttl, var_name, tif_path, bucket = B):
     time_start = time.time()
 
     # initialize existing df and huc_processed list
     f= save_ttl + ".csv"
-    if du.isin_s3(B, f):
-        print("loading existing file")
-        existing_df = load_current_data(save_ttl)
+    if du.isin_s3(bucket, f):
+        #print("loading existing file")
+        existing_df = load_current_data(save_ttl, bucket = bucket)
         processed_hucs = list(existing_df["huc_id"])
     else:
         existing_df = pd.DataFrame()
@@ -45,10 +47,11 @@ def process_list (huc_list, save_ttl, var_name):
 
     for huc_id in huc_list:
         count += 1
-        print(f"processing huc {count} of {tot}")
+        #print(f"processing huc {count} of {tot}")
 
         if int(huc_id) in processed_hucs:
-            print("already exists")
+            #print("already exists")
+            pass
         else:
             huc_lev = str(len(str(huc_id))).zfill(2)
             if var_name == "geos":
@@ -61,7 +64,7 @@ def process_list (huc_list, save_ttl, var_name):
                 elev = dem.process_dem_all(huc_id, huc_lev)
                 row = pd.DataFrame({"huc_id": [huc_id], "Mean Elevation": [elev]})
             elif var_name == "forest_cover":
-                row = cover.forest_cover_huc(huc_id)
+                row = cover.forest_cover_huc(huc_id, tif_path)
             else:
                 print("unknown variable")
                 row = pd.DataFrame()
@@ -69,8 +72,8 @@ def process_list (huc_list, save_ttl, var_name):
     results_df.set_index("huc_id", inplace=True)
     results_df.index = results_df.index.astype(str)
     results_df.sort_index(inplace=True)
-    du.dat_to_s3(results_df, B, save_ttl, file_type="csv")
-    du.elapsed(time_start)
+    du.dat_to_s3(results_df, bucket, save_ttl, file_type="csv")
+    #du.elapsed(time_start)
     return results_df
 
 def get_region_ls(region = 17):
@@ -86,7 +89,7 @@ def drop_CA_hucs(geos):
     return geos_small, excluded_hucs
 
 
-def process_regions(region_ls, var_name, region = 17):
+def process_regions(region_ls, var_name, region = 17, bucket =B):
     save_ttl = SAVE_DICT[var_name]
     save_ttl = save_ttl + "_" + str(region)
     error_regions = []
@@ -100,16 +103,16 @@ def process_regions(region_ls, var_name, region = 17):
         huc_list = list(geos_small["huc_id"])
         canada_regions = canada_regions + excluded_hucs
         try:
-            process_list(huc_list, save_ttl, var_name)
+            process_list(huc_list, save_ttl, var_name, bucket = bucket)
         except:
             error_regions.append(reg)
 
-    print(f"The following regions had errors {error_regions}")
-    print(f"The following hucs were excluded as being in Canada {canada_regions}")
+    print(f"The following {len(error_regions)} regions had errors {error_regions}")
+    print(f"The following {len(canada_regions)} hucs were excluded as being in Canada {canada_regions}")
     return error_regions, canada_regions
 
 
-def process_single_hucs(huc_ls, var_name, region = 17):
+def process_single_hucs(huc_ls, var_name, region = 17, bucket = B, tif_path = "notebooks/Land_Cover/nlcd_tcc_conus_2021_v2021-4.tif"):
     save_ttl = SAVE_DICT[var_name]
     save_ttl = save_ttl + "_" + str(region)
     error_hucs = []
@@ -117,13 +120,13 @@ def process_single_hucs(huc_ls, var_name, region = 17):
     count = 0
     for huc in huc_ls:
         count += 1
-        print(f"processing huc no {count} : {huc}")
+        #print(f"processing huc no {count} : {huc}")
         geos = gg.get_geos_with_name(huc, '12')
         geos_small, excluded_hucs = drop_CA_hucs(geos)
         huc_list = list(geos_small["huc_id"])
         canada_hucs = canada_hucs + excluded_hucs
         try:
-            process_list(huc_list, save_ttl, var_name)
+            process_list(huc_list, save_ttl, var_name, tif_path, bucket = bucket)
         except:
             error_hucs.append(huc)
 

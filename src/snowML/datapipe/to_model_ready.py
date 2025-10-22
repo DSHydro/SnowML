@@ -145,6 +145,7 @@ def huc_model_wrf(huc_id, bucket_dict, var_list = None):
 def get_static(huc_id, bucket_dict): 
     f = "Static_No_Geo_Region_17.csv"
     b = bucket_dict.get("silver")
+    print(f"Bucket is {b}")
     df_static = du.s3_to_df(f, b)
     df_static_huc = df_static[df_static["huc_id"] == int(huc_id)]
     return df_static_huc 

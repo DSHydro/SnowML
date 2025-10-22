@@ -13,8 +13,7 @@ from snowML.datapipe.utils import get_geos as gg
 from snowML.datapipe.utils import data_utils as du
 
 
-def load():
-    tif_path = "notebooks/Land_Cover/nlcd_tcc_conus_2021_v2021-4.tif"
+def load(tif_path):
     ds = rioxarray.open_rasterio(tif_path)
     land_cover_ds = ds.to_dataset(name="tree_canopy_cover")
     return land_cover_ds
@@ -125,8 +124,8 @@ def plot_tree_canopy(ds_clean, var_name="tree_canopy_cover"):
     plt.show()
     
 
-def forest_cover_huc(huc_id):
-    land_cover_ds = load()
+def forest_cover_huc(huc_id, tif_path = "notebooks/Land_Cover/nlcd_tcc_conus_2021_v2021-4.tif"):
+    land_cover_ds = load(tif_path)
     geos, geo = get_geos_series(huc_id)
     ds_small = clip_and_reproject(land_cover_ds, geo).squeeze()
     mask = subset_by_row(ds_small, geos).squeeze()

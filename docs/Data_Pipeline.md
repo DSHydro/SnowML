@@ -29,13 +29,13 @@ This document describes the data used in training the Frosty Dawgs SnowML Model.
 - The data was accessed using the [easysnowdata](https://egagli.github.io/easysnowdata/examples/hydroclimatology_examples/) open source python module.  
 
 # Data Pipleline - A Modular, Scalable Approach
-The Frosty Dawgs datapipeline uses a medallion inspired datalake architecture with the tiers described below. The modular architecture is designed to provide future researchers with flexibiliy to update the data pipeline and approach at any stage of the pipeline, as desired.  Data is stored in S3 buckets corresponding to the Bronze, Gold, and Model Ready Tiers described below.  
+The Frosty Dawgs datapipeline uses a medallion inspired datalake architecture with the tiers described below. The modular architecture is designed to provide future researchers with flexibiliy to update the data pipeline and approach at any stage of the pipeline, as desired.  Data is stored in S3 buckets corresponding to the Bronze, Silver, Gold, and Model Ready Tiers described below.  
 
 The Pipeline is also scaleable. The Frosty Dawgs team used the pipeline to preprocess data for over 500 Huc12 sub-watershed in the Pacfic Northwest, spanning 15 different regional sub-Basins (Huc08 sub-Basins) listed below in the [Regions Available for Analysis](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#regions-available-for-analysis-) section. The code provided in this repo can be easily used to process data from any hydrological unit in the United States, at any level of granularity (e.g. Huc02, Huc04, . . . Huc12). Please consult the [DataPipe Notebook](https://github.com/DSHydro/SnowML/blob/main/notebooks/DataPipe.ipynb) for instructions on how to do so. 
 
 
 ## Bronze Data - Raw Data in Zarr Files 
-Bronze data includes the raw SWE, metorological, and snowtype data acquired directly from the raw data sources. Data acquisition is challenging and time consuming given the amount of data and the fact that several sources make data available via separate files organized by year. Since our data acquistion pattern is most typically by region accross all years, the first step was to download the raw data and reconfigure it into zarr files with storage chuncks more suited to our access patterns. 
+Bronze data includes the raw SWE and metorological data acquired directly from the raw data sources. Data acquisition is challenging and time consuming given the amount of data and the fact that several sources make data available via separate files organized by year. Since our data acquistion pattern is most typically by region accross all years, the first step was to download the raw data and reconfigure it into zarr files with storage chuncks more suited to our access patterns. 
 
 These zarr files are then saved in the S3 bucket "snowml-bronze."
 
@@ -51,7 +51,7 @@ The naming convention is "{var_short_name}_all.zarr".
 | Relative Humidity Daily Max | rmin              | Daily                         | 1/1/83-12/31/23 | CONUS+            | 4km grid                       |
 | Solar Radiation             | srad                 | Daily                         | 1/1/83-12/31/23 | CONUS+            | 4km grid                       |
 | Wind Speed                  | vs                     | Daily                         | 1/1/83-12/31/23 | CONUS+            | 4km grid                       |
-| Snow Type Data            | snow_class_data | Fixed                          | n/a                        | CONUS                | 5km grid                       |
+
 
 ---
 
@@ -59,8 +59,12 @@ The naming convention is "{var_short_name}_all.zarr".
 *Note2: Elevation data was processed dynamically using the `easysnowdata` python module so was not separately saved as Zarr files in the bronze or gold bucket.* <br>
 *Note 3: The 4km grids used for the SWE data and the meteorological data are not fully aligned, but this discrepency is mitigated by the regional aggregation steps below.* 
 
+## Silver Data - Static Variables, Calculated for each HUC Unit 
+The model uses several static variables which do not vary over time, including snow-type, elevation ("dem"), and forest cover.  For each huc unit of interest, we calculated the mean value of each static variable for that huc unit.  Values are stored in the S3 bucket "snowml-silver." 
 
-## Gold Data - Data Aggregated by Variable, by Region (e.g. Huc12) 
+
+
+## Gold Data - SWE and Meteorological Data Aggregated by Variable, by Region (e.g. Huc12) 
 Once the raw data has been retrieved and converted to zarr files otimized for region-based queries, the next step is to extract data for the regions(s) of interest.  For each region of interest -- for example 170300010402, the High Creek-Naneum Creek sub-watershed in the Naches Basin near Yakima -- we created "gold" data" for each of the SWE and Meteorological variables, as follows: <br>
 1. Dynamically create a geopandas dataframe containing the geometry for the desired region, using ```snowML.datapipe get_geos``` module. <br>
 2. Apply a geographical mask, using rioxarray, to extract from the bronze files filtered only the region of interest as specified by the geopandas df in step 1.  This step required some further processing of hte raw data, including renaming spacial dimensions, updating crs (coordinate systems), and/or calculating missing coordinate transform information for some of the data sets.  Please refer to the ```snowML.datapipe bronze_to_gold``` module for details. <br>
@@ -69,11 +73,10 @@ Once the raw data has been retrieved and converted to zarr files otimized for re
 
 Processed gold files were saved in to the S3 bucket "snowml-gold" with the naming convention "mean_{var_short_name}_in_{huc_no}.csv."  For example "mean_swe_in 170300010402." 
 
-*Note1: Elevation data was processed dynamically using the `easysnowdata` python module so was not separately saved as Zarr files in the bronze or gold bucket.* <br>
-*Note2: As the Snow Type data is static over time, processing the data into regional mean is much less computationally intensive than for the SWE and meterological variables which must be separately aggregated for each day over 40 years.  As such, we did not separately save the interim calculations as gold files for snow type data.* <br>
+
 
 ## Model Ready Data - All Variables For a Given Region
-As the final step, for each region of interest, the gold files were aggregated into a single csv file containing all relevant variables, including SWE, meteorological variables, snow_type information, and basin elevation. Additional calculations were performed to update units to the value shown below in the [Model Ready Data](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#model-ready-data-) section. In addition, daily max and min airtemperature were averaged into a single daily average temperature variable; likewise daily max and min humidity was aggegated into a single daily relative humidity variable. Finally, data was filtered to the period 1983-10-01 through 2022-09-30 for all variables.  Please consult the module ```snowML.datapipe bronze_to_gold``` module for further details.  
+As the final step, for each region of interest, the huc-level means for each of the staticvariables (silver bucket) and the swe/meteorologic data (gold bucket) were aggregated into a single csv file containing all relevant variables.  Additional calculations were performed to update units to the value shown below in the [Model Ready Data](https://github.com/DSHydro/SnowML/blob/main/docs/Data_Pipeline.md#model-ready-data-) section. In addition, daily max and min airtemperature were averaged into a single daily average temperature variable; likewise daily max and min humidity was aggegated into a single daily relative humidity variable. Finally, data was filtered to the period 1983-10-01 through 2022-09-30 for all variables.  Please consult the module ```snowML.datapipe bronze_to_gold``` module for further details.  
 
 *Note1: The Model Ready data is not yet normalized.  Normalization was performed dynamically with each expirement, normalizing data with reference to the training (and, where applicable, validation) sets relevant to that expirement.*<br>
 * Note2: The snow type information was not used as a feature variable in training, but was used to calculate the predominant snow type for each huc for purposes of post-training analytics on the model.*

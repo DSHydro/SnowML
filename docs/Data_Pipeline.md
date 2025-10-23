@@ -56,8 +56,7 @@ The naming convention is "{var_short_name}_all.zarr".
 ---
 
 *Note1: WY stands for Water Year, which runs from Oct. 1 – Sept. 30.* <br>
-*Note2: Elevation data was processed dynamically using the `easysnowdata` python module so was not separately saved as Zarr files in the bronze or gold bucket.* <br>
-*Note 3: The 4km grids used for the SWE data and the meteorological data are not fully aligned, but this discrepency is mitigated by the regional aggregation steps below.* 
+*Note 2: The 4km grids used for the SWE data and the meteorological data are not fully aligned, but this discrepency is mitigated by the regional aggregation steps below.* 
 
 ## Silver Data - Static Variables, Calculated for each HUC Unit 
 The model uses several static variables which do not vary over time, including snow-type, elevation ("dem"), and forest cover.  For each huc unit of interest, we calculated the mean value of each static variable for that huc unit.  Values are stored in the S3 bucket "snowml-silver." 
@@ -117,6 +116,7 @@ Each variable is measured daily for the period "1983-10-01" through "2022-09-30"
 | Ice              | Percent of the region with snow type Ice.                        | %     |
 | Ocean            | Percent of the region with snow type Ocean.                      | %     |
 | Mean Elevation   | Mean Elevation for the region                                    | meters |
+| Forest Cover     | Mean Forest cover for the region                                 | %      |
 
 
 

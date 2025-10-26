@@ -31,7 +31,8 @@ def create_hyper_dict():
         "custom delta": .04, 
         "UCLA": False,
         "Stop_Loss": False,
-        "KGE_target": .9
+        "KGE_target": .9, 
+        "MLFLOW_ON": True
     }
     return param_dict
 

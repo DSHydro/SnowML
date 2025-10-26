@@ -19,8 +19,8 @@ SAVE_DICT = {
     "forest_cover": "Forest_Cover", 
 }
 
-VAR_DICT = sdc.create_bucket_dict("prod")
-B = VAR_DICT["silver"]
+BUCKET_DICT = sdc.create_bucket_dict("prod")
+B = BUCKET_DICT["silver"]
 
 def load_current_data(save_ttl, bucket = B):
     f = save_ttl + ".csv"
@@ -92,24 +92,21 @@ def drop_CA_hucs(geos):
 def process_regions(region_ls, var_name, region = 17, bucket =B):
     save_ttl = SAVE_DICT[var_name]
     save_ttl = save_ttl + "_" + str(region)
-    error_regions = []
-    canada_regions = []
+    all_canada_hucs = []
+    all_error_hucs = []
     count = 0
     for reg in region_ls:
         count += 1
         print(f"processing region no {count} : {reg}")
         geos = gg.get_geos_with_name(reg, '12')
-        geos_small, excluded_hucs = drop_CA_hucs(geos)
-        huc_list = list(geos_small["huc_id"])
-        canada_regions = canada_regions + excluded_hucs
-        try:
-            process_list(huc_list, save_ttl, var_name, bucket = bucket)
-        except:
-            error_regions.append(reg)
+        huc_list = list(geos["huc_id"])
+        error_hucs, canada_hucs = process_single_hucs(huc_list, var_name, bucket = bucket)
+        all_canada_hucs = all_canada_hucs + canada_hucs
+        all_error_hucs = all_error_hucs + error_hucs
 
-    print(f"The following {len(error_regions)} regions had errors {error_regions}")
-    print(f"The following {len(canada_regions)} hucs were excluded as being in Canada {canada_regions}")
-    return error_regions, canada_regions
+    print(f"The following {len(all_error_hucs)} had errors {all_error_hucs}")
+    print(f"The following {len(all_canada_hucs)} hucs were excluded as being in Canada {all_canada_hucs}")
+    return all_canada_hucs, all_error_hucs
 
 
 def process_single_hucs(huc_ls, var_name, region = 17, bucket = B, tif_path = "notebooks/Land_Cover/nlcd_tcc_conus_2021_v2021-4.tif"):

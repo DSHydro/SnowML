@@ -71,8 +71,9 @@ def calc_metrics(d_true, d_pred, metric_type = "test"):
     metric_dict = dict(zip(metric_names, [mse, kge, r2, mae]))
     return metric_dict
 
-def log_print_metrics(metric_dict, huc, epoch):
+def log_print_metrics(metric_dict, huc, epoch, MLFLOW_ON = True):
     if metric_dict is not None:
         for met_nm, metric in metric_dict.items():
-            mlflow.log_metric(f"{met_nm}_{str(huc)}", metric, step=epoch)
+            if MLFLOW_ON:
+                mlflow.log_metric(f"{met_nm}_{str(huc)}", metric, step=epoch)
             print(f"{met_nm}: {metric}")

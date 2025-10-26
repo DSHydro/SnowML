@@ -1,0 +1,193 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "a67c5491-5dd3-489e-85a6-b855509feb73",
+   "metadata": {},
+   "source": [
+    "# Transfer Files "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "10f49d8e-a419-4fab-81ec-65d1895b2440",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import boto3\n",
+    "import sys\n",
+    "import time\n",
+    "from io import BytesIO\n",
+    "from snowML.datapipe.utils import data_utils as du"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "3e073ece-773e-4660-91c9-708b80427752",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "source_bucket = \"snowml-gold\" \n",
+    "dest_bucket = \"snowml2-gold\"\n",
+    "source_profile  = 'escience_credits'  \n",
+    "dest_profile = 'sue_private'"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "482e7022-618f-41b0-8ec0-5d1226b0e461",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def list_s3_files(bucket_name):\n",
+    "    \"\"\"\n",
+    "    Lists all files in the specified AWS S3 bucket.\n",
+    "\n",
+    "    Parameters:\n",
+    "        bucket_name (str): The name of the S3 bucket.\n",
+    "\n",
+    "    Returns:\n",
+    "        list: A list of file (object) keys in the bucket.\n",
+    "    \"\"\"\n",
+    "    s3 = boto3.client('s3')\n",
+    "    files = []\n",
+    "    continuation_token = None\n",
+    "\n",
+    "    while True:\n",
+    "        # Use paginator to handle large buckets\n",
+    "        if continuation_token:\n",
+    "            response = s3.list_objects_v2(Bucket=bucket_name, ContinuationToken=continuation_token)\n",
+    "        else:\n",
+    "            response = s3.list_objects_v2(Bucket=bucket_name)\n",
+    "\n",
+    "        # Collect all file keys\n",
+    "        for obj in response.get('Contents', []):\n",
+    "            files.append(obj['Key'])\n",
+    "\n",
+    "        # Check if there are more files to fetch\n",
+    "        if response.get('IsTruncated'):  # More files available\n",
+    "            continuation_token = response.get('NextContinuationToken')\n",
+    "        else:\n",
+    "            break\n",
+    "\n",
+    "    return files"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "66984f5f-d73c-4a3c-811a-888ec238a0da",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def copy_s3_bucket(source_bucket, dest_bucket, source_profile, dest_profile):\n",
+    "    \"\"\"\n",
+    "    Copy all objects from one S3 bucket to another using separate AWS profiles,\n",
+    "    downloading from source and uploading to destination (works even if profiles\n",
+    "    cannot access each other's buckets).\n",
+    "    \"\"\"\n",
+    "    # Create sessions for each profile\n",
+    "    src_session = boto3.Session(profile_name=source_profile)\n",
+    "    dst_session = boto3.Session(profile_name=dest_profile)\n",
+    "\n",
+    "    s3_src = src_session.client(\"s3\")\n",
+    "    s3_dst = dst_session.client(\"s3\")\n",
+    "\n",
+    "    paginator = s3_src.get_paginator(\"list_objects_v2\")\n",
+    "    pages = paginator.paginate(Bucket=source_bucket)\n",
+    "\n",
+    "    # Count total files first\n",
+    "    print(f\"📦 Counting files in source bucket '{source_bucket}'...\")\n",
+    "    total_files = sum(len(page.get(\"Contents\", [])) for page in paginator.paginate(Bucket=source_bucket))\n",
+    "    if total_files == 0:\n",
+    "        print(\"⚠️ No files found to copy.\")\n",
+    "        return\n",
+    "\n",
+    "    print(f\"Found {total_files} files. Starting copy from {source_bucket} → {dest_bucket}...\\n\")\n",
+    "\n",
+    "    copied = 0\n",
+    "    start_time = time.time()\n",
+    "\n",
+    "    for page in pages:\n",
+    "        for obj in page.get(\"Contents\", []):\n",
+    "            key = obj[\"Key\"]\n",
+    "            try:\n",
+    "                # Read object from source\n",
+    "                response = s3_src.get_object(Bucket=source_bucket, Key=key)\n",
+    "                body = response[\"Body\"].read()\n",
+    "\n",
+    "                # Upload to destination\n",
+    "                s3_dst.put_object(Bucket=dest_bucket, Key=key, Body=body)\n",
+    "\n",
+    "                copied += 1\n",
+    "                percent = (copied / total_files) * 100\n",
+    "                sys.stdout.write(f\"\\rProgress: {copied}/{total_files} files ({percent:.2f}%)\")\n",
+    "                sys.stdout.flush()\n",
+    "\n",
+    "            except Exception as e:\n",
+    "                print(f\"\\n❌ Failed to copy {key}: {e}\")\n",
+    "                continue\n",
+    "\n",
+    "    elapsed = time.time() - start_time\n",
+    "    print(f\"\\n✅ Completed copying {copied} files in {elapsed:.1f} seconds.\")\n",
+    "\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "1e36567f-df09-4eeb-bce8-7dd4acf27247",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "📦 Counting files in source bucket 'snowml-gold'...\n",
+      "Found 29750 files. Starting copy from snowml-gold → snowml2-gold...\n",
+      "\n",
+      "Progress: 29750/29750 files (100.00%)\n",
+      "✅ Completed copying 29750 files in 17780.8 seconds.\n"
+     ]
+    }
+   ],
+   "source": [
+    "copy_s3_bucket(source_bucket, dest_bucket, source_profile, dest_profile)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "b440471c-6ad0-4a66-bf65-6bd25186570a",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.8"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

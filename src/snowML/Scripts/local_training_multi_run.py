@@ -1,6 +1,6 @@
 
 """ Script to run an expiriment with local training on target huc, 
-multiple runs for the smae huc using varioius loss functions."""
+multiple runs for the smae huc using various loss functions."""
 
 # # pylint: disable=C0103
 

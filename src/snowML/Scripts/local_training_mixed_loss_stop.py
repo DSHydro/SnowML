@@ -9,10 +9,8 @@ using mixed loss function as specified, and early stop if kge target reached """
 #import time
 import importlib
 import torch
-from torch import optim
 import mlflow
 from snowML.LSTM import LSTM_train as LSTM_tr
-from snowML.LSTM import LSTM_model as LSTM_mod
 from snowML.LSTM import set_hyperparams as sh
 from snowML.LSTM import LSTM_pre_process as pp
 from snowML.LSTM import LSTM_plot3 as plot3
@@ -38,7 +36,7 @@ def set_ML_server(params):
     # Define the expirement
     mlflow.set_experiment(params["expirement_name"])
 
-def initialize_model(params):
+def initialize_model(params):  ## TO DO: Replace with LSTM Initialize
     """
     Initializes the SnowModel with the given parameters.
 

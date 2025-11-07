@@ -56,6 +56,7 @@ def get_model_ready (huc, bucket_dict = None):
 def plot_actual(huc, var, initial_huc, bucket_dict = None):
     df = get_model_ready(huc, bucket_dict= bucket_dict)
     plot_var(df, var, huc, initial_huc)
+    
 
 def summarize_swe(df):
     """

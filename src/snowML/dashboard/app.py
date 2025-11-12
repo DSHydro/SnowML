@@ -2,10 +2,14 @@
 
 # pylint: disable=C0103
 
+import os
 import streamlit as st
+import pandas as pd
 from streamlit_folium import st_folium
-import geopandas as gpd
 from snowML.dashboard import dashboard_utils as dash
+from snowML.dashboard import pretrained_model as pm
+from snowML.dashboard import local_model as lm
+
 
 # Use full browser width
 st.set_page_config(layout="wide")
@@ -18,11 +22,45 @@ if "page" not in st.session_state:
 # --- Model It page ---
 if st.session_state["page"] == "model_page":
     st.title("Pacific Northwest Snow Water Equivalent")
-    st.subheader("Model It")
-    st.write("Coming Soon")
+    col1, col2 = st.columns([1, 1], gap="medium")
 
+    with col1:
+        huc12 = st.session_state.get("huc12")
+        st.subheader(f"Predicted SWE for {huc12} Using Multi-Huc-Pretrained Model")
+
+        # Initialize session storage
+        if "model_results" not in st.session_state:
+            st.session_state["model_results"] = {}
+
+        # Button click → evaluate and save results
+        if st.button("Display Results"):
+            metric_dict_test, fig = pm.eval_huc(huc12)
+
+            # Save figure locally (to persist)
+            fig_path = f"/tmp/{huc12}_results.png"
+            fig.savefig(fig_path, bbox_inches="tight", dpi=300)
+            st.session_state["model_results"][huc12] = {
+                "metrics": metric_dict_test,
+                "fig_path": fig_path
+            }
+
+        # --- Display results if available ---
+        if huc12 in st.session_state["model_results"]:
+            results = st.session_state["model_results"][huc12]
+            if os.path.exists(results["fig_path"]):
+                st.image(results["fig_path"], caption="Predicted vs Actual SWE")
+            metrics_df = pd.DataFrame([results["metrics"]])
+            st.dataframe(metrics_df, use_container_width=False)
+
+    with col2:
+        st.subheader(f"Predicted SWE for {huc12} Using Local Training Only")
+        if st.button("Train Locally and Display Results"):
+            results_df, fig  = lm.local_train(huc12)
+            st.pyplot(fig)
+            st.dataframe(results_df, use_container_width=True)
+                
     # Back button
-    if st.button("⬅️ Back to Dashboard"):
+    if st.button("⬅️ Back to Main Page"):
         st.session_state["page"] = "main"
 
     st.stop()  # Prevent main dashboard from rendering
@@ -41,12 +79,6 @@ if "huc12" not in st.session_state:
 
 # Basin Map
 with col1:
-
-    # Map of all R17
-    #st.subheader(f"Map Of All Huc8 Sub-Basin's in Region 17")
-    #R17 = dash.cached_region_geos()
-    #m1 = R17.explore()
-    #region_map_data = st_folium(m1, use_container_width=True, height=300)
 
    # User Input for Huc8
     permitted_values = ["17020009", "17030001", "17030002", "17110005", "17110006", "17110008", "17110009"]
@@ -119,7 +151,7 @@ with col2:
     huc_input = st.session_state.get("huc_input")
     huc12 = st.session_state.get("huc12")
 
-    if huc_input is not None:
+    if huc_input and huc_input != "Select a HUC8...":
         if huc12:
             st.subheader(f"SWE History for HUC {huc12}")
 
@@ -133,11 +165,12 @@ with col2:
                 fig = dash.cached_plot_swe(df_UA, df_UCLA, huc12)
                 st.pyplot(fig)
 
-            # Show "Model It" button
+          # Show "Model It" button
             st.markdown("---")
             if st.button("Model It"):
                 st.session_state["page"] = "model_page"
                 st.rerun()
+
         else:
-            st.info("Select a HUC8 sub-basin from the map on the left to view SWE history.")
+            st.info("Select a HUC12 sub-basin from the map on the left to view SWE history.")
 

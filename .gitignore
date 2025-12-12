@@ -4,5 +4,4 @@ __pycache__/
 .ipynb_checkpoints/
 *.nc
 *.nc
-*.tif
 notebooks/Region17/Region17.ipynb

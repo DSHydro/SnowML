@@ -7,11 +7,11 @@ This folder contains notebooks and scripts for preparing snow water equivalent (
 ### **dataprep_stgnn.py**
 Python script for preparing ST-GNN model-ready data for additional HUC12s not included in the main training set.
 
-- **Purpose**: Creates gold and ST-GNN-specific model-ready data for extra HUC12s
+- **Purpose**: Creates gold and model-ready data for extra HUC12s
 - **Workflow**:
   - Reads `dhsvm_lidar_hucs.csv` and identifies HUC12s marked with `not_in_training == 1`
   - Builds geometries for those HUC12s
-  - Runs the data pipeline: bronze → gold → model-ready (ST-GNN bucket configuration)
+  - Runs the data pipeline: bronze → gold → snowml-model-ready
 - **Key Functions**:
   - `get_extra_test_hucs()`: Extracts HUC12s flagged for extra processing
   - `run_stgnn_dataprep()`: Main pipeline orchestration
@@ -99,23 +99,34 @@ Jupyter notebook for SNODAS SWE data processing and integration.
 ## Data Pipeline Summary
 
 ```
-DHSVM Data (remote URLs)
+Inputs (HUC12 list)
     ↓
-get_DHSVM_data.ipynb → dhsvm_swe_all_basins.csv (S3 bronze)
+`dhsvm_lidar_hucs.csv` (rows where `not_in_training == 1`)
     ↓
-Identify extra HUC12s → dhsvm_lidar_hucs.csv
+`dataprep_stgnn.py`
+  - `compile_geos(extra_hucs)` → fetch/build HUC polygons (via `snowML.datapipe.utils.get_geos`)
+  - `process_multi_huc(...)` → end-to-end datapipe:
+      bronze → gold (`mean_{var}_in_{huc_id}.csv` in `snowml-gold`)
+      gold + silver static (`Static_No_Geo_Region_17.csv` in `snowml-silver`) → model-ready
+    ↓
+Model-ready HUC CSVs: `model_ready_huc{huc_id}.csv`
+  - Bucket: `snowml-model-ready` (from `create_bucket_dict("prod")`)
 
-ERA5 Data (Google Earth Engine)
-    ↓
-get_scf.ipynb → ERA5 snow cover, SWE, slope → model-ready CSVs (S3)
+`get_era5.ipynb`
+  - Google Earth Engine exports (ERA5-Land SCF + SWE + mean slope) → uploads CSVs to `snowml-model-ready`
+  - Then merges ERA5/slope into per-HUC model-ready CSVs and uploads results to `snowml-model-ready-stgnn`
 
-SNODAS Data (NSIDC)
+Upstream bronze/enrichment notebooks (run separately as needed)
     ↓
-snowdas.ipynb → HUC12 aggregated SWE → model-ready CSVs (S3)
+`get_DHSVM_data.ipynb`
+  - Remote DHSVM basin URLs → `s3://snowml-bronze/dhsvm/dhsvm_swe_all_basins.csv`
+  - Also used to identify DHSVM-basin HUC12s missing from the training/model-ready set
+    (results populate `dhsvm_lidar_hucs.csv`)
 
-DHSVM/LIDAR HUC12s
-    ↓
-dataprep_stgnn.py → ST-GNN model-ready data (S3 stgnn bucket)
+`get_snowdas.ipynb`
+  - SNODAS (NSIDC G02158) daily grids → HUC12-aggregated parquet shards + combined parquet in
+    `s3://snowml-bronze/snodas/`
+  - Then merges SNODAS SWE into per-HUC model-ready CSVs (targets `snowml-model-ready-stgnn` in notebook config)
 ```
 
 

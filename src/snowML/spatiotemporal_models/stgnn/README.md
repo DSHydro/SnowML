@@ -25,6 +25,9 @@ The workflow in this repo follows a simple progression:
 - `core/`  
   Contains core/shared code used by all MTGNN experiments, including the model architecture and utilities for training, evaluation, and data handling.
 
+- `initial_model/`  
+  First adaptation of the ST-GNN paper for SWE prediction—a quick experiment to check if ST-GNN can compete with LSTM when trained on the same features, before deeper analysis and final models.
+
 ### Outputs and results
 
 Across the experiments you will see:

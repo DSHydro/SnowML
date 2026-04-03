@@ -2,6 +2,9 @@
 
 This folder contains notebooks and scripts for preparing snow water equivalent (SWE) and related geospatial data for the SnowML project. The workflow processes data from multiple sources (DHSVM, ERA5, SNODAS, UCLA/NSIDC Western U.S. Snow Reanalysis) and integrates them into model-ready HUC12 watershed datasets.
 
+## Note
+Make sure to run the get_ucla_quartile_data.ipynb file to generate the quartile data.
+
 ## Files Overview
 
 ### **dataprep_stgnn.py**

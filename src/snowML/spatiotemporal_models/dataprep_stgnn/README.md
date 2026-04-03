@@ -1,6 +1,6 @@
 # Data Preparation
 
-This folder contains notebooks and scripts for preparing snow water equivalent (SWE) and related geospatial data for the SnowML project. The workflow processes data from multiple sources (DHSVM, ERA5, SNODAS) and integrates them into model-ready HUC12 watershed datasets.
+This folder contains notebooks and scripts for preparing snow water equivalent (SWE) and related geospatial data for the SnowML project. The workflow processes data from multiple sources (DHSVM, ERA5, SNODAS, UCLA/NSIDC Western U.S. Snow Reanalysis) and integrates them into model-ready HUC12 watershed datasets.
 
 ## Files Overview
 
@@ -96,6 +96,38 @@ Jupyter notebook for SNODAS SWE data processing and integration.
 
 **Output**: Complete SNODAS SWE timeseries (2003–2026) aggregated to HUC12 level
 
+### **get_ucla_gold_stgnn.py**
+Python script that builds **gold-layer** UCLA / NSIDC Western U.S. Snow Reanalysis (WUS_UCLA_SR) SWE time series for ST-GNN and related pipelines.
+
+**Workflow**:
+1. **Authenticate**: Logs in to NASA Earthdata via `earthaccess` (environment variables `EARTHDATA_USERNAME` / `EARTHDATA_PASSWORD`, `~/.netrc`, or optional constants at the top of the script).
+2. **Download tiles**: Fetches NetCDF tiles from NSIDC using URL patterns from `snowML.datapipe.utils.data_utils` (`swe_ucla`).
+3. **Mosaic and clip**: For each water year, mosaics tiles covering a bounding box derived from the HUC geometry, clips to the basin, and takes the spatial mean per day.
+4. **Stats**: Optionally keeps the full NSIDC `Stats` dimension: ensemble **mean**, **std**, **median**, **25th** and **75th** percentiles (`SWE_Post_*` columns); or mean only.
+5. **Calendar dates**: Maps day index to calendar dates with water year starting October 1 (`assign_water_year_dates`).
+6. **Upload**: Writes `ucla_swe_in_{huc}.csv` to S3 bucket `snowml-gold`.
+
+**Key functions**:
+- `get_gold_df(huc, year_start, year_end, ...)`: One HUC, water-year range; skips if the gold file already exists unless `overwrite=True`.
+- `get_gold_multi(huc_list, ...)`: Batch over many HUCs.
+- `get_gold_df_from_gdf(geos, geos_name, ...)`: Same pipeline for a custom GeoDataFrame and a chosen output name.
+
+**Prerequisites**: Valid Earthdata account, NSIDC dataset access, and (if required) authorization for the NASA GES DISC application at [Earthdata](https://urs.earthdata.nasa.gov).
+
+**Before running**: Configure NASA Earthdata credentials *first*—the script calls `earthaccess.login` at import time. Use one of: set `EARTHDATA_USERNAME` and `EARTHDATA_PASSWORD` in your environment; add a `~/.netrc` entry for `urs.earthdata.nasa.gov`; or fill in `MY_EARTHACCESS_USER` and `MY_EARTHACCESS_LOGIN` at the top of `get_ucla_gold_stgnn.py`. Do not commit real passwords into the repo.
+
+### **get_ucla_quartile_data.ipynb**
+Jupyter notebook that **batch-runs** the UCLA gold pipeline for every distinct `huc_id` in an ST-GNN evaluation export CSV.
+
+**Workflow**:
+1. Load a model-results CSV (e.g. `st_gnn_time_split_test_results_all_runs.csv`) with a `huc_id` column.
+2. Call `get_gold_multi` from `get_ucla_gold_stgnn` with configurable water-year range, `overwrite`, and `keep_all_stats`.
+3. With `keep_all_stats=True`, each output file includes **quartiles and spread** (`SWE_Post_p25`, `SWE_Post_p75`, etc.) alongside the mean—useful for uncertainty-aware analysis without a separate quartile-only step.
+
+**Before running**: Same as the script—set Earthdata credentials (env, `~/.netrc`, or the constants in `get_ucla_gold_stgnn.py`) before executing cells that import `get_ucla_gold_stgnn`, or login will fail.
+
+**Note**: Large HUC lists imply many NetCDF downloads per HUC per year; plan runtime and respect NSIDC load.
+
 ## Data Pipeline Summary
 
 ```
@@ -127,10 +159,16 @@ Upstream bronze/enrichment notebooks (run separately as needed)
   - SNODAS (NSIDC G02158) daily grids → HUC12-aggregated parquet shards + combined parquet in
     `s3://snowml-bronze/snodas/`
   - Then merges SNODAS SWE into per-HUC model-ready CSVs (targets `snowml-model-ready-stgnn` in notebook config)
+
+`get_ucla_gold_stgnn.py` / `get_ucla_quartile_data.ipynb`
+  - NSIDC WUS_UCLA_SR NetCDF tiles (via `earthaccess`) → clip to HUC → daily basin-mean SWE (+ optional ensemble stats)
+  - Gold CSVs: `ucla_swe_in_{huc_id}.csv` in `snowml-gold`
 ```
 
 
 ## Notes
 
-- Google Earth Engine authentication is needed
+- **Credentials before you run**: Most notebooks and scripts assume authentication is already set up (Earth Engine for ERA5, Earthdata for UCLA/SNODAS/NSIDC where applicable, and AWS or your usual SnowML method for S3). Configure those credentials in your environment or project config *before* starting a run; notebooks that upload to S3 also need valid cloud credentials.
+- Google Earth Engine authentication is needed for ERA5 and related Earth Engine notebooks
+- NASA Earthdata credentials are required for UCLA/NSIDC downloads (`get_ucla_gold_stgnn.py`); see **Before running** under that section
 - The `dhsvm_lidar_hucs.csv` file serves as a configuration for identifying test/validation HUC12s

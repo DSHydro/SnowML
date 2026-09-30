@@ -1,0 +1,24 @@
+{
+  "random_seed": 42,
+  "created_date": "2026-06-30",
+  "experiment_1a": {
+    "description": "All HUCs including ephemeral",
+    "total_hucs": 535,
+    "train": 272,
+    "validation": 90,
+    "test_a": 92,
+    "test_b": 81
+  },
+  "experiment_1b": {
+    "description": "Deep snow only (no ephemeral)",
+    "total_hucs": 460,
+    "train": 231,
+    "validation": 77,
+    "test_a": 78,
+    "test_b": 81
+  },
+  "test_set_b": {
+    "description": "Yakima + Naches (unseen region)",
+    "yakima_naches_total": 81
+  }
+}

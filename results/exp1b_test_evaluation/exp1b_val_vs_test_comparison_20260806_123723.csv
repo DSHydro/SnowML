@@ -1,0 +1,4 @@
+Model,Rank,Val_KGE,Test_A_KGE_median,Test_A_KGE_mean,Test_A_n_hucs,Test_B_KGE_median,Test_B_KGE_mean,Test_B_n_hucs
+Base+Solar_LR0.0003,1,0.9461,0.2788,0.2717,78,0.2183,0.1834,81
+Base+Wind_LR0.0003,2,0.9387,0.2837,0.2772,78,0.2315,0.168,81
+Full_LR0.0003,3,0.9028,0.2764,0.265,78,0.2085,0.167,81

@@ -1,0 +1,20 @@
+# AWS EC2 Training Instance Information
+
+Instance ID: i-0bc3b58e3646eb3af
+Instance Type: t3.2xlarge (8 vCPU, 32GB RAM)
+Public IP: 44.251.68.174
+Region: us-west-2
+SSH Key: snowml-training.pem
+
+# SSH Command (copy-paste ready):
+ssh -i snowml-training.pem ubuntu@44.251.68.174
+
+# Started: 2026-07-08 11:26:00
+# Expected Completion: 2026-07-11 15:00:00 (approx 3.5 days)
+# Expected Cost: ~$28 (3.5 days × $0.33/hour × 24 hours)
+
+# IMPORTANT: After downloading results, terminate with:
+aws ec2 terminate-instances --instance-ids i-0bc3b58e3646eb3af --region us-west-2
+
+# To check status:
+aws ec2 describe-instances --instance-ids i-0bc3b58e3646eb3af --region us-west-2 --query 'Reservations[0].Instances[0].State.Name'

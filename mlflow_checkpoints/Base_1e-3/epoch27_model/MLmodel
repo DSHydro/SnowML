@@ -1,0 +1,21 @@
+artifact_path: epoch27_model
+flavors:
+  python_function:
+    config:
+      device: null
+    data: data
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.pytorch
+    pickle_module_name: mlflow.pytorch.pickle_module
+    python_version: 3.10.20
+  pytorch:
+    code: null
+    model_data: data
+    pytorch_version: 2.5.1+cu121
+mlflow_version: 2.16.2
+model_size_bytes: 74402
+model_uuid: fed82c97dbe347bcbdc54afa3221fadd
+run_id: 27b7c6b918a24f3d9009ae1e16b910ec
+utc_time_created: '2026-08-17 19:38:21.270808'

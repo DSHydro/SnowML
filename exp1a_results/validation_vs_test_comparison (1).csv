@@ -1,0 +1,5 @@
+Model,Description,Validation_KGE,Test_A_KGE_median,Test_A_KGE_mean,Test_A_n_hucs,Test_A_drop_pct,Test_B_KGE_median,Test_B_KGE_mean,Test_B_n_hucs,Test_B_drop_pct
+Exp1A_Wind_3e-4_epoch12,Best Exp1A model,0.7598,0.7177,0.6376,92.0,5.5,0.7412,0.66,81.0,2.4
+Exp1A_Humidity_3e-4_epoch2,Second best Exp1A,0.7176,0.6872,0.4916,92.0,4.2,0.7783,0.7297,81.0,-8.5
+Exp1A_Base_3e-4_epoch5,Baseline Exp1A,0.7081,0.6722,0.5259,92.0,5.1,0.7643,0.7072,81.0,-7.9
+Exp1B_Wind_3e-4_epoch6,Best Exp1B (for comparison),0.8104,,,,,,,,

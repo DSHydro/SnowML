@@ -1,0 +1,248 @@
+Registry store URI not provided. Using backend store URI.
+[MLflow] Security middleware enabled with default settings (localhost-only). To allow connections from other hosts, use --host 0.0.0.0 and configure --allowed-hosts and --cors-allowed-origins.
+2026/07/08 09:18:24 INFO:     Uvicorn running on http://127.0.0.1:5000 (Press CTRL+C to quit)
+2026/07/08 09:18:24 INFO:     Started parent process [8128]
+2026/07/08 09:18:28 INFO mlflow.server.jobs.utils: Registered online_scoring_scheduler periodic task (runs every 1 minute)
+2026/07/08 09:18:28 INFO mlflow.server.jobs.utils: Registered trace_archival_scheduler periodic task (polls every 1 minute and no-ops when trace archival is disabled or unconfigured)
+2026/07/08 09:18:28 INFO:     Started server process [8143]
+2026/07/08 09:18:28 INFO:     Waiting for application startup.
+2026/07/08 09:18:28 INFO:     Application startup complete.
+2026/07/08 09:18:28 INFO:     Started server process [8145]
+2026/07/08 09:18:28 INFO:     Waiting for application startup.
+2026/07/08 09:18:28 INFO:     Application startup complete.
+2026/07/08 09:18:28 INFO:     Started server process [8146]
+2026/07/08 09:18:28 INFO:     Started server process [8144]
+2026/07/08 09:18:28 INFO:     Waiting for application startup.
+2026/07/08 09:18:28 INFO:     Waiting for application startup.
+2026/07/08 09:18:28 INFO:     Application startup complete.
+2026/07/08 09:18:28 INFO:     Application startup complete.
+2026/07/08 09:18:33 INFO:     127.0.0.1:50221 - "GET / HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50238 - "GET / HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50238 - "GET /static-files/static/js/main.e54ad566.js HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50239 - "GET /static-files/static/css/main.b0f58ef9.css HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50238 - "GET /static-files/TelemetryLogger.telemetry-worker.d0f8ea2c83c08b63528f.worker.js HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50238 - "GET /static-files/manifest.json HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50238 - "GET /static-files/favicon.ico HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50242 - "GET /static-files/static/js/main.e54ad566.js HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50243 - "GET /static-files/TelemetryLogger.telemetry-worker.d0f8ea2c83c08b63528f.worker.js HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50240 - "GET /ajax-api/3.0/mlflow/server-info HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50240 - "GET /static-files/static/js/4205.9e750e7b.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50243 - "GET /static-files/static/js/4205.9e750e7b.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50238 - "GET /ajax-api/3.0/mlflow/assistant/config HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50240 - "GET /ajax-api/2.0/mlflow/users/current HTTP/1.1" 404 Not Found
+2026/07/08 09:21:33 INFO:     127.0.0.1:50238 - "GET /static-files/static/js/3877.d54c9d2c.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50243 - "GET /static-files/static/js/3877.d54c9d2c.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50239 - "GET /ajax-api/3.0/mlflow/ui-telemetry HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50239 - "GET /static-files/static/js/4448.684e4843.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50238 - "GET /static-files/static/css/5027.26533251.chunk.css HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50240 - "GET /static-files/static/js/5027.9d51a16a.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50238 - "GET /static-files/static/media/demo-tracing-screenshot-dark.5cb0c24b165d2ed2fef0.png HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50240 - "GET /ajax-api/2.0/mlflow/experiments/search?max_results=5&order_by=last_update_time+DESC HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50244 - "GET /static-files/static/js/5027.9d51a16a.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:33 INFO:     127.0.0.1:50243 - "GET /static-files/static/js/4448.684e4843.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:41 INFO:     127.0.0.1:50246 - "GET /static-files/static/js/9935.0d863970.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:41 INFO:     127.0.0.1:50245 - "GET /static-files/static/css/9935.26533251.chunk.css HTTP/1.1" 200 OK
+2026/07/08 09:21:41 INFO:     127.0.0.1:50246 - "GET /ajax-api/2.0/mlflow/experiments/search?max_results=25&order_by=last_update_time+DESC&filter=tags.%60mlflow.experiment.isGateway%60+IS+NULL HTTP/1.1" 200 OK
+2026/07/08 09:21:41 INFO:     127.0.0.1:50248 - "GET /static-files/static/js/9935.0d863970.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50251 - "GET /static-files/static/js/169.1ebe2d8c.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50245 - "GET /static-files/static/js/6507.352ad2e0.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50246 - "GET /static-files/static/js/4253.9309ce06.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50249 - "GET /static-files/static/css/5946.24118451.chunk.css HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50252 - "GET /static-files/static/js/5946.2b2187f5.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50253 - "GET /static-files/static/js/5946.2b2187f5.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50248 - "GET /static-files/static/js/169.1ebe2d8c.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50254 - "GET /static-files/static/js/6507.352ad2e0.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50250 - "GET /static-files/static/js/353.c04b0361.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50251 - "POST /ajax-api/2.0/mlflow/runs/search HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50254 - "GET /static-files/static/js/4253.9309ce06.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50248 - "GET /static-files/static/js/353.c04b0361.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50249 - "POST /graphql HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50249 - "GET /static-files/static/js/9842.7aa69c10.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50251 - "GET /static-files/static/js/7182.18fcdcfb.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50250 - "GET /static-files/static/js/1416.e9d3efec.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50245 - "GET /static-files/static/js/9538.d14d8be8.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50246 - "GET /static-files/static/js/6395.705847cd.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50251 - "GET /static-files/static/js/4899.8e258341.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50250 - "GET /static-files/static/js/306.6bd6ef19.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50245 - "GET /static-files/static/js/7877.54908f75.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50246 - "GET /static-files/static/js/2012.1ddb734e.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50249 - "GET /static-files/static/js/5105.74d419a7.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50250 - "GET /static-files/static/js/7406.68a039a8.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50252 - "GET /static-files/static/js/9067.923c3c2c.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50246 - "GET /static-files/static/js/6306.48483d9a.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50245 - "GET /static-files/static/js/3269.4abb53f2.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50250 - "GET /static-files/static/js/6895.29085fd2.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50249 - "GET /static-files/static/js/4565.9dc17bef.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50252 - "GET /static-files/static/js/7455.b2b69708.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50250 - "GET /static-files/static/js/90.3ea247e3.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50246 - "GET /static-files/static/js/8359.e1807bea.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50251 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50246 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50252 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50249 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50251 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50245 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50246 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50251 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50252 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50249 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50255 - "GET /static-files/static/js/9842.7aa69c10.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50253 - "GET /static-files/static/js/9538.d14d8be8.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50257 - "GET /static-files/static/js/306.6bd6ef19.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50254 - "GET /static-files/static/js/1416.e9d3efec.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50248 - "GET /static-files/static/js/6395.705847cd.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50256 - "GET /static-files/static/js/7182.18fcdcfb.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50255 - "GET /static-files/static/js/2012.1ddb734e.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50257 - "GET /static-files/static/js/7877.54908f75.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50253 - "GET /static-files/static/js/5105.74d419a7.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50255 - "GET /static-files/static/js/6306.48483d9a.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50254 - "GET /static-files/static/js/7406.68a039a8.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50248 - "GET /static-files/static/js/9067.923c3c2c.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50255 - "GET /static-files/static/js/4565.9dc17bef.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50257 - "GET /static-files/static/js/6895.29085fd2.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50253 - "GET /static-files/static/js/3269.4abb53f2.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50255 - "GET /static-files/static/js/90.3ea247e3.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50254 - "GET /static-files/static/js/4899.8e258341.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50248 - "GET /static-files/static/js/7455.b2b69708.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:46 INFO:     127.0.0.1:50257 - "GET /static-files/static/js/8359.e1807bea.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:21:47 INFO:     127.0.0.1:50250 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:21:58 INFO:     127.0.0.1:50259 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:21:58 INFO:     127.0.0.1:50260 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:21:58 INFO:     127.0.0.1:50260 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:02 INFO:     127.0.0.1:50259 - "GET /static-files/static/js/9454.43ed686f.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:02 INFO:     127.0.0.1:50260 - "GET /static-files/static/js/5354.f79e46fd.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:02 INFO:     127.0.0.1:50261 - "GET /static-files/static/js/2558.66aefb71.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:02 INFO:     127.0.0.1:50262 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:02 INFO:     127.0.0.1:50264 - "GET /static-files/static/js/5354.f79e46fd.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:02 INFO:     127.0.0.1:50263 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:02 INFO:     127.0.0.1:50265 - "GET /static-files/static/js/9454.43ed686f.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:02 INFO:     127.0.0.1:50264 - "GET /static-files/static/js/2558.66aefb71.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:02 INFO:     127.0.0.1:50259 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:02 INFO:     127.0.0.1:50262 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:02 INFO:     127.0.0.1:50261 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:03 INFO:     127.0.0.1:50261 - "POST /ajax-api/3.0/mlflow/ui-telemetry HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50274 - "GET /static-files/static/js/3121.3be60de2.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50273 - "GET /static-files/static/js/6770.1766a659.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50272 - "GET /static-files/static/js/2369.baa8e149.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50269 - "GET /static-files/static/js/4942.e6f4cfbf.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50271 - "GET /static-files/static/js/3198.bb9ac57b.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50270 - "GET /static-files/static/js/83.94e22168.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50275 - "GET /static-files/static/js/3121.3be60de2.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50274 - "GET /static-files/static/css/5343.b4cc2aa3.chunk.css HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50272 - "GET /static-files/static/js/2893.016c72d2.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50276 - "GET /static-files/static/js/2369.baa8e149.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50269 - "GET /static-files/static/js/6567.6c087542.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50277 - "GET /static-files/static/js/4942.e6f4cfbf.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50274 - "GET /static-files/static/js/5702.86ef7a68.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50278 - "GET /static-files/static/js/3198.bb9ac57b.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50271 - "GET /static-files/static/js/9419.9cfda0a2.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50274 - "GET /static-files/static/js/5531.6deb7ff1.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50273 - "GET /static-files/static/js/5343.96b34040.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50270 - "POST /ajax-api/2.0/mlflow/experiments/search-datasets HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50270 - "GET /static-files/static/css/2685.f073c5c3.chunk.css HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50278 - "GET /static-files/static/js/5702.86ef7a68.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50275 - "GET /static-files/static/js/6567.6c087542.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50279 - "GET /static-files/static/js/9419.9cfda0a2.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50276 - "GET /static-files/static/js/2893.016c72d2.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50277 - "GET /static-files/static/js/6770.1766a659.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50273 - "GET /static-files/static/js/1372.38a0e73a.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50280 - "GET /static-files/static/js/5343.96b34040.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50274 - "GET /static-files/static/js/2685.7206f7c6.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50271 - "GET /ajax-api/2.0/mlflow/gateway-proxy?gateway_path=api%2F2.0%2Fendpoints%2F HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50280 - "GET /static-files/static/js/83.94e22168.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50278 - "GET /static-files/static/js/5531.6deb7ff1.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50272 - "POST /ajax-api/2.0/mlflow/runs/search HTTP/1.1" 200 OK
+2026/07/08 09:22:09 INFO:     127.0.0.1:50269 - "POST /ajax-api/2.0/mlflow/logged-models/search HTTP/1.1" 200 OK
+2026/07/08 09:22:10 INFO:     127.0.0.1:50280 - "GET /static-files/static/js/1372.38a0e73a.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:10 INFO:     127.0.0.1:50278 - "GET /static-files/static/js/2685.7206f7c6.chunk.js HTTP/1.1" 200 OK
+2026/07/08 09:22:15 INFO:     127.0.0.1:50286 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:15 INFO:     127.0.0.1:50283 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:15 INFO:     127.0.0.1:50284 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:15 INFO:     127.0.0.1:50285 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:15 INFO:     127.0.0.1:50286 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:15 INFO:     127.0.0.1:50282 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:15 INFO:     127.0.0.1:50286 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:15 INFO:     127.0.0.1:50283 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:15 INFO:     127.0.0.1:50285 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:15 INFO:     127.0.0.1:50284 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:15 INFO:     127.0.0.1:50281 - "POST /ajax-api/2.0/mlflow/runs/search HTTP/1.1" 200 OK
+2026/07/08 09:22:15 INFO:     127.0.0.1:50282 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:24 INFO:     127.0.0.1:50287 - "GET /ajax-api/2.0/mlflow/experiments/search?max_results=25&order_by=last_update_time+DESC&filter=tags.%60mlflow.experiment.isGateway%60+IS+NULL HTTP/1.1" 200 OK
+2026/07/08 09:22:26 INFO:     127.0.0.1:50288 - "POST /ajax-api/2.0/mlflow/runs/search HTTP/1.1" 200 OK
+2026/07/08 09:22:26 INFO:     127.0.0.1:50287 - "POST /graphql HTTP/1.1" 200 OK
+2026/07/08 09:22:26 INFO:     127.0.0.1:50291 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:26 INFO:     127.0.0.1:50289 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:26 INFO:     127.0.0.1:50292 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:26 INFO:     127.0.0.1:50291 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:26 INFO:     127.0.0.1:50288 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:26 INFO:     127.0.0.1:50287 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:26 INFO:     127.0.0.1:50290 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:26 INFO:     127.0.0.1:50291 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:26 INFO:     127.0.0.1:50289 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:26 INFO:     127.0.0.1:50292 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:26 INFO:     127.0.0.1:50288 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:29 INFO:     127.0.0.1:50288 - "GET /ajax-api/2.0/mlflow/experiments/search?max_results=25&order_by=last_update_time+DESC&filter=tags.%60mlflow.experiment.isGateway%60+IS+NULL HTTP/1.1" 200 OK
+2026/07/08 09:22:30 INFO:     127.0.0.1:50288 - "GET / HTTP/1.1" 304 Not Modified
+2026/07/08 09:22:31 INFO:     127.0.0.1:50288 - "GET /ajax-api/3.0/mlflow/server-info HTTP/1.1" 200 OK
+2026/07/08 09:22:31 INFO:     127.0.0.1:50288 - "GET /ajax-api/2.0/mlflow/users/current HTTP/1.1" 404 Not Found
+2026/07/08 09:22:31 INFO:     127.0.0.1:50289 - "GET /ajax-api/3.0/mlflow/assistant/config HTTP/1.1" 200 OK
+2026/07/08 09:22:31 INFO:     127.0.0.1:50292 - "GET /ajax-api/3.0/mlflow/ui-telemetry HTTP/1.1" 200 OK
+2026/07/08 09:22:31 INFO:     127.0.0.1:50289 - "GET /ajax-api/2.0/mlflow/experiments/search?max_results=25&order_by=last_update_time+DESC&filter=tags.%60mlflow.experiment.isGateway%60+IS+NULL HTTP/1.1" 200 OK
+2026/07/08 09:22:40 INFO:     127.0.0.1:50296 - "POST /ajax-api/2.0/mlflow/runs/search HTTP/1.1" 200 OK
+2026/07/08 09:22:41 INFO:     127.0.0.1:50295 - "POST /graphql HTTP/1.1" 200 OK
+2026/07/08 09:22:41 INFO:     127.0.0.1:50295 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:41 INFO:     127.0.0.1:50299 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:41 INFO:     127.0.0.1:50297 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:41 INFO:     127.0.0.1:50296 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:41 INFO:     127.0.0.1:50300 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:41 INFO:     127.0.0.1:50299 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:41 INFO:     127.0.0.1:50295 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:41 INFO:     127.0.0.1:50300 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:41 INFO:     127.0.0.1:50297 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:41 INFO:     127.0.0.1:50296 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:41 INFO:     127.0.0.1:50298 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:51 INFO:     127.0.0.1:50303 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:51 INFO:     127.0.0.1:50304 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:51 INFO:     127.0.0.1:50301 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:51 INFO:     127.0.0.1:50305 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:51 INFO:     127.0.0.1:50302 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:51 INFO:     127.0.0.1:50306 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:51 INFO:     127.0.0.1:50304 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:51 INFO:     127.0.0.1:50303 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:51 INFO:     127.0.0.1:50301 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:51 INFO:     127.0.0.1:50302 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:22:51 INFO:     127.0.0.1:50305 - "POST /ajax-api/3.0/mlflow/traces/metrics HTTP/1.1" 200 OK
+2026/07/08 09:23:01 INFO:     127.0.0.1:50307 - "POST /ajax-api/3.0/mlflow/ui-telemetry HTTP/1.1" 200 OK
+2026/07/08 09:23:24 INFO:     127.0.0.1:50311 - "POST /ajax-api/2.0/mlflow/experiments/search-datasets HTTP/1.1" 200 OK
+2026/07/08 09:23:24 INFO:     127.0.0.1:50311 - "GET /ajax-api/2.0/mlflow/gateway-proxy?gateway_path=api%2F2.0%2Fendpoints%2F HTTP/1.1" 200 OK
+2026/07/08 09:23:24 INFO:     127.0.0.1:50312 - "POST /ajax-api/2.0/mlflow/logged-models/search HTTP/1.1" 200 OK
+2026/07/08 09:23:24 INFO:     127.0.0.1:50313 - "POST /ajax-api/2.0/mlflow/runs/search HTTP/1.1" 200 OK
+2026/07/08 09:23:31 INFO:     127.0.0.1:50314 - "POST /ajax-api/3.0/mlflow/ui-telemetry HTTP/1.1" 200 OK
+2026/07/08 09:23:55 INFO:     127.0.0.1:50319 - "POST /ajax-api/2.0/mlflow/runs/search HTTP/1.1" 200 OK
+2026/07/08 09:24:26 INFO:     127.0.0.1:50326 - "POST /ajax-api/2.0/mlflow/runs/search HTTP/1.1" 200 OK
+2026/07/08 11:31:36 INFO:     Received SIGTERM, exiting.
+2026/07/08 11:31:36 INFO:     Terminated child process [8143]
+2026/07/08 11:31:36 INFO:     Terminated child process [8144]
+2026/07/08 11:31:36 INFO:     Terminated child process [8145]
+2026/07/08 11:31:36 INFO:     Terminated child process [8146]
+2026/07/08 11:31:36 INFO:     Waiting for child process [8143]
+2026/07/08 11:31:36 INFO:     Shutting down
+2026/07/08 11:31:36 INFO:     Shutting down
+2026/07/08 11:31:36 INFO:     Shutting down
+2026/07/08 11:31:36 INFO:     Shutting down
+2026/07/08 11:31:37 INFO:     Waiting for application shutdown.
+2026/07/08 11:31:37 INFO:     Waiting for application shutdown.
+2026/07/08 11:31:37 INFO:     Waiting for application shutdown.
+2026/07/08 11:31:37 INFO:     Waiting for application shutdown.
+2026/07/08 11:31:37 INFO:     Application shutdown complete.
+2026/07/08 11:31:37 INFO:     Application shutdown complete.
+2026/07/08 11:31:37 INFO:     Application shutdown complete.
+2026/07/08 11:31:37 INFO:     Finished server process [8144]
+2026/07/08 11:31:37 INFO:     Application shutdown complete.
+2026/07/08 11:31:37 INFO:     Finished server process [8146]
+2026/07/08 11:31:37 INFO:     Finished server process [8145]
+2026/07/08 11:31:37 INFO:     Finished server process [8143]
+2026/07/08 11:31:37 INFO:     Waiting for child process [8144]
+2026/07/08 11:31:37 INFO:     Waiting for child process [8145]
+2026/07/08 11:31:37 INFO:     Waiting for child process [8146]
+2026/07/08 11:31:37 INFO:     Stopping parent process [8128]

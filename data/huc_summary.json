@@ -1,0 +1,21 @@
+{
+  "total_hucs": 535,
+  "pnw_all_hucs": 535,
+  "pnw_deep_hucs": 460,
+  "pnw_shallow_hucs": 75,
+  "yakima_hucs": 52,
+  "naches_hucs": 29,
+  "test_set_b_total": 81,
+  "experiment_1a": {
+    "total": 535,
+    "train_60pct": 321,
+    "val_20pct": 107,
+    "test_20pct": 107
+  },
+  "experiment_1b": {
+    "total": 460,
+    "train_60pct": 276,
+    "val_20pct": 92,
+    "test_20pct": 92
+  }
+}

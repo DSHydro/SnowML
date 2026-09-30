@@ -5,3 +5,15 @@ __pycache__/
 *.nc
 *.tif
 notebooks/Region17/Region17.ipynb
+
+# Model files and checkpoints
+*.pt
+*.pth
+*.ckpt
+models/
+checkpoints/
+
+# MLflow
+mlruns/
+mlflow.db
+Miniconda3-latest-MacOSX-arm64.sh

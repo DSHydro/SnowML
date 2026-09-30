@@ -14,7 +14,7 @@ def create_hyper_dict():
         "lookback": 180,
         "batch_size": 32,
         "n_steps": 1,
-        "num_workers": 8,
+        "num_workers": 4,
         "var_list": ["mean_pr", "mean_tair"],
         "expirement_name": "Multi_Run",
         "loss_type": "mse",
@@ -22,8 +22,7 @@ def create_hyper_dict():
         "mse_lambda_end": 0.5, 
         "train_size_dimension": "time",
         "train_size_fraction": .67, 
-        "mlflow_tracking_uri": 
-        "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML",
+        "mlflow_tracking_uri": "arn:aws:sagemaker:us-west-2:677276086662:mlflow-tracking-server/dawgsML",
         "recursive_predict": False, 
         "lag_days": 30,
         "lag_swe_var_idx": 3,
